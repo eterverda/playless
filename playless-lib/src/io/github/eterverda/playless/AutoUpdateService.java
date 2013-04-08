@@ -1,4 +1,4 @@
-package com.github.eterverda.playless;
+package io.github.eterverda.playless;
 
 import android.app.Service;
 import android.content.Intent;
