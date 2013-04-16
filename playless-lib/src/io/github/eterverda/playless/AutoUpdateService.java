@@ -32,6 +32,7 @@ public class AutoUpdateService extends Service {
             manager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, checkPendingIntent);
 
             stopSelf();
+            startService(checkIntent);
 
         } else if (action.equals(ACTION_CHECK_FOR_UPDATES)) {
             stopSelf();
