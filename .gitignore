@@ -10,6 +10,5 @@ local.properties
 .project
 
 # IDEA project files
-.idea/workspace.xml
-.idea/dictionaries/
-out/
+.idea/
+*.iml
