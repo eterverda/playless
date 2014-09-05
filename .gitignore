@@ -1,6 +1,8 @@
-# generated files
-bin/
-gen/
+# Temporary Gradle files
+.gradle/
+
+# Build outputs
+build/
 
 # Local configuration file (sdk path, etc)
 local.properties

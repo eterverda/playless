@@ -1,0 +1,4 @@
+include ':playless-lib'
+include ':sample-app'
+
+rootProject.name = 'playless'
