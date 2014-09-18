@@ -3,3 +3,15 @@ apply plugin: 'java'
 dependencies {
     compile project(':playless-core')
 }
+
+jar {
+    dependsOn configurations.runtime
+    from {
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'io.github.eterverda.playless.cli.Main'
+    }
+}
