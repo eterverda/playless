@@ -6,3 +6,7 @@ android {
 
     publishNonDefault true
 }
+
+dependencies {
+    compile project(':playless-common')
+}

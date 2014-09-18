@@ -1,4 +1,8 @@
+include ':playless-common'
+include ':playless-cli'
+include ':playless-core'
 include ':playless-lib'
+include ':playless-plugin'
 include ':sample-app'
 
 rootProject.name = 'playless'
