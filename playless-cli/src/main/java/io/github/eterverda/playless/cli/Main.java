@@ -1,7 +1,5 @@
 package io.github.eterverda.playless.cli;
 
-import org.jetbrains.annotations.NonNls;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +10,6 @@ import io.github.eterverda.playless.core.PlaylessRepositoryException;
 import io.github.eterverda.playless.core.Repository;
 
 public final class Main {
-    @NonNls
     private final static Map<String, Command> commands;
 
     static {
