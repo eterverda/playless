@@ -18,6 +18,7 @@ public final class Main {
     static {
         commands = new HashMap<>();
         commands.put("init", new InitCommand());
+        commands.put("dump", new DumpCommand());
     }
 
     public static void main(final String... rawArgs) throws PlaylessRepositoryException {
@@ -51,6 +52,7 @@ public final class Main {
 
         } catch (IllegalArgumentException ex) {
             System.err.println("Usage: init [-r <path_to_repo>]");
+            System.err.println("       dump --aapt <path_to_aapt> <apk_file>...");
         }
     }
 
