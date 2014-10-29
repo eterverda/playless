@@ -14,22 +14,20 @@ public final class Distribution {
     private final long timestamp;
     private final String sha1;
     private final boolean debug;
-    private final Selector selector;
-    private final Filter filter;
+    private final Requirements requirements;
 
     private Distribution(
             @NotNull String applicationId,
             int versionCode, long timestamp, @Nullable String sha1,
             boolean debug,
-            @NotNull Selector selector, Filter filter) {
+            @NotNull Requirements requirements) {
 
         this.applicationId = applicationId;
         this.versionCode = versionCode;
         this.timestamp = timestamp;
         this.sha1 = sha1;
         this.debug = debug;
-        this.selector = selector;
-        this.filter = filter;
+        this.requirements = requirements;
     }
 
     public String applicationId() {
@@ -52,15 +50,11 @@ public final class Distribution {
         return debug;
     }
 
-    public Selector selector() {
-        return selector;
+    public Requirements requirements() {
+        return requirements;
     }
 
-    public Filter filter() {
-        return filter;
-    }
-
-    public static final class Selector {
+    public static final class Requirements {
         private final int minSdkVersion;
         private final int maxSdkVersion;
         private final SortedSet<String> supportsScreens;
@@ -68,14 +62,18 @@ public final class Distribution {
         private final SortedSet<String> supportsGlTextures;
         private final SortedSet<String> abis;
         private final SortedSet<String> usesFeatures;
+        private final SortedSet<String> usesConfigurations;
+        private final SortedSet<String> usesLibraries;
 
-        private Selector(
+        private Requirements(
                 int minSdkVersion, int maxSdkVersion,
                 @NotNull SortedSet<String> supportsScreens,
                 @NotNull SortedSet<String> compatibleScreens,
                 @NotNull SortedSet<String> supportsGlTextures,
                 @NotNull SortedSet<String> abis,
-                @NotNull SortedSet<String> usesFeatures) {
+                @NotNull SortedSet<String> usesFeatures,
+                @NotNull SortedSet<String> usesLibraries,
+                @NotNull SortedSet<String> usesConfigurations) {
 
             this.minSdkVersion = minSdkVersion;
             this.maxSdkVersion = maxSdkVersion;
@@ -84,6 +82,8 @@ public final class Distribution {
             this.supportsGlTextures = supportsGlTextures;
             this.abis = abis;
             this.usesFeatures = usesFeatures;
+            this.usesLibraries = usesLibraries;
+            this.usesConfigurations = usesConfigurations;
         }
 
         public int minSdkVersion() {
@@ -113,19 +113,6 @@ public final class Distribution {
         public Collection<String> usesFeatures() {
             return usesFeatures;
         }
-    }
-
-    public static final class Filter {
-        private final SortedSet<String> usesConfigurations;
-        private final SortedSet<String> usesLibraries;
-
-        private Filter(
-                @NotNull SortedSet<String> usesLibraries,
-                @NotNull SortedSet<String> usesConfigurations) {
-
-            this.usesLibraries = usesLibraries;
-            this.usesConfigurations = usesConfigurations;
-        }
 
         public Collection<String> usesConfigurations() {
             return usesConfigurations;
@@ -150,7 +137,6 @@ public final class Distribution {
         private final SortedSet<String> supportsGlTextures = new TreeSet<>();
         private final SortedSet<String> abis = new TreeSet<>();
         private final SortedSet<String> usesFeatures = new TreeSet<>();
-
         private final SortedSet<String> usesConfigurations = new TreeSet<>();
         private final SortedSet<String> usesLibraries = new TreeSet<>();
 
@@ -231,14 +217,13 @@ public final class Distribution {
                     timestamp,
                     sha1,
                     debug,
-                    new Selector(
+                    new Requirements(
                             minSdkVersion, maxSdkVersion,
                             Collections.unmodifiableSortedSet(supportsScreens),
                             Collections.unmodifiableSortedSet(compatibleScreens),
                             Collections.unmodifiableSortedSet(supportsGlTextures),
                             Collections.unmodifiableSortedSet(abis),
-                            Collections.unmodifiableSortedSet(usesFeatures)),
-                    new Filter(
+                            Collections.unmodifiableSortedSet(usesFeatures),
                             Collections.unmodifiableSortedSet(usesConfigurations),
                             Collections.unmodifiableSortedSet(usesLibraries)));
         }

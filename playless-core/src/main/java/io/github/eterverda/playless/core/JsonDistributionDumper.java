@@ -29,71 +29,62 @@ public class JsonDistributionDumper {
             generator.writeObjectField("sha1", dist.sha1());
         }
 
-        generator.writeFieldName("selector");
-        write(dist.selector());
-
-        generator.writeFieldName("filter");
-        write(dist.filter());
+        generator.writeFieldName("requirements");
+        write(dist.requirements());
 
         generator.writeEndObject();
 
         generator.flush();
     }
 
-    private void write(Distribution.Selector selector) throws IOException {
+    private void write(Distribution.Requirements requirements) throws IOException {
         generator.writeStartObject();
 
-        generator.writeObjectField("minSdkVersion", selector.minSdkVersion());
-        if (selector.maxSdkVersion() != Integer.MAX_VALUE) {
-            generator.writeObjectField("maxSdkVersion", selector.maxSdkVersion());
+        generator.writeObjectField("minSdkVersion", requirements.minSdkVersion());
+        if (requirements.maxSdkVersion() != Integer.MAX_VALUE) {
+            generator.writeObjectField("maxSdkVersion", requirements.maxSdkVersion());
         }
 
         generator.writeArrayFieldStart("supportsScreens");
-        for (String supportsScreen : selector.supportsScreens()) {
+        for (String supportsScreen : requirements.supportsScreens()) {
             generator.writeString(supportsScreen);
         }
         generator.writeEndArray();
 
         generator.writeArrayFieldStart("compatibleScreens");
-        for (String compatibleScreen : selector.compatibleScreens()) {
+        for (String compatibleScreen : requirements.compatibleScreens()) {
             generator.writeString(compatibleScreen);
         }
         generator.writeEndArray();
 
         generator.writeArrayFieldStart("supportsGlTextures");
-        for (String supportsGlTexture : selector.supportsGlTextures()) {
+        for (String supportsGlTexture : requirements.supportsGlTextures()) {
             generator.writeString(supportsGlTexture);
         }
         generator.writeEndArray();
 
         generator.writeArrayFieldStart("usesFeatures");
-        for (String usesFeature : selector.usesFeatures()) {
+        for (String usesFeature : requirements.usesFeatures()) {
             generator.writeString(usesFeature);
         }
         generator.writeEndArray();
 
-        if (!selector.abis().isEmpty()) {
+        if (!requirements.abis().isEmpty()) {
             generator.writeArrayFieldStart("abis");
-            for (String abi : selector.abis()) {
+            for (String abi : requirements.abis()) {
                 generator.writeString(abi);
             }
             generator.writeEndArray();
         }
 
-        generator.writeEndObject();
-    }
-
-    private void write(Distribution.Filter filter) throws IOException {
-        generator.writeStartObject();
-
         generator.writeArrayFieldStart("usesConfigurations");
-        for (String usesConfiguration : filter.usesConfigurations()) {
+        for (String usesConfiguration : requirements.usesConfigurations()) {
             generator.writeString(usesConfiguration);
         }
         generator.writeEndArray();
 
         generator.writeArrayFieldStart("usesLibraries");
-        for (String usesLibrary : filter.usesLibraries()) {
+        for (String usesLibrary : requirements.usesLibraries()) {
             generator.writeString(usesLibrary);
         }
         generator.writeEndArray();
