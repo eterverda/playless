@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -14,12 +16,14 @@ public final class Distribution {
     private final long timestamp;
     private final String sha1;
     private final boolean debug;
+    private final Map<String, String> meta;
     private final Requirements requirements;
 
     private Distribution(
             @NotNull String applicationId,
             int versionCode, long timestamp, @Nullable String sha1,
             boolean debug,
+            @NotNull Map<String, String> meta,
             @NotNull Requirements requirements) {
 
         this.applicationId = applicationId;
@@ -27,6 +31,7 @@ public final class Distribution {
         this.timestamp = timestamp;
         this.sha1 = sha1;
         this.debug = debug;
+        this.meta = meta;
         this.requirements = requirements;
     }
 
@@ -48,6 +53,10 @@ public final class Distribution {
 
     public boolean debug() {
         return debug;
+    }
+
+    public Map<String, String> meta() {
+        return meta;
     }
 
     public Requirements requirements() {
@@ -130,6 +139,8 @@ public final class Distribution {
         private String sha1;
         private boolean debug;
 
+        private final Map<String, String> meta = new HashMap<>();
+
         private int minSdkVersion = 1;
         private int maxSdkVersion = Integer.MAX_VALUE;
         private final SortedSet<String> supportsScreens = new TreeSet<>();
@@ -162,6 +173,11 @@ public final class Distribution {
 
         public Builder debug(boolean debug) {
             this.debug = debug;
+            return this;
+        }
+
+        public Builder meta(String key, String value) {
+            this.meta.put(key, value);
             return this;
         }
 
@@ -217,6 +233,7 @@ public final class Distribution {
                     timestamp,
                     sha1,
                     debug,
+                    Collections.unmodifiableMap(meta),
                     new Requirements(
                             minSdkVersion, maxSdkVersion,
                             Collections.unmodifiableSortedSet(supportsScreens),

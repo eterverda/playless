@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 import io.github.eterverda.playless.common.Distribution;
 
@@ -29,12 +30,25 @@ public class JsonDistributionDumper {
             generator.writeObjectField("sha1", dist.sha1());
         }
 
+        generator.writeFieldName("meta");
+        write(dist.meta());
+
         generator.writeFieldName("requirements");
         write(dist.requirements());
 
         generator.writeEndObject();
 
         generator.flush();
+    }
+
+    private void write(Map<String, String> meta) throws IOException {
+        generator.writeStartObject();
+
+        for (Map.Entry<String, String> entry : meta.entrySet()) {
+            generator.writeObjectField(entry.getKey(), entry.getValue());
+        }
+
+        generator.writeEndObject();
     }
 
     private void write(Distribution.Requirements requirements) throws IOException {
