@@ -23,6 +23,9 @@ import io.github.eterverda.playless.core.Repository;
 public class DumpCommand implements Command {
     private static final Pattern VERSION_CODE = Pattern.compile("package:.* versionCode='([0-9]*).*'");
     private static final Pattern APPLICATION_ID = Pattern.compile("package:.* name='([\\p{Alnum}\\.]*).*'");
+    private static final Pattern MIN_SDK_VERSION = Pattern.compile("sdkVersion:'([0-9]*)'");
+    private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
+    private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
 
     @Override
     public void main(Repository repo, String[] rawArgs) {
@@ -95,6 +98,18 @@ public class DumpCommand implements Command {
                 final Matcher versionCode = VERSION_CODE.matcher(line);
                 if (versionCode.matches()) {
                     builder.versionCode(Integer.parseInt(versionCode.group(1)));
+                }
+                final Matcher minSdkVersion = MIN_SDK_VERSION.matcher(line);
+                if (minSdkVersion.matches()) {
+                    builder.minSdkVersion(Integer.parseInt(minSdkVersion.group(1)));
+                }
+                final Matcher debuggable = DEBUGGABLE.matcher(line);
+                if (debuggable.matches()) {
+                    builder.debug(true);
+                }
+                final Matcher usesFeature = USES_FEATURE.matcher(line);
+                if (usesFeature.matches()) {
+                    builder.usesFeature(usesFeature.group(1));
                 }
             }
             final Distribution dist = builder.build();
