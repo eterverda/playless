@@ -23,7 +23,7 @@ public final class InstalledDistribution {
     public final String versionName;
     public final boolean locked;
     @Nullable
-    public final Checksum checksum;
+    public final Checksum fingerprint;
     @NotNull
     public final Checksum signatures;
     public final boolean debug;
@@ -31,7 +31,7 @@ public final class InstalledDistribution {
     private InstalledDistribution(
             @NotNull PackageInfo info,
             boolean locked,
-            @Nullable Checksum checksum,
+            @Nullable Checksum fingerprint,
             @NotNull Checksum signatures) {
 
         this(
@@ -39,7 +39,7 @@ public final class InstalledDistribution {
                 info.versionCode,
                 info.versionName,
                 locked,
-                checksum,
+                fingerprint,
                 signatures,
                 (info.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
     }
@@ -49,7 +49,7 @@ public final class InstalledDistribution {
             int versionCode,
             @NotNull String versionName,
             boolean locked,
-            @Nullable Checksum checksum,
+            @Nullable Checksum fingerprint,
             @NotNull Checksum signatures,
             boolean debug) {
 
@@ -57,21 +57,21 @@ public final class InstalledDistribution {
         this.versionCode = versionCode;
         this.versionName = versionName;
         this.locked = locked;
-        this.checksum = checksum;
+        this.fingerprint = fingerprint;
         this.signatures = signatures;
         this.debug = debug;
     }
 
     public static InstalledDistribution load(PackageManager packageManager, String packageName) throws PackageManager.NameNotFoundException {
         final @NotNull PackageInfo info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
-        final @Nullable Checksum checksum = checksum(new File(info.applicationInfo.sourceDir));
+        final @Nullable Checksum fingerprint = fingerprint(new File(info.applicationInfo.sourceDir));
         final @NotNull Checksum signatures = signatures(info.signatures);
-        final boolean locked = checksum != null;
+        final boolean locked = fingerprint != null;
 
         return new InstalledDistribution(
                 info,
                 locked,
-                checksum,
+                fingerprint,
                 signatures);
     }
 
@@ -90,7 +90,7 @@ public final class InstalledDistribution {
 
     @SuppressLint("NewApi")
     @Nullable
-    private static Checksum checksum(@NotNull File sourceFile) {
+    private static Checksum fingerprint(@NotNull File sourceFile) {
         try (InputStream in = new FileInputStream(sourceFile)) {
             return Checksum.sha1(in);
 

@@ -26,8 +26,10 @@ public class JsonDistributionDumper {
         if (dist.timestamp() != Long.MIN_VALUE) {
             generator.writeObjectField("timestamp", dist.timestamp());
         }
-        if (dist.checksum() != null) {
-            generator.writeObjectField(dist.checksum().getShortAlgorithm(), dist.checksum().getStringValue());
+        if (dist.fingerprint() != null) {
+            generator.writeObjectFieldStart("fingerprint");
+            generator.writeObjectField(dist.fingerprint().getShortAlgorithm(), dist.fingerprint().getStringValue());
+            generator.writeEndObject();
         }
         if (dist.signatures() != null) {
             generator.writeObjectFieldStart("signatures");

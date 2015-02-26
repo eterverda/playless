@@ -16,7 +16,7 @@ public final class Distribution {
     private final String applicationId;
     private final int versionCode;
     private final long timestamp;
-    private final Checksum checksum;
+    private final Checksum fingerprint;
     private final Checksum signatures;
     private final boolean debug;
     private final Map<String, String> meta;
@@ -24,7 +24,7 @@ public final class Distribution {
 
     private Distribution(
             @NotNull String applicationId,
-            int versionCode, long timestamp, @Nullable Checksum checksum,
+            int versionCode, long timestamp, @Nullable Checksum fingerprint,
             @NotNull Checksum signatures,
             boolean debug,
             @NotNull Map<String, String> meta,
@@ -33,7 +33,7 @@ public final class Distribution {
         this.applicationId = applicationId;
         this.versionCode = versionCode;
         this.timestamp = timestamp;
-        this.checksum = checksum;
+        this.fingerprint = fingerprint;
         this.signatures = signatures;
         this.debug = debug;
         this.meta = meta;
@@ -52,8 +52,8 @@ public final class Distribution {
         return timestamp;
     }
 
-    public Checksum checksum() {
-        return checksum;
+    public Checksum fingerprint() {
+        return fingerprint;
     }
 
     public Checksum signatures() {
@@ -145,7 +145,7 @@ public final class Distribution {
         private String applicationId;
         private int versionCode = 0;
         private long timestamp = Long.MIN_VALUE;
-        private Checksum checksum;
+        private Checksum fingerprint;
         private Checksum signatures;
         private boolean debug;
 
@@ -176,8 +176,8 @@ public final class Distribution {
             return this;
         }
 
-        public Builder checksum(Checksum checksum) {
-            this.checksum = checksum;
+        public Builder fingerprint(Checksum fingerprint) {
+            this.fingerprint = fingerprint;
             return this;
         }
 
@@ -245,7 +245,7 @@ public final class Distribution {
                     applicationId,
                     versionCode,
                     timestamp,
-                    checksum,
+                    fingerprint,
                     signatures,
                     debug,
                     Collections.unmodifiableMap(meta),

@@ -58,7 +58,7 @@ public class DumpCommand implements Command {
             final Distribution.Builder dist = new Distribution.Builder();
 
             aapt(dist, aapt, arg);
-            checksum(dist, arg);
+            fingerprint(dist, arg);
             signatures(dist, arg);
 
             dumper.write(dist.build());
@@ -75,10 +75,10 @@ public class DumpCommand implements Command {
         executor.execute(line, handler);
     }
 
-    private static void checksum(Distribution.Builder dist, String arg) throws IOException {
+    private static void fingerprint(Distribution.Builder dist, String arg) throws IOException {
         try (FileInputStream in = new FileInputStream(new File(arg))) {
-            final Checksum checksum = Checksum.sha1(in);
-            dist.checksum(checksum);
+            final Checksum fingerprint = Checksum.sha1(in);
+            dist.fingerprint(fingerprint);
         }
     }
 
