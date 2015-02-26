@@ -29,6 +29,11 @@ public class JsonDistributionDumper {
         if (dist.checksum() != null) {
             generator.writeObjectField(dist.checksum().getShortAlgorithm(), dist.checksum().getStringValue());
         }
+        if (dist.signatures() != null) {
+            generator.writeObjectFieldStart("signatures");
+            generator.writeObjectField(dist.signatures().getShortAlgorithm(), dist.signatures().getStringValue());
+            generator.writeEndObject();
+        }
         if (dist.debug()) {
             generator.writeObjectField("debug", true);
         }

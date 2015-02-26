@@ -17,6 +17,7 @@ public final class Distribution {
     private final int versionCode;
     private final long timestamp;
     private final Checksum checksum;
+    private final Checksum signatures;
     private final boolean debug;
     private final Map<String, String> meta;
     private final Requirements requirements;
@@ -24,6 +25,7 @@ public final class Distribution {
     private Distribution(
             @NotNull String applicationId,
             int versionCode, long timestamp, @Nullable Checksum checksum,
+            @NotNull Checksum signatures,
             boolean debug,
             @NotNull Map<String, String> meta,
             @NotNull Requirements requirements) {
@@ -32,6 +34,7 @@ public final class Distribution {
         this.versionCode = versionCode;
         this.timestamp = timestamp;
         this.checksum = checksum;
+        this.signatures = signatures;
         this.debug = debug;
         this.meta = meta;
         this.requirements = requirements;
@@ -51,6 +54,10 @@ public final class Distribution {
 
     public Checksum checksum() {
         return checksum;
+    }
+
+    public Checksum signatures() {
+        return signatures;
     }
 
     public boolean debug() {
@@ -139,6 +146,7 @@ public final class Distribution {
         private int versionCode = 0;
         private long timestamp = Long.MIN_VALUE;
         private Checksum checksum;
+        private Checksum signatures;
         private boolean debug;
 
         private final Map<String, String> meta = new HashMap<>();
@@ -171,6 +179,10 @@ public final class Distribution {
         public Builder checksum(Checksum checksum) {
             this.checksum = checksum;
             return this;
+        }
+
+        public void signature(Checksum signature) {
+            this.signatures = Checksum.xor(this.signatures, signature);
         }
 
         public Builder debug(boolean debug) {
@@ -234,6 +246,7 @@ public final class Distribution {
                     versionCode,
                     timestamp,
                     checksum,
+                    signatures,
                     debug,
                     Collections.unmodifiableMap(meta),
                     new Requirements(

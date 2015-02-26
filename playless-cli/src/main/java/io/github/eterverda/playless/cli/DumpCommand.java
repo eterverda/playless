@@ -13,8 +13,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +65,26 @@ public class DumpCommand implements Command {
 
             final Checksum checksum = Checksum.sha1(new FileInputStream(new File(arg)));
             dist.checksum(checksum);
+
+            try (JarFile jar = new JarFile(arg)) {
+                final JarEntry entry = jar.getJarEntry("AndroidManifest.xml");
+                try (InputStream in = jar.getInputStream(entry)) {
+                    final byte[] buf = new byte[8192];
+                    //noinspection StatementWithEmptyBody
+                    while (in.read(buf) != -1) {
+                        // do nothing
+                    }
+                }
+                final Certificate[] certificates = entry.getCertificates();
+                try {
+                    for (Certificate certificate : certificates) {
+                        final Checksum signature = Checksum.sha1(certificate.getEncoded());
+                        dist.signature(signature);
+                    }
+                } catch (CertificateEncodingException e) {
+                    throw new AssertionError(e);
+                }
+            }
 
             dumper.write(dist.build());
         }
