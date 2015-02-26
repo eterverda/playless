@@ -11,11 +11,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.github.eterverda.util.checksum.Checksum.ALGORITHM_MD5;
 import static io.github.eterverda.util.checksum.Checksum.ALGORITHM_SHA_1;
 
 public final class ChecksumUtils {
-    public static final String SHORT_ALGORITHM_MD5 = "md5";
     public static final String SHORT_ALGORITHM_SHA1 = "sha1";
 
     private static AtomicReference<byte[]> BUF = new AtomicReference<>();
@@ -109,10 +107,6 @@ public final class ChecksumUtils {
             case SHORT_ALGORITHM_SHA1:
                 return SHORT_ALGORITHM_SHA1;
 
-            case ALGORITHM_MD5:
-            case SHORT_ALGORITHM_MD5:
-                return SHORT_ALGORITHM_MD5;
-
             default:
                 return algorithm.toLowerCase(Locale.US);
         }
@@ -124,10 +118,6 @@ public final class ChecksumUtils {
             case ALGORITHM_SHA_1:
             case SHORT_ALGORITHM_SHA1:
                 return ALGORITHM_SHA_1;
-
-            case ALGORITHM_MD5:
-            case SHORT_ALGORITHM_MD5:
-                return ALGORITHM_MD5;
 
             default:
                 final MessageDigest digest = obtainDigest(algorithm);

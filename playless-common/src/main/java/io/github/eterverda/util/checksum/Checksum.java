@@ -12,7 +12,6 @@ import static io.github.eterverda.util.checksum.ChecksumUtils.canonicalAlgorithm
 import static io.github.eterverda.util.checksum.ChecksumUtils.digest;
 
 public final class Checksum {
-    public static final String ALGORITHM_MD5 = "MD5";
     public static final String ALGORITHM_SHA_1 = "SHA-1";
 
     @NotNull
@@ -110,37 +109,17 @@ public final class Checksum {
 
     @NotNull
     public static Checksum sha1(@NotNull byte[] data) {
-        return knownAlgorithm(ALGORITHM_SHA_1, data);
-    }
-
-    @NotNull
-    public static Checksum sha1(InputStream in) throws IOException {
-        return knownAlgorithm(ALGORITHM_SHA_1, in);
-    }
-
-    @NotNull
-    public static Checksum md5(byte[] data) {
-        return knownAlgorithm(ALGORITHM_MD5, data);
-    }
-
-    @NotNull
-    public static Checksum md5(InputStream in) throws IOException {
-        return knownAlgorithm(ALGORITHM_MD5, in);
-    }
-
-    @NotNull
-    private static Checksum knownAlgorithm(@NotNull String algorithm, @NotNull byte[] data) {
         try {
-            return new Checksum(algorithm, data);
+            return new Checksum(ALGORITHM_SHA_1, data);
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError("SHA-1 should be always available");
         }
     }
 
     @NotNull
-    private static Checksum knownAlgorithm(@NotNull String algorithm, @NotNull InputStream in) throws IOException {
+    public static Checksum sha1(@NotNull InputStream in) throws IOException {
         try {
-            return new Checksum(algorithm, in);
+            return new Checksum(ALGORITHM_SHA_1, in);
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError("SHA-1 should be always available");
         }

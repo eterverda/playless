@@ -1,14 +1,19 @@
 package io.github.eterverda.util.checksum;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 
 import io.github.eterverda.junit.HashCodeAssert;
 
 public class ChecksumTest {
+    private static final String ALGORITHM_MD5 = "MD5";
+
     private static final byte[] EMPTY = {};
     private static final byte[] EMPTY_SHA_1 = {-38, 57, -93, -18, 94, 107, 75, 13, 50, 85, -65, -17, -107, 96, 24, -112, -81, -40, 7, 9};
     private static final String EMPTY_SHA_1_STRING = "sha1:da39a3ee5e6b4b0d3255bfef95601890afd80709";
@@ -72,17 +77,17 @@ public class ChecksumTest {
     }
 
     @Test
-    public void testEmptySha1NotEqualsEmptyMd5() {
+    public void testEmptySha1NotEqualsEmptyMd5() throws NoSuchAlgorithmException {
         final Checksum sha1 = Checksum.sha1(EMPTY);
-        final Checksum md5 = Checksum.md5(EMPTY);
+        final Checksum md5 = md5(EMPTY);
 
         Assert.assertNotEquals(sha1, md5);
     }
 
     @Test
-    public void testSomeSha1NotEqualsSomeMd5() {
+    public void testSomeSha1NotEqualsSomeMd5() throws NoSuchAlgorithmException {
         final Checksum sha1 = Checksum.sha1(SOME);
-        final Checksum md5 = Checksum.md5(SOME);
+        final Checksum md5 = md5(SOME);
 
         Assert.assertNotEquals(sha1, md5);
     }
@@ -108,9 +113,9 @@ public class ChecksumTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testEmptySha1XorEmptyMd5Throws() {
+    public void testEmptySha1XorEmptyMd5Throws() throws NoSuchAlgorithmException {
         final Checksum sha1 = Checksum.sha1(EMPTY);
-        final Checksum md5 = Checksum.md5(EMPTY);
+        final Checksum md5 = md5(EMPTY);
 
         sha1.xor(md5);
     }
@@ -140,5 +145,15 @@ public class ChecksumTest {
         final Checksum checksum = Checksum.sha1(SOME);
 
         Assert.assertEquals(SOME_SHA_1_STRING, checksum.toString());
+    }
+
+    @NotNull
+    private static Checksum md5(byte[] data) throws NoSuchAlgorithmException {
+        return new Checksum(ALGORITHM_MD5, data);
+    }
+
+    @NotNull
+    public static Checksum md5(InputStream in) throws IOException, NoSuchAlgorithmException {
+        return new Checksum(ALGORITHM_MD5, in);
     }
 }
