@@ -10,18 +10,20 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import io.github.eterverda.util.checksum.Checksum;
+
 public final class Distribution {
     private final String applicationId;
     private final int versionCode;
     private final long timestamp;
-    private final String sha1;
+    private final Checksum checksum;
     private final boolean debug;
     private final Map<String, String> meta;
     private final Requirements requirements;
 
     private Distribution(
             @NotNull String applicationId,
-            int versionCode, long timestamp, @Nullable String sha1,
+            int versionCode, long timestamp, @Nullable Checksum checksum,
             boolean debug,
             @NotNull Map<String, String> meta,
             @NotNull Requirements requirements) {
@@ -29,7 +31,7 @@ public final class Distribution {
         this.applicationId = applicationId;
         this.versionCode = versionCode;
         this.timestamp = timestamp;
-        this.sha1 = sha1;
+        this.checksum = checksum;
         this.debug = debug;
         this.meta = meta;
         this.requirements = requirements;
@@ -47,8 +49,8 @@ public final class Distribution {
         return timestamp;
     }
 
-    public String sha1() {
-        return sha1;
+    public Checksum checksum() {
+        return checksum;
     }
 
     public boolean debug() {
@@ -136,7 +138,7 @@ public final class Distribution {
         private String applicationId;
         private int versionCode = 0;
         private long timestamp = Long.MIN_VALUE;
-        private String sha1;
+        private Checksum checksum;
         private boolean debug;
 
         private final Map<String, String> meta = new HashMap<>();
@@ -166,8 +168,8 @@ public final class Distribution {
             return this;
         }
 
-        public Builder sha1(String sha1) {
-            this.sha1 = sha1;
+        public Builder checksum(Checksum checksum) {
+            this.checksum = checksum;
             return this;
         }
 
@@ -231,7 +233,7 @@ public final class Distribution {
                     applicationId,
                     versionCode,
                     timestamp,
-                    sha1,
+                    checksum,
                     debug,
                     Collections.unmodifiableMap(meta),
                     new Requirements(

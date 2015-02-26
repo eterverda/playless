@@ -26,8 +26,11 @@ public class JsonDistributionDumper {
         if (dist.timestamp() != Long.MIN_VALUE) {
             generator.writeObjectField("timestamp", dist.timestamp());
         }
-        if (dist.sha1() != null) {
-            generator.writeObjectField("sha1", dist.sha1());
+        if (dist.checksum() != null) {
+            generator.writeObjectField(dist.checksum().getShortAlgorithm(), dist.checksum().getStringValue());
+        }
+        if (dist.debug()) {
+            generator.writeObjectField("debug", true);
         }
 
         generator.writeFieldName("meta");

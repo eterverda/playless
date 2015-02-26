@@ -11,23 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
+import io.github.eterverda.util.checksum.Checksum;
 
 public final class InstalledDistribution {
-    private static final MessageDigest DIGEST;
-    private static final byte[] BUF = new byte[8192];
-    private static final char[] HEX;
-
-    static {
-        try {
-            DIGEST = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new AssertionError("SHA-1 is always available");
-        }
-        HEX = new char[DIGEST.getDigestLength() * 2];
-    }
-
     @NotNull
     public final String applicationId;
     public final int versionCode;
@@ -35,13 +22,13 @@ public final class InstalledDistribution {
     public final String versionName;
     public final boolean locked;
     @Nullable
-    public final String checksum;
+    public final Checksum checksum;
     public final boolean debug;
 
     private InstalledDistribution(
             @NotNull PackageInfo info,
             boolean locked,
-            @Nullable String checksum) {
+            @Nullable Checksum checksum) {
 
         this(
                 info.packageName,
@@ -57,7 +44,7 @@ public final class InstalledDistribution {
             int versionCode,
             @NotNull String versionName,
             boolean locked,
-            @Nullable String checksum,
+            @Nullable Checksum checksum,
             boolean debug) {
 
         this.applicationId = applicationId;
@@ -69,8 +56,8 @@ public final class InstalledDistribution {
     }
 
     public static InstalledDistribution load(PackageManager packageManager, String packageName) throws PackageManager.NameNotFoundException {
-        final PackageInfo info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
-        final String checksum = checksum(new File(info.applicationInfo.sourceDir));
+        final @NotNull PackageInfo info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+        final @Nullable Checksum checksum = checksum(new File(info.applicationInfo.sourceDir));
         final boolean locked = checksum != null;
 
         return new InstalledDistribution(
@@ -80,37 +67,13 @@ public final class InstalledDistribution {
     }
 
     @SuppressLint("NewApi")
-    private static String checksum(File sourceFile) {
+    @Nullable
+    private static Checksum checksum(@NotNull File sourceFile) {
         try (InputStream in = new FileInputStream(sourceFile)) {
-            final byte[] digest;
-            synchronized (DIGEST) {
-                DIGEST.reset();
-
-                int len;
-                while ((len = in.read(BUF)) != -1) {
-                    DIGEST.update(BUF, 0, len);
-                }
-                digest = DIGEST.digest();
-            }
-            return toHexString(digest);
+            return Checksum.sha1(in);
 
         } catch (Exception e) {
             return null;
         }
     }
-
-    private static String toHexString(byte[] bytes) {
-        synchronized (HEX) {
-            final int length = bytes.length;
-            for (int i = 0, j = 0; i < length; i++) {
-                final byte b = bytes[i];
-                final int b1 = (0xf & b >> 4);
-                final int b2 = (0xf & b);
-                HEX[j++] = b1 <= 0x9 ? (char) ('0' + b1) : (char) ('a' + b1 - 0xa);
-                HEX[j++] = b2 <= 0x9 ? (char) ('0' + b2) : (char) ('a' + b2 - 0xa);
-            }
-            return new String(HEX, 0, length * 2);
-        }
-    }
-
 }
