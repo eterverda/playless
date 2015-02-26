@@ -28,6 +28,8 @@ import io.github.eterverda.playless.core.Repository;
 import io.github.eterverda.util.checksum.Checksum;
 
 public class DumpCommand implements Command {
+    private static final byte[] NULL = new byte[8192];
+
     private static final Pattern VERSION_CODE = Pattern.compile("package:.* versionCode='([0-9]*).*'");
     private static final Pattern APPLICATION_ID = Pattern.compile("package:.* name='([\\p{Alnum}\\.]*).*'");
     private static final Pattern MIN_SDK_VERSION = Pattern.compile("sdkVersion:'([0-9]*)'");
@@ -47,46 +49,70 @@ public class DumpCommand implements Command {
     }
 
     private void main(ArrayList<String> args) throws IOException {
-        final String aapt = extractAapt(args);
-
-        final CommandLine baseLine = new CommandLine(aapt).addArgument("dump").addArgument("badging");
+        final CommandLine aapt = new CommandLine(extractAapt(args))
+                .addArgument("dump")
+                .addArgument("badging");
 
         final JsonDistributionDumper dumper = new JsonDistributionDumper(System.out);
-
         for (String arg : args) {
             final Distribution.Builder dist = new Distribution.Builder();
-            final DistributionHandler handler = new DistributionHandler(dist);
 
-            final DefaultExecutor executor = new DefaultExecutor();
-            executor.setStreamHandler(handler);
-
-            final CommandLine line = new CommandLine(baseLine).addArgument(arg);
-            executor.execute(line, handler);
-
-            final Checksum checksum = Checksum.sha1(new FileInputStream(new File(arg)));
-            dist.checksum(checksum);
-
-            try (JarFile jar = new JarFile(arg)) {
-                final JarEntry entry = jar.getJarEntry("AndroidManifest.xml");
-                try (InputStream in = jar.getInputStream(entry)) {
-                    final byte[] buf = new byte[8192];
-                    //noinspection StatementWithEmptyBody
-                    while (in.read(buf) != -1) {
-                        // do nothing
-                    }
-                }
-                final Certificate[] certificates = entry.getCertificates();
-                try {
-                    for (Certificate certificate : certificates) {
-                        final Checksum signature = Checksum.sha1(certificate.getEncoded());
-                        dist.signature(signature);
-                    }
-                } catch (CertificateEncodingException e) {
-                    throw new AssertionError(e);
-                }
-            }
+            aapt(dist, aapt, arg);
+            checksum(dist, arg);
+            signatures(dist, arg);
 
             dumper.write(dist.build());
+        }
+    }
+
+    private static void aapt(Distribution.Builder dist, CommandLine aapt, String arg) throws IOException {
+        final DistributionHandler handler = new DistributionHandler(dist);
+
+        final DefaultExecutor executor = new DefaultExecutor();
+        executor.setStreamHandler(handler);
+
+        final CommandLine line = new CommandLine(aapt).addArgument(arg);
+        executor.execute(line, handler);
+    }
+
+    private static void checksum(Distribution.Builder dist, String arg) throws IOException {
+        try (FileInputStream in = new FileInputStream(new File(arg))) {
+            final Checksum checksum = Checksum.sha1(in);
+            dist.checksum(checksum);
+        }
+    }
+
+    private static void signatures(Distribution.Builder dist, String arg) throws IOException {
+        try (JarFile jar = new JarFile(arg)) {
+            final JarEntry androidManifest = jar.getJarEntry("AndroidManifest.xml");
+
+            try (InputStream in = jar.getInputStream(androidManifest)) {
+                consume(in);
+            }
+
+            signatures(dist, androidManifest.getCertificates());
+        }
+    }
+
+    private static void signatures(Distribution.Builder dist, Certificate[] certificates) {
+        for (Certificate certificate : certificates) {
+            signature(dist, certificate);
+        }
+    }
+
+    private static void signature(Distribution.Builder dist, Certificate certificate) {
+        try {
+            final Checksum signature = Checksum.sha1(certificate.getEncoded());
+            dist.signature(signature);
+        } catch (CertificateEncodingException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private static void consume(InputStream in) throws IOException {
+        //noinspection StatementWithEmptyBody
+        while (in.read(NULL) != -1) {
+            // we just consume data
         }
     }
 
