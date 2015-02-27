@@ -35,6 +35,8 @@ public class DumpCommand implements Command {
     private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
     private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
     private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
+    private static final Pattern SUPPORTS_SCREENS = Pattern.compile("supports-screens:(.*)");
+    private static final Pattern REQUIRES_SMALLEST_WIDTH = Pattern.compile("requires-smallest-width:'(\\p{Digit}*)'");
     private static final Pattern SUPPORTS_GL_TEXTURES = Pattern.compile("supports-gl-texture:'(.*)'");
     private static final Pattern USES_LIBRARY = Pattern.compile("uses-library:'(.*)'");
     private static final Pattern ABIS = Pattern.compile("native-code:(.*)");
@@ -173,6 +175,14 @@ public class DumpCommand implements Command {
                 final Matcher label = LABEL.matcher(line);
                 if (label.matches()) {
                     dist.meta(label.group(1), label.group(2));
+                }
+                final Matcher supportsScreens = SUPPORTS_SCREENS.matcher(line);
+                if (supportsScreens.matches()) {
+                    dist.supportsScreen(split(supportsScreens.group(1)));
+                }
+                final Matcher requiresSmallestWidth = REQUIRES_SMALLEST_WIDTH.matcher(line);
+                if (requiresSmallestWidth.matches()) {
+                    dist.supportsScreen("sw" + requiresSmallestWidth.group(1) + "dp");
                 }
                 final Matcher supportsGlTexture = SUPPORTS_GL_TEXTURES.matcher(line);
                 if (supportsGlTexture.matches()) {
