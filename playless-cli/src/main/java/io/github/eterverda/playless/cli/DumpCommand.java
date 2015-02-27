@@ -31,6 +31,7 @@ public class DumpCommand implements Command {
     private static final Pattern VERSION_CODE = Pattern.compile("package:.* versionCode='([0-9]*).*'");
     private static final Pattern APPLICATION_ID = Pattern.compile("package:.* name='([\\p{Alnum}\\.]*).*'");
     private static final Pattern MIN_SDK_VERSION = Pattern.compile("sdkVersion:'([0-9]*)'");
+    private static final Pattern MAX_SDK_VERSION = Pattern.compile("maxSdkVersion:'([0-9]*)'");
     private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
     private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
     private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
@@ -153,6 +154,10 @@ public class DumpCommand implements Command {
                 final Matcher minSdkVersion = MIN_SDK_VERSION.matcher(line);
                 if (minSdkVersion.matches()) {
                     dist.minSdkVersion(Integer.parseInt(minSdkVersion.group(1)));
+                }
+                final Matcher maxSdkVersion = MAX_SDK_VERSION.matcher(line);
+                if (maxSdkVersion.matches()) {
+                    dist.maxSdkVersion(Integer.parseInt(maxSdkVersion.group(1)));
                 }
                 final Matcher debuggable = DEBUGGABLE.matcher(line);
                 if (debuggable.matches()) {
