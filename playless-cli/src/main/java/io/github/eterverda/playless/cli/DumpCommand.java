@@ -37,6 +37,7 @@ public class DumpCommand implements Command {
     private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
     private static final Pattern SUPPORTS_SCREENS = Pattern.compile("supports-screens:(.*)");
     private static final Pattern REQUIRES_SMALLEST_WIDTH = Pattern.compile("requires-smallest-width:'(\\p{Digit}*)'");
+    private static final Pattern COMPATIBLE_SCREENS = Pattern.compile("compatible-screens:(.*)");
     private static final Pattern SUPPORTS_GL_TEXTURES = Pattern.compile("supports-gl-texture:'(.*)'");
     private static final Pattern USES_LIBRARY = Pattern.compile("uses-library:'(.*)'");
     private static final Pattern ABIS = Pattern.compile("native-code:(.*)");
@@ -183,6 +184,17 @@ public class DumpCommand implements Command {
                 final Matcher requiresSmallestWidth = REQUIRES_SMALLEST_WIDTH.matcher(line);
                 if (requiresSmallestWidth.matches()) {
                     dist.supportsScreen("sw" + requiresSmallestWidth.group(1) + "dp");
+                }
+                final Matcher compatibleScreens = COMPATIBLE_SCREENS.matcher(line);
+                if (compatibleScreens.matches()) {
+                    for (String compatibleScreen : split(compatibleScreens.group(1))) {
+                        final String readableScreen = compatibleScreen
+                                .replace("200", "small")
+                                .replace("300", "normal")
+                                .replace("400", "large")
+                                .replace("500", "xlarge");
+                        dist.compatibleScreen(readableScreen);
+                    }
                 }
                 final Matcher supportsGlTexture = SUPPORTS_GL_TEXTURES.matcher(line);
                 if (supportsGlTexture.matches()) {
