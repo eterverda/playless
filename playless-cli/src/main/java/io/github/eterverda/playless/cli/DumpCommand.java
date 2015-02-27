@@ -33,6 +33,7 @@ public class DumpCommand implements Command {
     private static final Pattern MIN_SDK_VERSION = Pattern.compile("sdkVersion:'([0-9]*)'");
     private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
     private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
+    private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
 
     @Override
     public void main(Repository repo, String[] rawArgs) {
@@ -160,6 +161,10 @@ public class DumpCommand implements Command {
                 final Matcher usesFeature = USES_FEATURE.matcher(line);
                 if (usesFeature.matches()) {
                     dist.usesFeature(usesFeature.group(1));
+                }
+                final Matcher label = LABEL.matcher(line);
+                if (label.matches()) {
+                    dist.meta(label.group(1), label.group(2));
                 }
             }
         }
