@@ -37,6 +37,7 @@ public class DumpCommand implements Command {
     private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
     private static final Pattern SUPPORTS_GL_TEXTURES = Pattern.compile("supports-gl-texture:'(.*)'");
     private static final Pattern USES_LIBRARY = Pattern.compile("uses-library:'(.*)'");
+    private static final Pattern ABIS = Pattern.compile("native-code:(.*)");
 
     @Override
     public void main(Repository repo, String[] rawArgs) {
@@ -181,11 +182,19 @@ public class DumpCommand implements Command {
                 if (usesLibrary.matches()) {
                     dist.usesLibrary(usesLibrary.group(1));
                 }
+                final Matcher abis = ABIS.matcher(line);
+                if (abis.matches()) {
+                    dist.abi(split(abis.group(1)));
+                }
             }
         }
 
         @Override
         public void stop() throws IOException {
+        }
+
+        public static String[] split(String string) {
+            return string.replaceAll("\\p{Space}*'(.*)'\\p{Space}*", "$1").split("'\\p{Space}+'");
         }
     }
 
