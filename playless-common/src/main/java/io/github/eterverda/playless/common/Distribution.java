@@ -181,8 +181,10 @@ public final class Distribution {
             return this;
         }
 
-        public void signature(Checksum signature) {
-            this.signatures = Checksum.xor(this.signatures, signature);
+        public void signature(Checksum... signatures) {
+            for (Checksum signature : signatures) {
+                this.signatures = Checksum.xor(this.signatures, signature);
+            }
         }
 
         public Builder debug(boolean debug) {
@@ -205,38 +207,38 @@ public final class Distribution {
             return this;
         }
 
-        public Builder supportsScreen(String supportsScreen) {
-            this.supportsScreens.add(supportsScreen);
+        public Builder supportsScreen(String... supportsScreens) {
+            Collections.addAll(this.supportsScreens, supportsScreens);
             return this;
         }
 
-        public Builder compatibleScreen(String compatibleScreen) {
-            this.compatibleScreens.add(compatibleScreen);
+        public Builder compatibleScreen(String... compatibleScreens) {
+            Collections.addAll(this.compatibleScreens, compatibleScreens);
             return this;
         }
 
-        public Builder supportsGlTexture(String supportsGlTexture) {
-            this.supportsGlTextures.add(supportsGlTexture);
+        public Builder supportsGlTexture(String... supportsGlTextures) {
+            Collections.addAll(this.supportsGlTextures, supportsGlTextures);
             return this;
         }
 
-        public Builder abi(String abi) {
-            this.abis.add(abi);
+        public Builder abi(String... abis) {
+            Collections.addAll(this.abis, abis);
             return this;
         }
 
-        public Builder usesFeature(String usesFeature) {
-            this.usesFeatures.add(usesFeature);
+        public Builder usesFeature(String... usesFeatures) {
+            Collections.addAll(this.usesFeatures, usesFeatures);
             return this;
         }
 
-        public Builder usesConfiguration(String usesConfiguration) {
-            this.usesConfigurations.add(usesConfiguration);
+        public Builder usesConfiguration(String... usesConfigurations) {
+            Collections.addAll(this.usesConfigurations, usesConfigurations);
             return this;
         }
 
-        public Builder usesLibrary(String usesLibrary) {
-            this.usesLibraries.add(usesLibrary);
+        public Builder usesLibrary(String... usesLibraries) {
+            Collections.addAll(this.usesLibraries, usesLibraries);
             return this;
         }
 
