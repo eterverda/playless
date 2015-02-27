@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
@@ -35,27 +34,16 @@ public final class ChecksumUtils {
     public static byte[] digest(@NotNull String algorithm, @NotNull byte[] data) throws NoSuchAlgorithmException {
         final MessageDigest digest = obtainDigest(algorithm);
 
-        final int length = digest.getDigestLength();
-        byte[] value = new byte[length];
-
-        try {
-            digest.update(data);
-            digest.digest(value, 0, length);
-
-        } catch (DigestException ignore) {
-            throw new AssertionError(ignore);
-        }
+        digest.update(data);
+        final byte[] result = digest.digest();
 
         releaseDigest(digest);
-        return value;
+        return result;
     }
 
     @NotNull
     public static byte[] digest(@NotNull String algorithm, @NotNull InputStream in) throws NoSuchAlgorithmException, IOException {
         final MessageDigest digest = obtainDigest(algorithm);
-
-        final int length = digest.getDigestLength();
-        byte[] value = new byte[length];
 
         final byte[] buf = obtainBuf();
 
@@ -66,15 +54,10 @@ public final class ChecksumUtils {
 
         releaseBuf(buf);
 
-        try {
-            digest.digest(value, 0, length);
-
-        } catch (DigestException ignore) {
-            throw new AssertionError(ignore);
-        }
+        byte[] result = digest.digest();
 
         releaseDigest(digest);
-        return value;
+        return result;
     }
 
     @NotNull
