@@ -35,6 +35,8 @@ public class DumpCommand implements Command {
     private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
     private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
     private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
+    private static final Pattern SUPPORTS_GL_TEXTURES = Pattern.compile("supports-gl-texture:'(.*)'");
+    private static final Pattern USES_LIBRARY = Pattern.compile("uses-library:'(.*)'");
 
     @Override
     public void main(Repository repo, String[] rawArgs) {
@@ -170,6 +172,14 @@ public class DumpCommand implements Command {
                 final Matcher label = LABEL.matcher(line);
                 if (label.matches()) {
                     dist.meta(label.group(1), label.group(2));
+                }
+                final Matcher supportsGlTexture = SUPPORTS_GL_TEXTURES.matcher(line);
+                if (supportsGlTexture.matches()) {
+                    dist.supportsGlTexture(supportsGlTexture.group(1));
+                }
+                final Matcher usesLibrary = USES_LIBRARY.matcher(line);
+                if (usesLibrary.matches()) {
+                    dist.usesLibrary(usesLibrary.group(1));
                 }
             }
         }

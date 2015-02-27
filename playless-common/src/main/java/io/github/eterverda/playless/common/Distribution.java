@@ -236,7 +236,7 @@ public final class Distribution {
         }
 
         public Builder usesLibrary(String usesLibrary) {
-            this.usesFeatures.add(usesLibrary);
+            this.usesLibraries.add(usesLibrary);
             return this;
         }
 
@@ -256,8 +256,8 @@ public final class Distribution {
                             Collections.unmodifiableSortedSet(supportsGlTextures),
                             Collections.unmodifiableSortedSet(abis),
                             Collections.unmodifiableSortedSet(usesFeatures),
-                            Collections.unmodifiableSortedSet(usesConfigurations),
-                            Collections.unmodifiableSortedSet(usesLibraries)));
+                            Collections.unmodifiableSortedSet(usesLibraries),
+                            Collections.unmodifiableSortedSet(usesConfigurations)));
         }
     }
 }
