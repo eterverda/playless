@@ -34,6 +34,11 @@ public class DumpCommand implements Command {
     private static final Pattern MAX_SDK_VERSION = Pattern.compile("maxSdkVersion:'([0-9]*)'");
     private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
     private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
+    private static final Pattern USES_CONFIGURATION_TOUCH_SCREEN = Pattern.compile("uses-configuration:.*reqTouchScreen='([0-9]+)'.*");
+    private static final Pattern USES_CONFIGURATION_KEYBOARD_TYPE = Pattern.compile("uses-configuration:.*reqKeyboardType='(-?[0-9]+)'.*");
+    private static final Pattern USES_CONFIGURATION_NAVIGATION = Pattern.compile("uses-configuration:.*reqNavigation='(-?[0-9]+)'.*");
+    private static final Pattern USES_CONFIGURATION_HARD_KEYBOARD = Pattern.compile("uses-configuration:.*reqHardKeyboard='-1'.*");
+    private static final Pattern USES_CONFIGURATION_FIVE_WAY_NAV = Pattern.compile("uses-configuration:.*reqFiveWayNav='-1'.*");
     private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
     private static final Pattern SUPPORTS_SCREENS = Pattern.compile("supports-screens:(.*)");
     private static final Pattern REQUIRES_SMALLEST_WIDTH = Pattern.compile("requires-smallest-width:'(\\p{Digit}*)'");
@@ -172,6 +177,26 @@ public class DumpCommand implements Command {
                 final Matcher usesFeature = USES_FEATURE.matcher(line);
                 if (usesFeature.matches()) {
                     dist.usesFeature(usesFeature.group(1));
+                }
+                final Matcher usesConfigurationTouchScreen = USES_CONFIGURATION_TOUCH_SCREEN.matcher(line);
+                if (usesConfigurationTouchScreen.matches()) {
+                    dist.usesConfiguration("touchScreen/" + usesConfigurationTouchScreen.group(1));
+                }
+                final Matcher usesConfigurationKeyboardType = USES_CONFIGURATION_KEYBOARD_TYPE.matcher(line);
+                if (usesConfigurationKeyboardType.matches()) {
+                    dist.usesConfiguration("keyboardType/" + usesConfigurationKeyboardType.group(1));
+                }
+                final Matcher usesConfigurationNavigation = USES_CONFIGURATION_NAVIGATION.matcher(line);
+                if (usesConfigurationNavigation.matches()) {
+                    dist.usesConfiguration("navigation/" + usesConfigurationNavigation.group(1));
+                }
+                final Matcher usesConfigurationHardKeyboard = USES_CONFIGURATION_HARD_KEYBOARD.matcher(line);
+                if (usesConfigurationHardKeyboard.matches()) {
+                    dist.usesConfiguration("hardKeyboard");
+                }
+                final Matcher usesConfigurationFiveWayNav = USES_CONFIGURATION_FIVE_WAY_NAV.matcher(line);
+                if (usesConfigurationFiveWayNav.matches()) {
+                    dist.usesConfiguration("fiveWayNav");
                 }
                 final Matcher label = LABEL.matcher(line);
                 if (label.matches()) {
