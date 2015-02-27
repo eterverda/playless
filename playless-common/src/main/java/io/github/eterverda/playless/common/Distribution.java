@@ -3,6 +3,7 @@ package io.github.eterverda.playless.common;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,7 +11,9 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import io.github.eterverda.playless.common.util.TimestampUtils;
 import io.github.eterverda.util.checksum.Checksum;
+import io.github.eterverda.util.checksum.ChecksumUtils;
 
 public final class Distribution {
     private final String applicationId;
@@ -21,6 +24,9 @@ public final class Distribution {
     private final boolean debug;
     private final Map<String, String> meta;
     private final Requirements requirements;
+
+    private transient String baseName;
+    private transient String apkName;
 
     private Distribution(
             @NotNull String applicationId,
@@ -72,6 +78,29 @@ public final class Distribution {
         return requirements;
     }
 
+    public String baseName() {
+        if (baseName != null) {
+            return baseName;
+        }
+        final StringBuilder baseNameBuilder = new StringBuilder(applicationId.length() + 35);
+        baseNameBuilder.append(TimestampUtils.zulu(timestamp));
+        baseNameBuilder.append('-');
+        baseNameBuilder.append(applicationId);
+        baseNameBuilder.append('-');
+        baseNameBuilder.append(requirements.selector());
+        if (debug) {
+            baseNameBuilder.append("-debug");
+        }
+        return baseName = baseNameBuilder.toString();
+    }
+
+    public String apkName() {
+        if (apkName != null) {
+            return apkName;
+        }
+        return apkName = baseName() + ".apk";
+    }
+
     public static final class Requirements {
         private final int minSdkVersion;
         private final int maxSdkVersion;
@@ -82,6 +111,8 @@ public final class Distribution {
         private final SortedSet<String> usesFeatures;
         private final SortedSet<String> usesConfigurations;
         private final SortedSet<String> usesLibraries;
+
+        private transient String selector;
 
         private Requirements(
                 int minSdkVersion, int maxSdkVersion,
@@ -138,6 +169,47 @@ public final class Distribution {
 
         public Collection<String> usesLibraries() {
             return usesLibraries;
+        }
+
+        public String selector() {
+            if (selector != null) {
+                return selector;
+            }
+
+            final StringBuilder selectorBuilder = new StringBuilder();
+
+            selectorBuilder.append(minSdkVersion);
+            selectorBuilder.append(maxSdkVersion);
+
+            for (String supportsGlTexture : supportsGlTextures) {
+                selectorBuilder.append(supportsGlTexture);
+            }
+            for (String supportsScreen : supportsScreens) {
+                selectorBuilder.append(supportsScreen);
+            }
+            for (String compatibleScreen : compatibleScreens) {
+                selectorBuilder.append(compatibleScreen);
+            }
+            for (String usesFeature : usesFeatures) {
+                selectorBuilder.append(usesFeature);
+            }
+            for (String abi : abis) {
+                selectorBuilder.append(abi);
+            }
+            for (String usesLibrary : usesLibraries) {
+                selectorBuilder.append(usesLibrary);
+            }
+            for (String usesConfiguration : usesConfigurations) {
+                selectorBuilder.append(usesConfiguration);
+            }
+
+            final Charset charset = Charset.forName("ISO-8859-1");
+
+            final byte[] selectorBuilderBytes = selectorBuilder.toString().getBytes(charset);
+            final byte[] selectorBytes = ChecksumUtils.sha1(selectorBuilderBytes);
+            final String selectorHex = ChecksumUtils.bytesToHex(selectorBytes);
+
+            return selector = selectorHex.substring(0, 13);
         }
     }
 

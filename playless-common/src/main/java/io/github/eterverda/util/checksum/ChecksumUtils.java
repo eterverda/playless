@@ -23,6 +23,15 @@ public final class ChecksumUtils {
     }
 
     @NotNull
+    public static byte[] sha1(@NotNull byte[] data) {
+        try {
+            return digest(ALGORITHM_SHA_1, data);
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError("SHA-1 should be always available");
+        }
+    }
+
+    @NotNull
     public static byte[] digest(@NotNull String algorithm, @NotNull byte[] data) throws NoSuchAlgorithmException {
         final MessageDigest digest = obtainDigest(algorithm);
 
