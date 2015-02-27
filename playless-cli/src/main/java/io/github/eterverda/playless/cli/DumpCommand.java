@@ -2,8 +2,6 @@ package io.github.eterverda.playless.cli;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.ExecuteResultHandler;
 import org.apache.commons.exec.ExecuteStreamHandler;
 
 import java.io.BufferedReader;
@@ -72,7 +70,7 @@ public class DumpCommand implements Command {
         executor.setStreamHandler(handler);
 
         final CommandLine line = new CommandLine(aapt).addArgument(arg);
-        executor.execute(line, handler);
+        executor.execute(line);
     }
 
     private static void fingerprint(Distribution.Builder dist, String arg) throws IOException {
@@ -116,21 +114,12 @@ public class DumpCommand implements Command {
         }
     }
 
-    private static class DistributionHandler implements ExecuteStreamHandler, ExecuteResultHandler {
+    private static class DistributionHandler implements ExecuteStreamHandler {
         private BufferedReader in;
         private Distribution.Builder dist;
 
         public DistributionHandler(Distribution.Builder dist) {
             this.dist = dist;
-        }
-
-        @Override
-        public void onProcessComplete(int exitValue) {
-        }
-
-        @Override
-        public void onProcessFailed(ExecuteException e) {
-
         }
 
         @Override
