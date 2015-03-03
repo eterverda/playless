@@ -6,9 +6,10 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import io.github.eterverda.playless.common.util.TimestampUtils;
@@ -221,7 +222,7 @@ public final class Distribution {
         private Checksum signatures;
         private boolean debug;
 
-        private final Map<String, String> meta = new HashMap<>();
+        private final SortedMap<String, String> meta = new TreeMap<>();
 
         private int minSdkVersion = 1;
         private int maxSdkVersion = Integer.MAX_VALUE;
