@@ -4,8 +4,5 @@
           package="io.github.eterverda.playless">
 
     <application>
-        <service android:name=".AutoUpdateService"
-                 android:label="@string/playless_service_label"
-                 android:enabled="@bool/playless_enabled"/>
     </application>
 </manifest>
