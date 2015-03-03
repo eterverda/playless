@@ -28,25 +28,6 @@ import io.github.eterverda.util.checksum.Checksum;
 public class DumpCommand implements Command {
     private static final byte[] NULL = new byte[8192];
 
-    private static final Pattern VERSION_CODE = Pattern.compile("package:.* versionCode='([0-9]*).*'");
-    private static final Pattern APPLICATION_ID = Pattern.compile("package:.* name='([\\p{Alnum}\\.]*).*'");
-    private static final Pattern MIN_SDK_VERSION = Pattern.compile("sdkVersion:'([0-9]*)'");
-    private static final Pattern MAX_SDK_VERSION = Pattern.compile("maxSdkVersion:'([0-9]*)'");
-    private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
-    private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
-    private static final Pattern USES_CONFIGURATION_TOUCH_SCREEN = Pattern.compile("uses-configuration:.*reqTouchScreen='([0-9]+)'.*");
-    private static final Pattern USES_CONFIGURATION_KEYBOARD_TYPE = Pattern.compile("uses-configuration:.*reqKeyboardType='(-?[0-9]+)'.*");
-    private static final Pattern USES_CONFIGURATION_NAVIGATION = Pattern.compile("uses-configuration:.*reqNavigation='(-?[0-9]+)'.*");
-    private static final Pattern USES_CONFIGURATION_HARD_KEYBOARD = Pattern.compile("uses-configuration:.*reqHardKeyboard='-1'.*");
-    private static final Pattern USES_CONFIGURATION_FIVE_WAY_NAV = Pattern.compile("uses-configuration:.*reqFiveWayNav='-1'.*");
-    private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
-    private static final Pattern SUPPORTS_SCREENS = Pattern.compile("supports-screens:(.*)");
-    private static final Pattern REQUIRES_SMALLEST_WIDTH = Pattern.compile("requires-smallest-width:'(\\p{Digit}*)'");
-    private static final Pattern COMPATIBLE_SCREENS = Pattern.compile("compatible-screens:(.*)");
-    private static final Pattern SUPPORTS_GL_TEXTURES = Pattern.compile("supports-gl-texture:'(.*)'");
-    private static final Pattern USES_LIBRARY = Pattern.compile("uses-library:'(.*)'");
-    private static final Pattern ABIS = Pattern.compile("native-code:(.*)");
-
     @Override
     public void main(Repository repo, String[] rawArgs) {
         final ArrayList<String> args = new ArrayList<>(rawArgs.length);
@@ -140,6 +121,26 @@ public class DumpCommand implements Command {
     }
 
     private static class DistributionHandler implements ExecuteStreamHandler {
+        private static final Pattern VERSION_CODE = Pattern.compile("package:.* versionCode='([0-9]*)'.*'");
+        private static final Pattern VERSION_NAME = Pattern.compile("package:.* versionName='([^']*)'.*'");
+        private static final Pattern APPLICATION_ID = Pattern.compile("package:.* name='([\\p{Alnum}\\.]*).*'");
+        private static final Pattern MIN_SDK_VERSION = Pattern.compile("sdkVersion:'([0-9]*)'");
+        private static final Pattern MAX_SDK_VERSION = Pattern.compile("maxSdkVersion:'([0-9]*)'");
+        private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
+        private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
+        private static final Pattern USES_CONFIGURATION_TOUCH_SCREEN = Pattern.compile("uses-configuration:.*reqTouchScreen='([0-9]+)'.*");
+        private static final Pattern USES_CONFIGURATION_KEYBOARD_TYPE = Pattern.compile("uses-configuration:.*reqKeyboardType='(-?[0-9]+)'.*");
+        private static final Pattern USES_CONFIGURATION_NAVIGATION = Pattern.compile("uses-configuration:.*reqNavigation='(-?[0-9]+)'.*");
+        private static final Pattern USES_CONFIGURATION_HARD_KEYBOARD = Pattern.compile("uses-configuration:.*reqHardKeyboard='-1'.*");
+        private static final Pattern USES_CONFIGURATION_FIVE_WAY_NAV = Pattern.compile("uses-configuration:.*reqFiveWayNav='-1'.*");
+        private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
+        private static final Pattern SUPPORTS_SCREENS = Pattern.compile("supports-screens:(.*)");
+        private static final Pattern REQUIRES_SMALLEST_WIDTH = Pattern.compile("requires-smallest-width:'(\\p{Digit}*)'");
+        private static final Pattern COMPATIBLE_SCREENS = Pattern.compile("compatible-screens:(.*)");
+        private static final Pattern SUPPORTS_GL_TEXTURES = Pattern.compile("supports-gl-texture:'(.*)'");
+        private static final Pattern USES_LIBRARY = Pattern.compile("uses-library:'(.*)'");
+        private static final Pattern ABIS = Pattern.compile("native-code:(.*)");
+
         private BufferedReader in;
         private Distribution.Builder dist;
 
@@ -173,6 +174,10 @@ public class DumpCommand implements Command {
                 final Matcher versionCode = VERSION_CODE.matcher(line);
                 if (versionCode.matches()) {
                     dist.versionCode(Integer.parseInt(versionCode.group(1)));
+                }
+                final Matcher versionName = VERSION_NAME.matcher(line);
+                if (versionName.matches()) {
+                    dist.meta("versionName", versionName.group(1));
                 }
                 final Matcher minSdkVersion = MIN_SDK_VERSION.matcher(line);
                 if (minSdkVersion.matches()) {
