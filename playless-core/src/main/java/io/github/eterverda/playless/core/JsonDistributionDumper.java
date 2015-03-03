@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import io.github.eterverda.playless.common.Distribution;
+import io.github.eterverda.playless.common.util.TimestampUtils;
 
 public class JsonDistributionDumper {
     private final JsonGenerator generator;
@@ -24,7 +25,7 @@ public class JsonDistributionDumper {
         generator.writeObjectField("applicationId", dist.applicationId());
         generator.writeObjectField("versionCode", dist.versionCode());
         if (dist.timestamp() != Long.MIN_VALUE) {
-            generator.writeObjectField("timestamp", dist.timestamp());
+            generator.writeObjectField("timestamp", TimestampUtils.zulu(dist.timestamp()));
         }
         if (dist.fingerprint() != null) {
             generator.writeObjectFieldStart("fingerprint");
