@@ -4,5 +4,6 @@ include ':playless-core'
 include ':playless-lib'
 include ':playless-plugin'
 include ':sample-app'
+include ':wombat-app'
 
 rootProject.name = 'playless'

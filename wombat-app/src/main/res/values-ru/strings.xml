@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Вомбат</string>
+    <string name="hello_world">Миру Мир!</string>
+    <string name="action_settings">Настройки</string>
+</resources>
