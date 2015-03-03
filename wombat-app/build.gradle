@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion rootProject.androidCompileSdkVersion as int
+    buildToolsVersion rootProject.androidBuildToolsVersion as String
 
     defaultConfig {
         applicationId "com.example.wombat"
