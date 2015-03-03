@@ -28,14 +28,10 @@ public class JsonDistributionDumper {
             generator.writeObjectField("timestamp", TimestampUtils.zulu(dist.timestamp()));
         }
         if (dist.fingerprint() != null) {
-            generator.writeObjectFieldStart("fingerprint");
-            generator.writeObjectField(dist.fingerprint().getShortAlgorithm(), dist.fingerprint().getStringValue());
-            generator.writeEndObject();
+            generator.writeObjectField("fingerprint-" + dist.fingerprint().getShortAlgorithm(), dist.fingerprint().getStringValue());
         }
         if (dist.signatures() != null) {
-            generator.writeObjectFieldStart("signatures");
-            generator.writeObjectField(dist.signatures().getShortAlgorithm(), dist.signatures().getStringValue());
-            generator.writeEndObject();
+            generator.writeObjectField("signatures-" + dist.signatures().getShortAlgorithm(), dist.signatures().getStringValue());
         }
         if (dist.debug()) {
             generator.writeObjectField("debug", true);
