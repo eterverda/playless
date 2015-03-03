@@ -64,16 +64,28 @@ public class DumpCommand implements Command {
                 .addArgument("dump")
                 .addArgument("badging");
 
-        final JsonDistributionDumper dumper = new JsonDistributionDumper(System.out);
         for (String arg : args) {
-            final Distribution.Builder dist = new Distribution.Builder();
+            final Distribution.Builder builder = new Distribution.Builder();
 
-            aapt(dist, aapt, arg);
-            fingerprint(dist, arg);
-            signatures(dist, arg);
+            System.out.printf("src : \"%s\",\n", arg);
 
-            dumper.write(dist.build());
+            timestamp(builder, arg);
+            aapt(builder, aapt, arg);
+            fingerprint(builder, arg);
+            signatures(builder, arg);
+
+            final Distribution dist = builder.build();
+
+            System.out.printf("apk : \"%s\",\n", dist.apkName());
+            System.out.printf("dst : ");
+            final JsonDistributionDumper dumper = new JsonDistributionDumper(System.out);
+            dumper.write(dist);
+            System.out.println();
         }
+    }
+
+    private void timestamp(Distribution.Builder builder, String arg) {
+        builder.timestamp(new File(arg).lastModified());
     }
 
     private static void aapt(Distribution.Builder dist, CommandLine aapt, String arg) throws IOException {
