@@ -222,17 +222,19 @@ public final class Distribution {
         private Checksum signatures;
         private boolean debug;
 
-        private final SortedMap<String, String> meta = new TreeMap<>();
+        private SortedMap<String, String> meta = new TreeMap<>();
 
         private int minSdkVersion = 1;
         private int maxSdkVersion = Integer.MAX_VALUE;
-        private final SortedSet<String> supportsScreens = new TreeSet<>();
-        private final SortedSet<String> compatibleScreens = new TreeSet<>();
-        private final SortedSet<String> supportsGlTextures = new TreeSet<>();
-        private final SortedSet<String> abis = new TreeSet<>();
-        private final SortedSet<String> usesFeatures = new TreeSet<>();
-        private final SortedSet<String> usesConfigurations = new TreeSet<>();
-        private final SortedSet<String> usesLibraries = new TreeSet<>();
+        private SortedSet<String> supportsScreens = new TreeSet<>();
+        private SortedSet<String> compatibleScreens = new TreeSet<>();
+        private SortedSet<String> supportsGlTextures = new TreeSet<>();
+        private SortedSet<String> abis = new TreeSet<>();
+        private SortedSet<String> usesFeatures = new TreeSet<>();
+        private SortedSet<String> usesConfigurations = new TreeSet<>();
+        private SortedSet<String> usesLibraries = new TreeSet<>();
+
+        private boolean shared;
 
         public Builder applicationId(String applicationId) {
             this.applicationId = applicationId;
@@ -254,10 +256,13 @@ public final class Distribution {
             return this;
         }
 
-        public void signature(Checksum... signatures) {
-            for (Checksum signature : signatures) {
-                this.signatures = Checksum.xor(this.signatures, signature);
-            }
+        public Builder signature(Checksum signature) {
+            return signatures(Checksum.xor(signatures, signature));
+        }
+
+        public Builder signatures(Checksum signatures) {
+            this.signatures = signatures;
+            return this;
         }
 
         public Builder debug(boolean debug) {
@@ -266,6 +271,7 @@ public final class Distribution {
         }
 
         public Builder meta(String key, String value) {
+            unShare();
             this.meta.put(key, value);
             return this;
         }
@@ -281,41 +287,49 @@ public final class Distribution {
         }
 
         public Builder supportsScreen(String... supportsScreens) {
+            unShare();
             Collections.addAll(this.supportsScreens, supportsScreens);
             return this;
         }
 
         public Builder compatibleScreen(String... compatibleScreens) {
+            unShare();
             Collections.addAll(this.compatibleScreens, compatibleScreens);
             return this;
         }
 
         public Builder supportsGlTexture(String... supportsGlTextures) {
+            unShare();
             Collections.addAll(this.supportsGlTextures, supportsGlTextures);
             return this;
         }
 
         public Builder abi(String... abis) {
+            unShare();
             Collections.addAll(this.abis, abis);
             return this;
         }
 
         public Builder usesFeature(String... usesFeatures) {
+            unShare();
             Collections.addAll(this.usesFeatures, usesFeatures);
             return this;
         }
 
         public Builder usesConfiguration(String... usesConfigurations) {
+            unShare();
             Collections.addAll(this.usesConfigurations, usesConfigurations);
             return this;
         }
 
         public Builder usesLibrary(String... usesLibraries) {
+            unShare();
             Collections.addAll(this.usesLibraries, usesLibraries);
             return this;
         }
 
         public Distribution build() {
+            shared = true;
             return new Distribution(
                     applicationId,
                     versionCode,
@@ -333,6 +347,20 @@ public final class Distribution {
                             Collections.unmodifiableSortedSet(usesFeatures),
                             Collections.unmodifiableSortedSet(usesLibraries),
                             Collections.unmodifiableSortedSet(usesConfigurations)));
+        }
+
+        private void unShare() {
+            if (!shared) {
+                return;
+            }
+            meta = new TreeMap<>(meta);
+            supportsScreens = new TreeSet<>(supportsScreens);
+            compatibleScreens = new TreeSet<>(compatibleScreens);
+            supportsGlTextures = new TreeSet<>(supportsGlTextures);
+            abis = new TreeSet<>(abis);
+            usesFeatures = new TreeSet<>(usesFeatures);
+            usesConfigurations = new TreeSet<>(usesConfigurations);
+            usesLibraries = new TreeSet<>(usesLibraries);
         }
     }
 }
