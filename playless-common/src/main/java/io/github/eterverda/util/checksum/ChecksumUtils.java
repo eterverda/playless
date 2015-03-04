@@ -22,15 +22,6 @@ public final class ChecksumUtils {
     }
 
     @NotNull
-    public static byte[] sha1(@NotNull byte[] data) {
-        try {
-            return digest(ALGORITHM_SHA_1, data);
-        } catch (NoSuchAlgorithmException e) {
-            throw new AssertionError("SHA-1 should be always available");
-        }
-    }
-
-    @NotNull
     public static byte[] digest(@NotNull String algorithm, @NotNull byte[] data) throws NoSuchAlgorithmException {
         final MessageDigest digest = obtainDigest(algorithm);
 
@@ -60,6 +51,31 @@ public final class ChecksumUtils {
         return result;
     }
 
+    /**
+     * Returns a string representation of the integer argument as an unsigned integer in
+     * base&nbsp;16. Unlike {@link java.lang.Integer#toHexString(int)} result is zero-padded and
+     * always has a length of 8.
+     *
+     * @param i an integer to be converted to a string.
+     * @return the string representation of the unsigned integer value.
+     * @see java.lang.Integer#toHexString(int)
+     */
+    @NotNull
+    public static String intToHexString(int i) {
+        final byte[] buf = obtainBuf();
+
+        for (int j = 0, k = 28; j < 8; j++, k -= 4) {
+            final int b = 0xf & i >> k;
+            buf[j] = halfByteToHex(b);
+        }
+
+        final String hexString = new String(buf, 0, 8);
+
+        releaseBuf(buf);
+
+        return hexString;
+    }
+
     @NotNull
     public static String bytesToHex(@NotNull byte[] bytes) {
         final byte[] buf = obtainBuf();
@@ -69,14 +85,18 @@ public final class ChecksumUtils {
             final byte b = bytes[i];
             final int b1 = (0xf & b >> 4);
             final int b2 = (0xf & b);
-            buf[j++] = b1 <= 0x9 ? (byte) ('0' + b1) : (byte) ('a' + b1 - 0xa);
-            buf[j++] = b2 <= 0x9 ? (byte) ('0' + b2) : (byte) ('a' + b2 - 0xa);
+            buf[j++] = halfByteToHex(b1);
+            buf[j++] = halfByteToHex(b2);
         }
         final String hexString = new String(buf, 0, length * 2);
 
         releaseBuf(buf);
 
         return hexString;
+    }
+
+    private static byte halfByteToHex(int b) {
+        return b <= 0x9 ? (byte) ('0' + b) : (byte) ('a' + b - 0xa);
     }
 
     @NotNull

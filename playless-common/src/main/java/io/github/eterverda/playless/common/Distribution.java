@@ -2,7 +2,6 @@ package io.github.eterverda.playless.common;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -22,8 +21,6 @@ public final class Distribution {
     private final Map<String, String> meta;
     @NotNull
     private final Requirements requirements;
-
-    private transient String baseName;
 
     private Distribution(
             @NotNull Apk apk,
@@ -52,9 +49,6 @@ public final class Distribution {
 
     @NotNull
     public String baseName() {
-        if (baseName != null) {
-            return baseName;
-        }
         final StringBuilder baseNameBuilder = new StringBuilder(apk.applicationId().length() + 35);
         baseNameBuilder.append(TimestampUtils.zulu(apk.timestamp()));
         baseNameBuilder.append('-');
@@ -64,7 +58,7 @@ public final class Distribution {
         if (apk.debug()) {
             baseNameBuilder.append("-debug");
         }
-        return baseName = baseNameBuilder.toString();
+        return baseNameBuilder.toString();
     }
 
     public static final class Requirements {
@@ -77,8 +71,6 @@ public final class Distribution {
         private final SortedSet<String> usesFeatures;
         private final SortedSet<String> usesConfigurations;
         private final SortedSet<String> usesLibraries;
-
-        private transient String selector;
 
         private Requirements(
                 int minSdkVersion, int maxSdkVersion,
@@ -137,45 +129,42 @@ public final class Distribution {
             return usesLibraries;
         }
 
-        public String selector() {
-            if (selector != null) {
-                return selector;
-            }
+        @Override
+        public int hashCode() {
+            int h = 0;
 
-            final StringBuilder selectorBuilder = new StringBuilder();
-
-            selectorBuilder.append(minSdkVersion);
-            selectorBuilder.append(maxSdkVersion);
+            h ^= 0xffff0000 & minSdkVersion << 16;
+            h ^= 0x0000ffff & maxSdkVersion;
 
             for (String supportsGlTexture : supportsGlTextures) {
-                selectorBuilder.append(supportsGlTexture);
+                h ^= supportsGlTexture.hashCode();
             }
             for (String supportsScreen : supportsScreens) {
-                selectorBuilder.append(supportsScreen);
+                h ^= supportsScreen.hashCode();
             }
             for (String compatibleScreen : compatibleScreens) {
-                selectorBuilder.append(compatibleScreen);
+                h ^= compatibleScreen.hashCode();
             }
             for (String usesFeature : usesFeatures) {
-                selectorBuilder.append(usesFeature);
+                h ^= usesFeature.hashCode();
             }
             for (String abi : abis) {
-                selectorBuilder.append(abi);
+                h ^= abi.hashCode();
             }
             for (String usesLibrary : usesLibraries) {
-                selectorBuilder.append(usesLibrary);
+                h ^= usesLibrary.hashCode();
             }
             for (String usesConfiguration : usesConfigurations) {
-                selectorBuilder.append(usesConfiguration);
+                h ^= usesConfiguration.hashCode();
             }
 
-            final Charset charset = Charset.forName("ISO-8859-1");
+            return h;
+        }
 
-            final byte[] selectorBuilderBytes = selectorBuilder.toString().getBytes(charset);
-            final byte[] selectorBytes = ChecksumUtils.sha1(selectorBuilderBytes);
-            final String selectorHex = ChecksumUtils.bytesToHex(selectorBytes);
-
-            return selector = selectorHex.substring(0, 13);
+        public String selector() {
+            final int hashCode = hashCode();
+            final String hexCode = ChecksumUtils.intToHexString(hashCode);
+            return hexCode.substring(0, 7);
         }
     }
 
