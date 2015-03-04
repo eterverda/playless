@@ -322,6 +322,8 @@ public final class Distribution {
             usesFeatures = new TreeSet<>(usesFeatures);
             usesConfigurations = new TreeSet<>(usesConfigurations);
             usesLibraries = new TreeSet<>(usesLibraries);
+
+            shared = false;
         }
     }
 }
