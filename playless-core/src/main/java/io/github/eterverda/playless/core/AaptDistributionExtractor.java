@@ -5,6 +5,7 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteStreamHandler;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,17 +18,21 @@ import io.github.eterverda.playless.common.Distribution;
 public class AaptDistributionExtractor {
     private final CommandLine aapt;
 
-    public AaptDistributionExtractor(CommandLine aapt) {
-        this.aapt = aapt;
+    public AaptDistributionExtractor(String aapt) {
+        this.aapt = new CommandLine(aapt)
+                .addArgument("dump")
+                .addArgument("badging");
     }
 
-    public void extract(Distribution.Builder dist) throws IOException {
+    public void extract(Distribution.Builder dist, File file) throws IOException {
+        final CommandLine line = new CommandLine(aapt).addArgument(file.getAbsolutePath());
+
         final DistributionHandler handler = new DistributionHandler(dist);
 
         final DefaultExecutor executor = new DefaultExecutor();
         executor.setStreamHandler(handler);
 
-        executor.execute(aapt);
+        executor.execute(line);
     }
 
     private static class DistributionHandler implements ExecuteStreamHandler {
@@ -87,7 +92,7 @@ public class AaptDistributionExtractor {
                 }
                 final Matcher versionName = VERSION_NAME.matcher(line);
                 if (versionName.matches()) {
-                    dist.meta("versionName", versionName.group(1));
+                    dist.versionName(versionName.group(1));
                 }
                 final Matcher minSdkVersion = MIN_SDK_VERSION.matcher(line);
                 if (minSdkVersion.matches()) {

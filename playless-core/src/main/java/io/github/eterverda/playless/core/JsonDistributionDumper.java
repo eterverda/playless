@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
+import io.github.eterverda.playless.common.Apk;
 import io.github.eterverda.playless.common.Distribution;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 
@@ -22,20 +23,8 @@ public class JsonDistributionDumper {
     public void write(Distribution dist) throws IOException {
         generator.writeStartObject();
 
-        generator.writeObjectField("applicationId", dist.applicationId());
-        generator.writeObjectField("versionCode", dist.versionCode());
-        if (dist.timestamp() != Long.MIN_VALUE) {
-            generator.writeObjectField("timestamp", TimestampUtils.zulu(dist.timestamp()));
-        }
-        if (dist.fingerprint() != null) {
-            generator.writeObjectField("fingerprint-" + dist.fingerprint().getShortAlgorithm(), dist.fingerprint().getStringValue());
-        }
-        if (dist.signatures() != null) {
-            generator.writeObjectField("signatures-" + dist.signatures().getShortAlgorithm(), dist.signatures().getStringValue());
-        }
-        if (dist.debug()) {
-            generator.writeObjectField("debug", true);
-        }
+        generator.writeFieldName("apk");
+        write(dist.apk());
 
         generator.writeFieldName("meta");
         write(dist.meta());
@@ -46,6 +35,28 @@ public class JsonDistributionDumper {
         generator.writeEndObject();
 
         generator.flush();
+    }
+
+    private void write(Apk apk) throws IOException {
+        generator.writeStartObject();
+
+        generator.writeObjectField("applicationId", apk.applicationId());
+        generator.writeObjectField("versionCode", apk.versionCode());
+        generator.writeObjectField("versionName", apk.versionName());
+        if (apk.timestamp() != Long.MIN_VALUE) {
+            generator.writeObjectField("timestamp", TimestampUtils.zulu(apk.timestamp()));
+        }
+        if (apk.fingerprint() != null) {
+            generator.writeObjectField("fingerprint-" + apk.fingerprint().getShortAlgorithm(), apk.fingerprint().getStringValue());
+        }
+        if (apk.signatures() != null) {
+            generator.writeObjectField("signatures-" + apk.signatures().getShortAlgorithm(), apk.signatures().getStringValue());
+        }
+        if (apk.debug()) {
+            generator.writeObjectField("debug", true);
+        }
+
+        generator.writeEndObject();
     }
 
     private void write(Map<String, String> meta) throws IOException {

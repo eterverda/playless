@@ -1,7 +1,6 @@
 package io.github.eterverda.playless.common;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -17,89 +16,55 @@ import io.github.eterverda.util.checksum.Checksum;
 import io.github.eterverda.util.checksum.ChecksumUtils;
 
 public final class Distribution {
-    private final String applicationId;
-    private final int versionCode;
-    private final long timestamp;
-    private final Checksum fingerprint;
-    private final Checksum signatures;
-    private final boolean debug;
+    @NotNull
+    private final Apk apk;
+    @NotNull
     private final Map<String, String> meta;
+    @NotNull
     private final Requirements requirements;
 
     private transient String baseName;
-    private transient String apkName;
 
     private Distribution(
-            @NotNull String applicationId,
-            int versionCode, long timestamp, @Nullable Checksum fingerprint,
-            @NotNull Checksum signatures,
-            boolean debug,
+            @NotNull Apk apk,
             @NotNull Map<String, String> meta,
             @NotNull Requirements requirements) {
 
-        this.applicationId = applicationId;
-        this.versionCode = versionCode;
-        this.timestamp = timestamp;
-        this.fingerprint = fingerprint;
-        this.signatures = signatures;
-        this.debug = debug;
+        this.apk = apk;
         this.meta = meta;
         this.requirements = requirements;
     }
 
-    public String applicationId() {
-        return applicationId;
+    @NotNull
+    public Apk apk() {
+        return apk;
     }
 
-    public int versionCode() {
-        return versionCode;
-    }
-
-    public long timestamp() {
-        return timestamp;
-    }
-
-    public Checksum fingerprint() {
-        return fingerprint;
-    }
-
-    public Checksum signatures() {
-        return signatures;
-    }
-
-    public boolean debug() {
-        return debug;
-    }
-
+    @NotNull
     public Map<String, String> meta() {
         return meta;
     }
 
+    @NotNull
     public Requirements requirements() {
         return requirements;
     }
 
+    @NotNull
     public String baseName() {
         if (baseName != null) {
             return baseName;
         }
-        final StringBuilder baseNameBuilder = new StringBuilder(applicationId.length() + 35);
-        baseNameBuilder.append(TimestampUtils.zulu(timestamp));
+        final StringBuilder baseNameBuilder = new StringBuilder(apk.applicationId().length() + 35);
+        baseNameBuilder.append(TimestampUtils.zulu(apk.timestamp()));
         baseNameBuilder.append('-');
-        baseNameBuilder.append(applicationId);
+        baseNameBuilder.append(apk.applicationId());
         baseNameBuilder.append('-');
         baseNameBuilder.append(requirements.selector());
-        if (debug) {
+        if (apk.debug()) {
             baseNameBuilder.append("-debug");
         }
         return baseName = baseNameBuilder.toString();
-    }
-
-    public String apkName() {
-        if (apkName != null) {
-            return apkName;
-        }
-        return apkName = baseName() + ".apk";
     }
 
     public static final class Requirements {
@@ -217,6 +182,7 @@ public final class Distribution {
     public static final class Builder {
         private String applicationId;
         private int versionCode = 0;
+        private String versionName;
         private long timestamp = Long.MIN_VALUE;
         private Checksum fingerprint;
         private Checksum signatures;
@@ -243,6 +209,11 @@ public final class Distribution {
 
         public Builder versionCode(int versionCode) {
             this.versionCode = versionCode;
+            return this;
+        }
+
+        public Builder versionName(String versionName) {
+            this.versionName = versionName;
             return this;
         }
 
@@ -331,12 +302,13 @@ public final class Distribution {
         public Distribution build() {
             shared = true;
             return new Distribution(
-                    applicationId,
-                    versionCode,
-                    timestamp,
-                    fingerprint,
-                    signatures,
-                    debug,
+                    new Apk(applicationId,
+                            versionCode,
+                            versionName,
+                            timestamp,
+                            fingerprint,
+                            signatures,
+                            debug),
                     Collections.unmodifiableMap(meta),
                     new Requirements(
                             minSdkVersion, maxSdkVersion,
