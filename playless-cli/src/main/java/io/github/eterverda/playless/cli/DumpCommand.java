@@ -30,8 +30,7 @@ public class DumpCommand implements Command {
         for (String arg : args) {
             final File file = new File(arg);
             final Distribution.Builder builder = new Distribution.Builder();
-
-            System.out.printf("src : \"%s\",\n", file);
+            builder.externalMeta("file", file.getAbsolutePath());
 
             final AaptDistributionExtractor aaptExtractor = new AaptDistributionExtractor(aapt);
             aaptExtractor.extract(builder, file);
@@ -40,9 +39,6 @@ public class DumpCommand implements Command {
             fsExtractor.extract(builder, file);
 
             final Distribution dist = builder.build();
-
-            System.out.printf("apk : \"%s.apk\",\n", dist.baseName());
-            System.out.printf("dst : ");
 
             final JsonDistributionDumper dumper = new JsonDistributionDumper(System.out);
             dumper.write(dist);

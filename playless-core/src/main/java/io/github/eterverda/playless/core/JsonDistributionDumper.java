@@ -26,11 +26,23 @@ public class JsonDistributionDumper {
         generator.writeFieldName("apk");
         write(dist.apk());
 
-        generator.writeFieldName("meta");
-        write(dist.meta());
-
         generator.writeFieldName("requirements");
         write(dist.requirements());
+
+        if (!dist.meta().isEmpty()) {
+            generator.writeFieldName("meta");
+            write(dist.meta());
+        }
+
+        if (!dist.internalMeta().isEmpty()) {
+            generator.writeFieldName("internalMeta");
+            write(dist.internalMeta());
+        }
+
+        if (!dist.externalMeta().isEmpty()) {
+            generator.writeFieldName("externalMeta");
+            write(dist.externalMeta());
+        }
 
         generator.writeEndObject();
 

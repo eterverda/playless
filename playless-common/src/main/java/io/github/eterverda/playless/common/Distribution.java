@@ -18,18 +18,26 @@ public final class Distribution {
     @NotNull
     private final Apk apk;
     @NotNull
+    private final Requirements requirements;
+    @NotNull
     private final Map<String, String> meta;
     @NotNull
-    private final Requirements requirements;
+    private final Map<String, String> internalMeta;
+    @NotNull
+    private final Map<String, String> externalMeta;
 
     private Distribution(
             @NotNull Apk apk,
+            @NotNull Requirements requirements,
             @NotNull Map<String, String> meta,
-            @NotNull Requirements requirements) {
+            @NotNull Map<String, String> internalMeta,
+            @NotNull Map<String, String> externalMeta) {
 
         this.apk = apk;
-        this.meta = meta;
         this.requirements = requirements;
+        this.meta = meta;
+        this.internalMeta = internalMeta;
+        this.externalMeta = externalMeta;
     }
 
     @NotNull
@@ -38,13 +46,23 @@ public final class Distribution {
     }
 
     @NotNull
+    public Requirements requirements() {
+        return requirements;
+    }
+
+    @NotNull
     public Map<String, String> meta() {
         return meta;
     }
 
     @NotNull
-    public Requirements requirements() {
-        return requirements;
+    public Map<String, String> internalMeta() {
+        return internalMeta;
+    }
+
+    @NotNull
+    public Map<String, String> externalMeta() {
+        return externalMeta;
     }
 
     @NotNull
@@ -178,6 +196,8 @@ public final class Distribution {
         private boolean debug;
 
         private SortedMap<String, String> meta = new TreeMap<>();
+        private SortedMap<String, String> internalMeta = new TreeMap<>();
+        private SortedMap<String, String> externalMeta = new TreeMap<>();
 
         private int minSdkVersion = 1;
         private int maxSdkVersion = Integer.MAX_VALUE;
@@ -227,12 +247,6 @@ public final class Distribution {
 
         public Builder debug(boolean debug) {
             this.debug = debug;
-            return this;
-        }
-
-        public Builder meta(String key, String value) {
-            unShare();
-            this.meta.put(key, value);
             return this;
         }
 
@@ -288,6 +302,30 @@ public final class Distribution {
             return this;
         }
 
+        public Builder meta(String key, String value) {
+            unShare();
+            meta.put(key, value);
+            internalMeta.remove(key);
+            externalMeta.remove(key);
+            return this;
+        }
+
+        public Builder internalMeta(String key, String value) {
+            unShare();
+            meta.remove(key);
+            internalMeta.put(key, value);
+            externalMeta.remove(key);
+            return this;
+        }
+
+        public Builder externalMeta(String key, String value) {
+            unShare();
+            meta.remove(key);
+            internalMeta.remove(key);
+            externalMeta.put(key, value);
+            return this;
+        }
+
         public Distribution build() {
             shared = true;
             return new Distribution(
@@ -298,7 +336,6 @@ public final class Distribution {
                             fingerprint,
                             signatures,
                             debug),
-                    Collections.unmodifiableMap(meta),
                     new Requirements(
                             minSdkVersion, maxSdkVersion,
                             Collections.unmodifiableSortedSet(supportsScreens),
@@ -307,14 +344,16 @@ public final class Distribution {
                             Collections.unmodifiableSortedSet(abis),
                             Collections.unmodifiableSortedSet(usesFeatures),
                             Collections.unmodifiableSortedSet(usesLibraries),
-                            Collections.unmodifiableSortedSet(usesConfigurations)));
+                            Collections.unmodifiableSortedSet(usesConfigurations)),
+                    Collections.unmodifiableMap(meta),
+                    Collections.unmodifiableMap(internalMeta),
+                    Collections.unmodifiableMap(externalMeta));
         }
 
         private void unShare() {
             if (!shared) {
                 return;
             }
-            meta = new TreeMap<>(meta);
             supportsScreens = new TreeSet<>(supportsScreens);
             compatibleScreens = new TreeSet<>(compatibleScreens);
             supportsGlTextures = new TreeSet<>(supportsGlTextures);
@@ -322,6 +361,10 @@ public final class Distribution {
             usesFeatures = new TreeSet<>(usesFeatures);
             usesConfigurations = new TreeSet<>(usesConfigurations);
             usesLibraries = new TreeSet<>(usesLibraries);
+
+            meta = new TreeMap<>(meta);
+            internalMeta = new TreeMap<>(internalMeta);
+            externalMeta = new TreeMap<>(externalMeta);
 
             shared = false;
         }
