@@ -48,8 +48,8 @@ public class AaptDistributionExtractor {
         private static final Pattern USES_CONFIGURATION_NAVIGATION = Pattern.compile("uses-configuration:.*reqNavigation='(-?[0-9]+)'.*");
         private static final Pattern USES_CONFIGURATION_HARD_KEYBOARD = Pattern.compile("uses-configuration:.*reqHardKeyboard='-1'.*");
         private static final Pattern USES_CONFIGURATION_FIVE_WAY_NAV = Pattern.compile("uses-configuration:.*reqFiveWayNav='-1'.*");
-        private static final Pattern LABEL = Pattern.compile("application-(label(?:-\\p{Alnum}+)*):'(.*)'");
-        private static final Pattern ICON = Pattern.compile("application-(icon(?:-\\p{Alnum}+)*):'(.*)'");
+        private static final Pattern LABEL = Pattern.compile("application-label((?:-\\p{Alnum}+)*):'(.*)'");
+        private static final Pattern ICON = Pattern.compile("application-icon((?:-\\p{Alnum}+)*):'(.*)'");
         private static final Pattern SUPPORTS_SCREENS = Pattern.compile("supports-screens:(.*)");
         private static final Pattern REQUIRES_SMALLEST_WIDTH = Pattern.compile("requires-smallest-width:'(\\p{Digit}*)'");
         private static final Pattern COMPATIBLE_SCREENS = Pattern.compile("compatible-screens:(.*)");
@@ -93,7 +93,7 @@ public class AaptDistributionExtractor {
                 }
                 final Matcher versionName = VERSION_NAME.matcher(line);
                 if (versionName.matches()) {
-                    dist.versionName(versionName.group(1));
+                    dist.meta(Distribution.META_VERSION_NAME, versionName.group(1));
                 }
                 final Matcher minSdkVersion = MIN_SDK_VERSION.matcher(line);
                 if (minSdkVersion.matches()) {
@@ -133,11 +133,11 @@ public class AaptDistributionExtractor {
                 }
                 final Matcher label = LABEL.matcher(line);
                 if (label.matches()) {
-                    dist.meta(label.group(1), label.group(2));
+                    dist.meta(Distribution.META_LABEL + label.group(1), label.group(2));
                 }
                 final Matcher icon = ICON.matcher(line);
                 if (icon.matches()) {
-                    dist.internalMeta(icon.group(1), icon.group(2));
+                    dist.internalMeta(Distribution.META_ICON + icon.group(1), icon.group(2));
                 }
                 final Matcher supportsScreens = SUPPORTS_SCREENS.matcher(line);
                 if (supportsScreens.matches()) {

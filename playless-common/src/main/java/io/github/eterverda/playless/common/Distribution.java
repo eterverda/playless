@@ -1,6 +1,7 @@
 package io.github.eterverda.playless.common;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -8,87 +9,76 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import io.github.eterverda.playless.common.util.TimestampUtils;
 import io.github.eterverda.util.checksum.Checksum;
-import io.github.eterverda.util.checksum.ChecksumUtils;
 
 public final class Distribution {
+    public static final String META_APP = "app";
+    public static final String META_VERSION_NAME = "versionName";
+    public static final String META_ICON = "icon";
+    public static final String META_LABEL = "label";
+
     @NotNull
-    private final Apk apk;
+    public final String applicationId;
     @NotNull
-    private final Requirements requirements;
+    public final Version version;
     @NotNull
-    private final Map<String, String> meta;
+    public final Filter filter;
     @NotNull
-    private final Map<String, String> internalMeta;
+    public final Map<String, String> meta;
     @NotNull
-    private final Map<String, String> externalMeta;
+    public final Map<String, String> internalMeta;
+    @NotNull
+    public final Map<String, String> externalMeta;
 
     private Distribution(
-            @NotNull Apk apk,
-            @NotNull Requirements requirements,
+            @NotNull String applicationId,
+            @NotNull Version version,
+            @NotNull Filter filter,
             @NotNull Map<String, String> meta,
             @NotNull Map<String, String> internalMeta,
             @NotNull Map<String, String> externalMeta) {
 
-        this.apk = apk;
-        this.requirements = requirements;
+        this.applicationId = applicationId;
+        this.version = version;
+        this.filter = filter;
         this.meta = meta;
         this.internalMeta = internalMeta;
         this.externalMeta = externalMeta;
     }
 
-    @NotNull
-    public Apk apk() {
-        return apk;
-    }
+    public static final class Version {
+        public final int versionCode;
+        public final long timestamp;
+        @Nullable
+        public final Checksum fingerprint;
+        @Nullable
+        public final Checksum signatures;
+        public final boolean debug;
 
-    @NotNull
-    public Requirements requirements() {
-        return requirements;
-    }
+        private Version(int versionCode, long timestamp,
+                        @Nullable Checksum fingerprint, @Nullable Checksum signatures,
+                        boolean debug) {
 
-    @NotNull
-    public Map<String, String> meta() {
-        return meta;
-    }
-
-    @NotNull
-    public Map<String, String> internalMeta() {
-        return internalMeta;
-    }
-
-    @NotNull
-    public Map<String, String> externalMeta() {
-        return externalMeta;
-    }
-
-    @NotNull
-    public String baseName() {
-        final StringBuilder baseNameBuilder = new StringBuilder(apk.applicationId().length() + 35);
-        baseNameBuilder.append(TimestampUtils.zulu(apk.timestamp()));
-        baseNameBuilder.append('-');
-        baseNameBuilder.append(apk.applicationId());
-        baseNameBuilder.append('-');
-        baseNameBuilder.append(requirements.selector());
-        if (apk.debug()) {
-            baseNameBuilder.append("-debug");
+            this.versionCode = versionCode;
+            this.timestamp = timestamp;
+            this.fingerprint = fingerprint;
+            this.signatures = signatures;
+            this.debug = debug;
         }
-        return baseNameBuilder.toString();
     }
 
-    public static final class Requirements {
-        private final int minSdkVersion;
-        private final int maxSdkVersion;
-        private final Collection<String> supportsScreens;
-        private final Collection<String> compatibleScreens;
-        private final Collection<String> supportsGlTextures;
-        private final Collection<String> abis;
-        private final Collection<String> usesFeatures;
-        private final Collection<String> usesConfigurations;
-        private final Collection<String> usesLibraries;
+    public static final class Filter {
+        public final int minSdkVersion;
+        public final int maxSdkVersion;
+        public final Collection<String> supportsScreens;
+        public final Collection<String> compatibleScreens;
+        public final Collection<String> supportsGlTextures;
+        public final Collection<String> abis;
+        public final Collection<String> usesFeatures;
+        public final Collection<String> usesConfigurations;
+        public final Collection<String> usesLibraries;
 
-        private Requirements(
+        private Filter(
                 int minSdkVersion, int maxSdkVersion,
                 @NotNull Collection<String> supportsScreens,
                 @NotNull Collection<String> compatibleScreens,
@@ -109,42 +99,6 @@ public final class Distribution {
             this.usesConfigurations = usesConfigurations;
         }
 
-        public int minSdkVersion() {
-            return minSdkVersion;
-        }
-
-        public int maxSdkVersion() {
-            return maxSdkVersion;
-        }
-
-        public Collection<String> supportsScreens() {
-            return supportsScreens;
-        }
-
-        public Collection<String> compatibleScreens() {
-            return compatibleScreens;
-        }
-
-        public Collection<String> supportsGlTextures() {
-            return supportsGlTextures;
-        }
-
-        public Collection<String> abis() {
-            return abis;
-        }
-
-        public Collection<String> usesFeatures() {
-            return usesFeatures;
-        }
-
-        public Collection<String> usesConfigurations() {
-            return usesConfigurations;
-        }
-
-        public Collection<String> usesLibraries() {
-            return usesLibraries;
-        }
-
         @Override
         public int hashCode() {
             int h = 0;
@@ -152,35 +106,23 @@ public final class Distribution {
             h ^= 0xffff0000 & minSdkVersion << 16;
             h ^= 0x0000ffff & maxSdkVersion;
 
-            for (String supportsGlTexture : supportsGlTextures) {
-                h ^= supportsGlTexture.hashCode();
-            }
-            for (String supportsScreen : supportsScreens) {
-                h ^= supportsScreen.hashCode();
-            }
-            for (String compatibleScreen : compatibleScreens) {
-                h ^= compatibleScreen.hashCode();
-            }
-            for (String usesFeature : usesFeatures) {
-                h ^= usesFeature.hashCode();
-            }
-            for (String abi : abis) {
-                h ^= abi.hashCode();
-            }
-            for (String usesLibrary : usesLibraries) {
-                h ^= usesLibrary.hashCode();
-            }
-            for (String usesConfiguration : usesConfigurations) {
-                h ^= usesConfiguration.hashCode();
-            }
+            h ^= hashCode(supportsGlTextures);
+            h ^= hashCode(supportsScreens);
+            h ^= hashCode(compatibleScreens);
+            h ^= hashCode(usesFeatures);
+            h ^= hashCode(abis);
+            h ^= hashCode(usesLibraries);
+            h ^= hashCode(usesConfigurations);
 
             return h;
         }
 
-        public String selector() {
-            final int hashCode = hashCode();
-            final String hexCode = ChecksumUtils.intToHexString(hashCode);
-            return hexCode.substring(0, 7);
+        private int hashCode(Collection<?> collection) {
+            int h = 0;
+            for (Object e : collection) {
+                h ^= e.hashCode();
+            }
+            return h;
         }
     }
 
@@ -190,8 +132,8 @@ public final class Distribution {
 
     public static final class Editor {
         private String applicationId;
+
         private int versionCode = 0;
-        private String versionName;
         private long timestamp = Long.MIN_VALUE;
         private Checksum fingerprint;
         private Checksum signatures;
@@ -228,23 +170,23 @@ public final class Distribution {
         }
 
         private Editor(Distribution dist) {
-            applicationId = dist.apk.applicationId();
-            versionCode = dist.apk.versionCode();
-            versionName = dist.apk.versionName();
-            timestamp = dist.apk.timestamp();
-            fingerprint = dist.apk.fingerprint();
-            signatures = dist.apk.signatures();
-            debug = dist.apk.debug();
+            applicationId = dist.applicationId;
 
-            minSdkVersion = dist.requirements.minSdkVersion;
-            maxSdkVersion = dist.requirements.maxSdkVersion;
-            supportsScreens = dist.requirements.supportsScreens;
-            compatibleScreens = dist.requirements.compatibleScreens;
-            supportsGlTextures = dist.requirements.supportsGlTextures;
-            abis = dist.requirements.abis;
-            usesFeatures = dist.requirements.usesFeatures;
-            usesConfigurations = dist.requirements.usesConfigurations;
-            usesLibraries = dist.requirements.usesLibraries;
+            versionCode = dist.version.versionCode;
+            timestamp = dist.version.timestamp;
+            fingerprint = dist.version.fingerprint;
+            signatures = dist.version.signatures;
+            debug = dist.version.debug;
+
+            minSdkVersion = dist.filter.minSdkVersion;
+            maxSdkVersion = dist.filter.maxSdkVersion;
+            supportsScreens = dist.filter.supportsScreens;
+            compatibleScreens = dist.filter.compatibleScreens;
+            supportsGlTextures = dist.filter.supportsGlTextures;
+            abis = dist.filter.abis;
+            usesFeatures = dist.filter.usesFeatures;
+            usesConfigurations = dist.filter.usesConfigurations;
+            usesLibraries = dist.filter.usesLibraries;
 
             meta = dist.meta;
             internalMeta = dist.internalMeta;
@@ -260,11 +202,6 @@ public final class Distribution {
 
         public Editor versionCode(int versionCode) {
             this.versionCode = versionCode;
-            return this;
-        }
-
-        public Editor versionName(String versionName) {
-            this.versionName = versionName;
             return this;
         }
 
@@ -372,25 +309,34 @@ public final class Distribution {
             share();
 
             return new Distribution(
-                    new Apk(applicationId,
-                            versionCode,
-                            versionName,
-                            timestamp,
-                            fingerprint,
-                            signatures,
-                            debug),
-                    new Requirements(
-                            minSdkVersion, maxSdkVersion,
-                            supportsScreens,
-                            compatibleScreens,
-                            supportsGlTextures,
-                            abis,
-                            usesFeatures,
-                            usesLibraries,
-                            usesConfigurations),
+                    applicationId,
+                    buildVersion(),
+                    buildFilter(),
                     meta,
                     internalMeta,
                     externalMeta);
+        }
+
+        public Version buildVersion() {
+            return new Version(versionCode,
+                    timestamp,
+                    fingerprint,
+                    signatures,
+                    debug);
+        }
+
+        private Filter buildFilter() {
+            share();
+
+            return new Filter(
+                    minSdkVersion, maxSdkVersion,
+                    supportsScreens,
+                    compatibleScreens,
+                    supportsGlTextures,
+                    abis,
+                    usesFeatures,
+                    usesLibraries,
+                    usesConfigurations);
         }
 
         private void share() {

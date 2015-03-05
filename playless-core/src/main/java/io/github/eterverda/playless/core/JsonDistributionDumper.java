@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Map;
 
-import io.github.eterverda.playless.common.Apk;
 import io.github.eterverda.playless.common.Distribution;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 
@@ -23,25 +23,27 @@ public class JsonDistributionDumper {
     public void write(Distribution dist) throws IOException {
         generator.writeStartObject();
 
-        generator.writeFieldName("apk");
-        write(dist.apk());
+        generator.writeObjectField("applicationId", dist.applicationId);
 
-        generator.writeFieldName("requirements");
-        write(dist.requirements());
+        generator.writeFieldName("version");
+        write(dist.version);
 
-        if (!dist.meta().isEmpty()) {
+        generator.writeFieldName("filter");
+        write(dist.filter);
+
+        if (!dist.meta.isEmpty()) {
             generator.writeFieldName("meta");
-            write(dist.meta());
+            write(dist.meta);
         }
 
-        if (!dist.internalMeta().isEmpty()) {
+        if (!dist.internalMeta.isEmpty()) {
             generator.writeFieldName("internalMeta");
-            write(dist.internalMeta());
+            write(dist.internalMeta);
         }
 
-        if (!dist.externalMeta().isEmpty()) {
+        if (!dist.externalMeta.isEmpty()) {
             generator.writeFieldName("externalMeta");
-            write(dist.externalMeta());
+            write(dist.externalMeta);
         }
 
         generator.writeEndObject();
@@ -49,22 +51,20 @@ public class JsonDistributionDumper {
         generator.flush();
     }
 
-    private void write(Apk apk) throws IOException {
+    private void write(Distribution.Version version) throws IOException {
         generator.writeStartObject();
 
-        generator.writeObjectField("applicationId", apk.applicationId());
-        generator.writeObjectField("versionCode", apk.versionCode());
-        generator.writeObjectField("versionName", apk.versionName());
-        if (apk.timestamp() != Long.MIN_VALUE) {
-            generator.writeObjectField("timestamp", TimestampUtils.zulu(apk.timestamp()));
+        generator.writeObjectField("versionCode", version.versionCode);
+        if (version.timestamp != Long.MIN_VALUE) {
+            generator.writeObjectField("timestamp", TimestampUtils.zulu(version.timestamp));
         }
-        if (apk.fingerprint() != null) {
-            generator.writeObjectField("fingerprint-" + apk.fingerprint().getShortAlgorithm(), apk.fingerprint().getStringValue());
+        if (version.fingerprint != null) {
+            generator.writeObjectField("fingerprint-" + version.fingerprint.getShortAlgorithm(), version.fingerprint.getStringValue());
         }
-        if (apk.signatures() != null) {
-            generator.writeObjectField("signatures-" + apk.signatures().getShortAlgorithm(), apk.signatures().getStringValue());
+        if (version.signatures != null) {
+            generator.writeObjectField("signatures-" + version.signatures.getShortAlgorithm(), version.signatures.getStringValue());
         }
-        if (apk.debug()) {
+        if (version.debug) {
             generator.writeObjectField("debug", true);
         }
 
@@ -81,58 +81,46 @@ public class JsonDistributionDumper {
         generator.writeEndObject();
     }
 
-    private void write(Distribution.Requirements requirements) throws IOException {
+    private void write(Distribution.Filter filter) throws IOException {
         generator.writeStartObject();
 
-        generator.writeObjectField("minSdkVersion", requirements.minSdkVersion());
-        if (requirements.maxSdkVersion() != Integer.MAX_VALUE) {
-            generator.writeObjectField("maxSdkVersion", requirements.maxSdkVersion());
+        generator.writeObjectField("minSdkVersion", filter.minSdkVersion);
+
+        if (filter.maxSdkVersion != Integer.MAX_VALUE) {
+            generator.writeObjectField("maxSdkVersion", filter.maxSdkVersion);
         }
 
-        generator.writeArrayFieldStart("supportsScreens");
-        for (String supportsScreen : requirements.supportsScreens()) {
+        generator.writeFieldName("supportsScreens");
+        write(filter.supportsScreens);
+
+        generator.writeFieldName("compatibleScreens");
+        write(filter.compatibleScreens);
+
+        generator.writeFieldName("supportsGlTextures");
+        write(filter.supportsGlTextures);
+
+        generator.writeFieldName("usesFeatures");
+        write(filter.usesFeatures);
+
+        if (!filter.abis.isEmpty()) {
+            generator.writeFieldName("abis");
+            write(filter.abis);
+        }
+
+        generator.writeFieldName("usesConfigurations");
+        write(filter.usesConfigurations);
+
+        generator.writeFieldName("usesLibraries");
+        write(filter.usesLibraries);
+
+        generator.writeEndObject();
+    }
+
+    private void write(Collection<String> collection) throws IOException {
+        generator.writeStartArray();
+        for (String supportsScreen : collection) {
             generator.writeString(supportsScreen);
         }
         generator.writeEndArray();
-
-        generator.writeArrayFieldStart("compatibleScreens");
-        for (String compatibleScreen : requirements.compatibleScreens()) {
-            generator.writeString(compatibleScreen);
-        }
-        generator.writeEndArray();
-
-        generator.writeArrayFieldStart("supportsGlTextures");
-        for (String supportsGlTexture : requirements.supportsGlTextures()) {
-            generator.writeString(supportsGlTexture);
-        }
-        generator.writeEndArray();
-
-        generator.writeArrayFieldStart("usesFeatures");
-        for (String usesFeature : requirements.usesFeatures()) {
-            generator.writeString(usesFeature);
-        }
-        generator.writeEndArray();
-
-        if (!requirements.abis().isEmpty()) {
-            generator.writeArrayFieldStart("abis");
-            for (String abi : requirements.abis()) {
-                generator.writeString(abi);
-            }
-            generator.writeEndArray();
-        }
-
-        generator.writeArrayFieldStart("usesConfigurations");
-        for (String usesConfiguration : requirements.usesConfigurations()) {
-            generator.writeString(usesConfiguration);
-        }
-        generator.writeEndArray();
-
-        generator.writeArrayFieldStart("usesLibraries");
-        for (String usesLibrary : requirements.usesLibraries()) {
-            generator.writeString(usesLibrary);
-        }
-        generator.writeEndArray();
-
-        generator.writeEndObject();
     }
 }

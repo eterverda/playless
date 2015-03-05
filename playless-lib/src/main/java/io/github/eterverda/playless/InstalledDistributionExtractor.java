@@ -16,19 +16,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import io.github.eterverda.playless.common.Apk;
+import io.github.eterverda.playless.common.Distribution;
 import io.github.eterverda.util.checksum.Checksum;
 
-public final class InstalledApkExtractor {
+public final class InstalledDistributionExtractor {
     private final PackageManager packageManager;
     private final String packageName;
 
-    public InstalledApkExtractor(Context context) {
+    public InstalledDistributionExtractor(Context context) {
         packageManager = context.getPackageManager();
         packageName = context.getPackageName();
     }
 
-    public Apk loadSelf() {
+    public Distribution loadSelf() {
         try {
             return load(packageName);
         } catch (PackageManager.NameNotFoundException e) {
@@ -37,17 +37,26 @@ public final class InstalledApkExtractor {
     }
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    public Apk load(String packageName) throws PackageManager.NameNotFoundException {
+    public Distribution load(String packageName) throws PackageManager.NameNotFoundException {
         final @NotNull PackageInfo info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+        final Distribution.Editor dist = new Distribution.Editor();
 
-        return new Apk(
-                info.packageName,
-                info.versionCode,
-                info.versionName,
-                info.lastUpdateTime,
-                fingerprint(info),
-                signatures(info),
-                debug(info));
+        dist.applicationId(packageName);
+
+        dist.versionCode(info.versionCode);
+        dist.timestamp(info.lastUpdateTime);
+        dist.fingerprint(fingerprint(info));
+        dist.signatures(signatures(info));
+        dist.debug(debug(info));
+
+        dist.meta(Distribution.META_VERSION_NAME, info.versionName);
+        dist.meta(Distribution.META_LABEL, label(info));
+
+        return dist.build();
+    }
+
+    private String label(PackageInfo info) {
+        return info.applicationInfo.loadLabel(packageManager).toString();
     }
 
     private static Checksum signatures(PackageInfo info) {
@@ -82,5 +91,4 @@ public final class InstalledApkExtractor {
     private static boolean debug(PackageInfo info) {
         return (info.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     }
-
 }
