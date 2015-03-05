@@ -102,16 +102,16 @@ public class JsonDistributionDumper {
         generator.writeFieldName("usesFeatures");
         write(filter.usesFeatures);
 
-        if (!filter.abis.isEmpty()) {
-            generator.writeFieldName("abis");
-            write(filter.abis);
-        }
-
         generator.writeFieldName("usesConfigurations");
         write(filter.usesConfigurations);
 
         generator.writeFieldName("usesLibraries");
         write(filter.usesLibraries);
+
+        if (!filter.nativeCode.isEmpty()) {
+            generator.writeFieldName("nativeCode");
+            write(filter.nativeCode);
+        }
 
         generator.writeEndObject();
     }

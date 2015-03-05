@@ -82,30 +82,30 @@ public final class Distribution {
         public final Collection<String> supportsScreens;
         public final Collection<String> compatibleScreens;
         public final Collection<String> supportsGlTextures;
-        public final Collection<String> abis;
         public final Collection<String> usesFeatures;
         public final Collection<String> usesConfigurations;
         public final Collection<String> usesLibraries;
+        public final Collection<String> nativeCode;
 
         private Filter(
                 int minSdkVersion, int maxSdkVersion,
                 @NotNull Collection<String> supportsScreens,
                 @NotNull Collection<String> compatibleScreens,
                 @NotNull Collection<String> supportsGlTextures,
-                @NotNull Collection<String> abis,
                 @NotNull Collection<String> usesFeatures,
                 @NotNull Collection<String> usesLibraries,
-                @NotNull Collection<String> usesConfigurations) {
+                @NotNull Collection<String> usesConfigurations,
+                @NotNull Collection<String> nativeCode) {
 
             this.minSdkVersion = minSdkVersion;
             this.maxSdkVersion = maxSdkVersion;
             this.supportsScreens = supportsScreens;
             this.compatibleScreens = compatibleScreens;
             this.supportsGlTextures = supportsGlTextures;
-            this.abis = abis;
             this.usesFeatures = usesFeatures;
             this.usesLibraries = usesLibraries;
             this.usesConfigurations = usesConfigurations;
+            this.nativeCode = nativeCode;
         }
 
         @Override
@@ -119,9 +119,9 @@ public final class Distribution {
             h ^= hashCode(supportsScreens);
             h ^= hashCode(compatibleScreens);
             h ^= hashCode(usesFeatures);
-            h ^= hashCode(abis);
             h ^= hashCode(usesLibraries);
             h ^= hashCode(usesConfigurations);
+            h ^= hashCode(nativeCode);
 
             return h;
         }
@@ -154,10 +154,10 @@ public final class Distribution {
         private Collection<String> supportsScreens;
         private Collection<String> compatibleScreens;
         private Collection<String> supportsGlTextures;
-        private Collection<String> abis;
         private Collection<String> usesFeatures;
         private Collection<String> usesConfigurations;
         private Collection<String> usesLibraries;
+        private Collection<String> nativeCode;
 
         private Map<String, String> meta;
         private Map<String, String> internalMeta;
@@ -169,10 +169,10 @@ public final class Distribution {
             supportsScreens = new TreeSet<>();
             compatibleScreens = new TreeSet<>();
             supportsGlTextures = new TreeSet<>();
-            abis = new TreeSet<>();
             usesFeatures = new TreeSet<>();
             usesConfigurations = new TreeSet<>();
             usesLibraries = new TreeSet<>();
+            nativeCode = new TreeSet<>();
 
             meta = new TreeMap<>();
             internalMeta = new TreeMap<>();
@@ -193,10 +193,10 @@ public final class Distribution {
             supportsScreens = dist.filter.supportsScreens;
             compatibleScreens = dist.filter.compatibleScreens;
             supportsGlTextures = dist.filter.supportsGlTextures;
-            abis = dist.filter.abis;
             usesFeatures = dist.filter.usesFeatures;
             usesConfigurations = dist.filter.usesConfigurations;
             usesLibraries = dist.filter.usesLibraries;
+            nativeCode = dist.filter.nativeCode;
 
             meta = dist.meta;
             internalMeta = dist.internalMeta;
@@ -267,12 +267,6 @@ public final class Distribution {
             return this;
         }
 
-        public Editor abi(String... abis) {
-            unShare();
-            Collections.addAll(this.abis, abis);
-            return this;
-        }
-
         public Editor usesFeature(String... usesFeatures) {
             unShare();
             Collections.addAll(this.usesFeatures, usesFeatures);
@@ -288,6 +282,12 @@ public final class Distribution {
         public Editor usesLibrary(String... usesLibraries) {
             unShare();
             Collections.addAll(this.usesLibraries, usesLibraries);
+            return this;
+        }
+
+        public Editor nativeCode(String... nativeCode) {
+            unShare();
+            Collections.addAll(this.nativeCode, nativeCode);
             return this;
         }
 
@@ -343,10 +343,10 @@ public final class Distribution {
                     supportsScreens,
                     compatibleScreens,
                     supportsGlTextures,
-                    abis,
                     usesFeatures,
                     usesLibraries,
-                    usesConfigurations);
+                    usesConfigurations,
+                    nativeCode);
         }
 
         private void share() {
@@ -356,10 +356,10 @@ public final class Distribution {
             supportsScreens = unmodifiableCollection(supportsScreens);
             compatibleScreens = unmodifiableCollection(compatibleScreens);
             supportsGlTextures = unmodifiableCollection(supportsGlTextures);
-            abis = unmodifiableCollection(abis);
             usesFeatures = unmodifiableCollection(usesFeatures);
             usesLibraries = unmodifiableCollection(usesLibraries);
             usesConfigurations = unmodifiableCollection(usesConfigurations);
+            nativeCode = unmodifiableCollection(nativeCode);
 
             meta = unmodifiableMap(meta);
             internalMeta = unmodifiableMap(internalMeta);
@@ -375,10 +375,10 @@ public final class Distribution {
             supportsScreens = new TreeSet<>(supportsScreens);
             compatibleScreens = new TreeSet<>(compatibleScreens);
             supportsGlTextures = new TreeSet<>(supportsGlTextures);
-            abis = new TreeSet<>(abis);
             usesFeatures = new TreeSet<>(usesFeatures);
             usesConfigurations = new TreeSet<>(usesConfigurations);
             usesLibraries = new TreeSet<>(usesLibraries);
+            nativeCode = new TreeSet<>(nativeCode);
 
             meta = new TreeMap<>(meta);
             internalMeta = new TreeMap<>(internalMeta);

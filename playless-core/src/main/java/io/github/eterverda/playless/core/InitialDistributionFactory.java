@@ -82,7 +82,7 @@ public class InitialDistributionFactory {
         private static final Pattern COMPATIBLE_SCREENS = Pattern.compile("compatible-screens:(.*)");
         private static final Pattern SUPPORTS_GL_TEXTURES = Pattern.compile("supports-gl-texture:'(.*)'");
         private static final Pattern USES_LIBRARY = Pattern.compile("uses-library:'(.*)'");
-        private static final Pattern ABIS = Pattern.compile("native-code:(.*)");
+        private static final Pattern NATIVE_CODE = Pattern.compile("native-code:(.*)");
 
         private BufferedReader in;
         private Distribution.Editor dist;
@@ -193,9 +193,9 @@ public class InitialDistributionFactory {
                 if (usesLibrary.matches()) {
                     dist.usesLibrary(usesLibrary.group(1));
                 }
-                final Matcher abis = ABIS.matcher(line);
-                if (abis.matches()) {
-                    dist.abi(split(abis.group(1)));
+                final Matcher nativeCode = NATIVE_CODE.matcher(line);
+                if (nativeCode.matches()) {
+                    dist.nativeCode(split(nativeCode.group(1)));
                 }
             }
         }
