@@ -1,5 +1,8 @@
 package io.github.eterverda.util.checksum;
 
+import net.jcip.annotations.Immutable;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +14,8 @@ import java.util.Arrays;
 import static io.github.eterverda.util.checksum.ChecksumUtils.canonicalAlgorithm;
 import static io.github.eterverda.util.checksum.ChecksumUtils.digest;
 
+@Immutable
+@ThreadSafe
 public final class Checksum {
     public static final String ALGORITHM_SHA_1 = "SHA-1";
 

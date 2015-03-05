@@ -1,5 +1,7 @@
 package io.github.eterverda.util.checksum;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.eterverda.util.checksum.Checksum.ALGORITHM_SHA_1;
 
+@ThreadSafe
 public final class ChecksumUtils {
     public static final String SHORT_ALGORITHM_SHA1 = "sha1";
 

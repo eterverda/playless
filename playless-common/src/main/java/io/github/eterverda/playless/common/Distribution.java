@@ -1,5 +1,9 @@
 package io.github.eterverda.playless.common;
 
+import net.jcip.annotations.Immutable;
+import net.jcip.annotations.NotThreadSafe;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +15,8 @@ import java.util.TreeSet;
 
 import io.github.eterverda.util.checksum.Checksum;
 
+@Immutable
+@ThreadSafe
 public final class Distribution {
     public static final String META_APP = "app";
     public static final String META_VERSION_NAME = "versionName";
@@ -46,6 +52,7 @@ public final class Distribution {
         this.externalMeta = externalMeta;
     }
 
+    @Immutable
     public static final class Version {
         public final int versionCode;
         public final long timestamp;
@@ -67,6 +74,8 @@ public final class Distribution {
         }
     }
 
+    @Immutable
+    @ThreadSafe
     public static final class Filter {
         public final int minSdkVersion;
         public final int maxSdkVersion;
@@ -130,6 +139,7 @@ public final class Distribution {
         return new Editor(this);
     }
 
+    @NotThreadSafe
     public static final class Editor {
         private String applicationId;
 
