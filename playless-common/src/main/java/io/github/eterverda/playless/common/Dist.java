@@ -17,7 +17,7 @@ import io.github.eterverda.util.checksum.Checksum;
 
 @Immutable
 @ThreadSafe
-public final class Distribution {
+public final class Dist {
     public static final String META_APP = "app";
     public static final String META_VERSION_NAME = "versionName";
     public static final String META_ICON = "icon";
@@ -36,7 +36,7 @@ public final class Distribution {
     @NotNull
     public final Map<String, String> externalMeta;
 
-    private Distribution(
+    private Dist(
             @NotNull String applicationId,
             @NotNull Version version,
             @NotNull Filter filter,
@@ -179,7 +179,7 @@ public final class Distribution {
             externalMeta = new TreeMap<>();
         }
 
-        private Editor(Distribution dist) {
+        private Editor(Dist dist) {
             applicationId = dist.applicationId;
 
             versionCode = dist.version.versionCode;
@@ -311,10 +311,10 @@ public final class Distribution {
             return this;
         }
 
-        public Distribution build() {
+        public Dist build() {
             share();
 
-            return new Distribution(
+            return new Dist(
                     applicationId,
                     buildVersion(),
                     buildFilter(),

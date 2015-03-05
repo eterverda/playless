@@ -14,21 +14,21 @@ import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.github.eterverda.playless.common.Distribution;
-import io.github.eterverda.playless.common.util.DistributionFactories;
+import io.github.eterverda.playless.common.Dist;
+import io.github.eterverda.playless.common.util.DistFactories;
 import io.github.eterverda.playless.core.util.jar.Jars;
 
-public class InitialDistributionFactory {
+public class InitialDistFactory {
     @NotNull
     private final String aapt;
 
-    public InitialDistributionFactory(@NotNull String aapt) {
+    public InitialDistFactory(@NotNull String aapt) {
         this.aapt = aapt;
     }
 
     @NotNull
-    public Distribution load(@NotNull File file) throws IOException {
-        final Distribution.Editor dist = new Distribution.Editor();
+    public Dist load(@NotNull File file) throws IOException {
+        final Dist.Editor dist = new Dist.Editor();
 
         loadFileTo(dist, file);
         loadAaptTo(dist, file);
@@ -36,19 +36,19 @@ public class InitialDistributionFactory {
         return dist.build();
     }
 
-    private static void loadFileTo(@NotNull Distribution.Editor dist, @NotNull File file) throws IOException {
+    private static void loadFileTo(@NotNull Dist.Editor dist, @NotNull File file) throws IOException {
         loadTimestampTo(dist, file);
 
-        dist.externalMeta(Distribution.META_APP, file.getAbsolutePath());
-        dist.fingerprint(DistributionFactories.loadFingerprint(file));
+        dist.externalMeta(Dist.META_APP, file.getAbsolutePath());
+        dist.fingerprint(DistFactories.loadFingerprint(file));
         dist.signatures(Jars.loadSignatures(file));
     }
 
-    private static void loadTimestampTo(@NotNull Distribution.Editor dist, @NotNull File file) {
+    private static void loadTimestampTo(@NotNull Dist.Editor dist, @NotNull File file) {
         dist.timestamp(file.lastModified());
     }
 
-    private void loadAaptTo(@NotNull Distribution.Editor dist, @NotNull File file) throws IOException {
+    private void loadAaptTo(@NotNull Dist.Editor dist, @NotNull File file) throws IOException {
         final CommandLine line = new CommandLine(aapt)
                 .addArgument("dump")
                 .addArgument("badging")
@@ -85,9 +85,9 @@ public class InitialDistributionFactory {
         private static final Pattern NATIVE_CODE = Pattern.compile("native-code:(.*)");
 
         private BufferedReader in;
-        private Distribution.Editor dist;
+        private Dist.Editor dist;
 
-        public AaptStreamHandler(Distribution.Editor dist) {
+        public AaptStreamHandler(Dist.Editor dist) {
             this.dist = dist;
         }
 
@@ -120,7 +120,7 @@ public class InitialDistributionFactory {
                 }
                 final Matcher versionName = VERSION_NAME.matcher(line);
                 if (versionName.matches()) {
-                    dist.meta(Distribution.META_VERSION_NAME, versionName.group(1));
+                    dist.meta(Dist.META_VERSION_NAME, versionName.group(1));
                 }
                 final Matcher minSdkVersion = MIN_SDK_VERSION.matcher(line);
                 if (minSdkVersion.matches()) {
@@ -160,11 +160,11 @@ public class InitialDistributionFactory {
                 }
                 final Matcher label = LABEL.matcher(line);
                 if (label.matches()) {
-                    dist.meta(Distribution.META_LABEL + label.group(1), label.group(2));
+                    dist.meta(Dist.META_LABEL + label.group(1), label.group(2));
                 }
                 final Matcher icon = ICON.matcher(line);
                 if (icon.matches()) {
-                    dist.internalMeta(Distribution.META_ICON + icon.group(1), icon.group(2));
+                    dist.internalMeta(Dist.META_ICON + icon.group(1), icon.group(2));
                 }
                 final Matcher supportsScreens = SUPPORTS_SCREENS.matcher(line);
                 if (supportsScreens.matches()) {

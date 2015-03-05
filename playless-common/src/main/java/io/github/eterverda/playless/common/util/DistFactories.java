@@ -9,8 +9,8 @@ import java.io.InputStream;
 
 import io.github.eterverda.util.checksum.Checksum;
 
-public final class DistributionFactories {
-    private DistributionFactories() {
+public final class DistFactories {
+    private DistFactories() {
     }
 
     @NotNull

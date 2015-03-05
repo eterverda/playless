@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import io.github.eterverda.playless.common.Distribution;
+import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.common.util.TimestampUtils;
-import io.github.eterverda.playless.core.InitialDistributionFactory;
-import io.github.eterverda.playless.core.JsonDistributionDumper;
+import io.github.eterverda.playless.core.InitialDistFactory;
+import io.github.eterverda.playless.core.JsonDistDumper;
 import io.github.eterverda.playless.core.Repository;
 import io.github.eterverda.util.checksum.ChecksumUtils;
 
@@ -33,14 +33,14 @@ public class DumpCommand implements Command {
     private void main(ArrayList<String> args) throws IOException {
         final String aapt = extractAapt(args);
 
-        final InitialDistributionFactory factory = new InitialDistributionFactory(aapt);
-        final JsonDistributionDumper dumper = new JsonDistributionDumper(System.out);
+        final InitialDistFactory factory = new InitialDistFactory(aapt);
+        final JsonDistDumper dumper = new JsonDistDumper(System.out);
 
         for (String arg : args) {
             final File file = new File(arg);
 
-            final Distribution preProcess = factory.load(file);
-            final Distribution postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
+            final Dist preProcess = factory.load(file);
+            final Dist postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
 
             dumper.write(postProcess);
 
@@ -48,14 +48,14 @@ public class DumpCommand implements Command {
         }
     }
 
-    private Distribution postProcess(Distribution dist) {
-        final Distribution.Editor editor = dist.edit();
+    private Dist postProcess(Dist dist) {
+        final Dist.Editor editor = dist.edit();
         final String baseName = baseName(dist);
 
-        editor.meta(Distribution.META_APP, baseName + ".apk");
+        editor.meta(Dist.META_APP, baseName + ".apk");
 
         for (String key : dist.internalMeta.keySet()) {
-            if (!key.startsWith(Distribution.META_ICON)) {
+            if (!key.startsWith(Dist.META_ICON)) {
                 continue;
             }
             editor.meta(key, baseName + "-" + key + ".png");
@@ -65,7 +65,7 @@ public class DumpCommand implements Command {
     }
 
     @NotNull
-    public static String baseName(Distribution dist) {
+    public static String baseName(Dist dist) {
         final String applicationId = dist.applicationId;
         final String timestamp = TimestampUtils.zulu(dist.version.timestamp);
         final String selector = ChecksumUtils.intToHexString(dist.filter.hashCode()).substring(0, 7);

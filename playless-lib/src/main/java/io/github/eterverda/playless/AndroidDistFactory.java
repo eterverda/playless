@@ -12,32 +12,32 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.github.eterverda.playless.common.Distribution;
+import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.content.pm.PackageInfos;
 
 @SuppressWarnings("SpellCheckingInspection")
-public final class AndroidDistributionFactory {
+public final class AndroidDistFactory {
     public static final String META_INSTALLER = "installer";
     @NotNull
     private final PackageManager pacman;
 
-    private AndroidDistributionFactory(@NotNull PackageManager pacman) {
+    private AndroidDistFactory(@NotNull PackageManager pacman) {
         this.pacman = pacman;
     }
 
     @NotNull
-    private static final AtomicReference<AndroidDistributionFactory> INSTANCE = new AtomicReference<>();
+    private static final AtomicReference<AndroidDistFactory> INSTANCE = new AtomicReference<>();
 
     @NotNull
-    public static AndroidDistributionFactory getInstance(@NotNull Context context) {
+    public static AndroidDistFactory getInstance(@NotNull Context context) {
         final @NotNull PackageManager pacman = context.getPackageManager();
 
-        final @Nullable AndroidDistributionFactory cachedInstance = INSTANCE.getAndSet(null);
-        final @NotNull AndroidDistributionFactory instance;
+        final @Nullable AndroidDistFactory cachedInstance = INSTANCE.getAndSet(null);
+        final @NotNull AndroidDistFactory instance;
         if (cachedInstance != null && cachedInstance.pacman == pacman) {
             instance = cachedInstance;
         } else {
-            instance = new AndroidDistributionFactory(pacman);
+            instance = new AndroidDistFactory(pacman);
         }
         INSTANCE.set(instance);
 
@@ -49,7 +49,7 @@ public final class AndroidDistributionFactory {
     public static final int NO_FINGERPRINT = 0x20;
 
     @NotNull
-    public Distribution load(@NotNull String packageName,
+    public Dist load(@NotNull String packageName,
                              @MagicConstant(flags = {NO_META, NO_SIGNATURES, NO_FINGERPRINT}) int flags)
 
             throws PackageManager.NameNotFoundException {
@@ -61,7 +61,7 @@ public final class AndroidDistributionFactory {
         final int pacmanFlags = meta ? PackageManager.GET_SIGNATURES : 0x0;
         final @NotNull PackageInfo info = pacman.getPackageInfo(packageName, pacmanFlags);
 
-        final Distribution.Editor dist = new Distribution.Editor();
+        final Dist.Editor dist = new Dist.Editor();
         dist.applicationId(info.packageName);
         dist.versionCode(info.versionCode);
         dist.debug(loadDebug(info));
@@ -76,8 +76,8 @@ public final class AndroidDistributionFactory {
             dist.signatures(PackageInfos.loadSignatures(info));
         }
         if (meta) {
-            dist.meta(Distribution.META_VERSION_NAME, info.versionName);
-            dist.meta(Distribution.META_LABEL, loadLabel(info));
+            dist.meta(Dist.META_VERSION_NAME, info.versionName);
+            dist.meta(Dist.META_LABEL, loadLabel(info));
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
                 final String installer = pacman.getInstallerPackageName(packageName);
@@ -91,7 +91,7 @@ public final class AndroidDistributionFactory {
     }
 
     @NotNull
-    public Distribution load(@NotNull String packageName) throws
+    public Dist load(@NotNull String packageName) throws
             PackageManager.NameNotFoundException {
         return load(packageName, 0x0);
     }

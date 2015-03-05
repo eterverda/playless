@@ -9,18 +9,18 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 
-import io.github.eterverda.playless.common.Distribution;
+import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 
-public class JsonDistributionDumper {
+public class JsonDistDumper {
     private final JsonGenerator generator;
 
-    public JsonDistributionDumper(OutputStream out) throws IOException {
+    public JsonDistDumper(OutputStream out) throws IOException {
         generator = new JsonFactory().createGenerator(out);
         generator.setPrettyPrinter(new DefaultPrettyPrinter());
     }
 
-    public void write(Distribution dist) throws IOException {
+    public void write(Dist dist) throws IOException {
         generator.writeStartObject();
 
         generator.writeObjectField("applicationId", dist.applicationId);
@@ -51,7 +51,7 @@ public class JsonDistributionDumper {
         generator.flush();
     }
 
-    private void write(Distribution.Version version) throws IOException {
+    private void write(Dist.Version version) throws IOException {
         generator.writeStartObject();
 
         generator.writeObjectField("versionCode", version.versionCode);
@@ -81,7 +81,7 @@ public class JsonDistributionDumper {
         generator.writeEndObject();
     }
 
-    private void write(Distribution.Filter filter) throws IOException {
+    private void write(Dist.Filter filter) throws IOException {
         generator.writeStartObject();
 
         generator.writeObjectField("minSdkVersion", filter.minSdkVersion);

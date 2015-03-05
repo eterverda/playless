@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 
-import io.github.eterverda.playless.common.util.DistributionFactories;
+import io.github.eterverda.playless.common.util.DistFactories;
 import io.github.eterverda.util.checksum.Checksum;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -44,7 +44,7 @@ public class PackageInfos {
     public static Checksum loadFingerprint(@NotNull PackageInfo info) {
         try {
             final File file = new File(info.applicationInfo.sourceDir);
-            return DistributionFactories.loadFingerprint(file);
+            return DistFactories.loadFingerprint(file);
 
         } catch (IOException e) {
             return null;
