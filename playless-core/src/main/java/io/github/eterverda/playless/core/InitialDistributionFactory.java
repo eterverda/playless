@@ -3,6 +3,7 @@ package io.github.eterverda.playless.core;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteStreamHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,20 +15,46 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.github.eterverda.playless.common.Distribution;
+import io.github.eterverda.playless.common.util.DistributionFactories;
+import io.github.eterverda.playless.core.util.jar.Jars;
 
-public class AaptDistributionExtractor {
-    private final CommandLine aapt;
+public class InitialDistributionFactory {
+    @NotNull
+    private final String aapt;
 
-    public AaptDistributionExtractor(String aapt) {
-        this.aapt = new CommandLine(aapt)
-                .addArgument("dump")
-                .addArgument("badging");
+    public InitialDistributionFactory(@NotNull String aapt) {
+        this.aapt = aapt;
     }
 
-    public void extract(Distribution.Editor dist, File file) throws IOException {
-        final CommandLine line = new CommandLine(aapt).addArgument(file.getAbsolutePath());
+    @NotNull
+    public Distribution load(@NotNull File file) throws IOException {
+        final Distribution.Editor dist = new Distribution.Editor();
 
-        final DistributionHandler handler = new DistributionHandler(dist);
+        loadFileTo(dist, file);
+        loadAaptTo(dist, file);
+
+        return dist.build();
+    }
+
+    private static void loadFileTo(@NotNull Distribution.Editor dist, @NotNull File file) throws IOException {
+        loadTimestampTo(dist, file);
+
+        dist.externalMeta(Distribution.META_APP, file.getAbsolutePath());
+        dist.fingerprint(DistributionFactories.loadFingerprint(file));
+        dist.signatures(Jars.loadSignatures(file));
+    }
+
+    private static void loadTimestampTo(@NotNull Distribution.Editor dist, @NotNull File file) {
+        dist.timestamp(file.lastModified());
+    }
+
+    private void loadAaptTo(@NotNull Distribution.Editor dist, @NotNull File file) throws IOException {
+        final CommandLine line = new CommandLine(aapt)
+                .addArgument("dump")
+                .addArgument("badging")
+                .addArgument(file.getAbsolutePath());
+
+        final AaptStreamHandler handler = new AaptStreamHandler(dist);
 
         final DefaultExecutor executor = new DefaultExecutor();
         executor.setStreamHandler(handler);
@@ -35,7 +62,7 @@ public class AaptDistributionExtractor {
         executor.execute(line);
     }
 
-    private static class DistributionHandler implements ExecuteStreamHandler {
+    private static class AaptStreamHandler implements ExecuteStreamHandler {
         private static final Pattern VERSION_CODE = Pattern.compile("package:.* versionCode='([0-9]*)'.*'");
         private static final Pattern VERSION_NAME = Pattern.compile("package:.* versionName='([^']*)'.*'");
         private static final Pattern APPLICATION_ID = Pattern.compile("package:.* name='([\\p{Alnum}\\.]*).*'");
@@ -60,7 +87,7 @@ public class AaptDistributionExtractor {
         private BufferedReader in;
         private Distribution.Editor dist;
 
-        public DistributionHandler(Distribution.Editor dist) {
+        public AaptStreamHandler(Distribution.Editor dist) {
             this.dist = dist;
         }
 

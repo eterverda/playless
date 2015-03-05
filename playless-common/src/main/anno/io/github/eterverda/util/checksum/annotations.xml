@@ -1,0 +1,8 @@
+<root>
+    <item
+        name='io.github.eterverda.util.checksum.Checksum io.github.eterverda.util.checksum.Checksum xor(io.github.eterverda.util.checksum.Checksum, io.github.eterverda.util.checksum.Checksum)'>
+        <annotation name='org.jetbrains.annotations.Contract'>
+            <val val="&quot;null, null -&gt; null; _, _ -&gt; !null&quot;"/>
+        </annotation>
+    </item>
+</root>

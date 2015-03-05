@@ -9,8 +9,7 @@ import java.util.Collections;
 
 import io.github.eterverda.playless.common.Distribution;
 import io.github.eterverda.playless.common.util.TimestampUtils;
-import io.github.eterverda.playless.core.AaptDistributionExtractor;
-import io.github.eterverda.playless.core.FileSystemDistributionExtractor;
+import io.github.eterverda.playless.core.InitialDistributionFactory;
 import io.github.eterverda.playless.core.JsonDistributionDumper;
 import io.github.eterverda.playless.core.Repository;
 import io.github.eterverda.util.checksum.ChecksumUtils;
@@ -33,20 +32,14 @@ public class DumpCommand implements Command {
 
     private void main(ArrayList<String> args) throws IOException {
         final String aapt = extractAapt(args);
+
+        final InitialDistributionFactory factory = new InitialDistributionFactory(aapt);
         final JsonDistributionDumper dumper = new JsonDistributionDumper(System.out);
 
         for (String arg : args) {
             final File file = new File(arg);
-            final Distribution.Editor builder = new Distribution.Editor();
-            builder.externalMeta(Distribution.META_APP, file.getAbsolutePath());
 
-            final AaptDistributionExtractor aaptExtractor = new AaptDistributionExtractor(aapt);
-            aaptExtractor.extract(builder, file);
-
-            final FileSystemDistributionExtractor fsExtractor = new FileSystemDistributionExtractor();
-            fsExtractor.extract(builder, file);
-
-            final Distribution preProcess = builder.build();
+            final Distribution preProcess = factory.load(file);
             final Distribution postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
 
             dumper.write(postProcess);
