@@ -225,10 +225,6 @@ public final class Distribution {
             return this;
         }
 
-        public Editor signature(Checksum signature) {
-            return signatures(Checksum.xor(signatures, signature));
-        }
-
         public Editor signatures(Checksum signatures) {
             this.signatures = signatures;
             return this;
