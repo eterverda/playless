@@ -15,24 +15,24 @@ import io.github.eterverda.util.checksum.Checksum;
 public class FileSystemDistributionExtractor {
     private static final byte[] NULL = new byte[8192];
 
-    public void extract(Distribution.Builder dist, File file) throws IOException {
+    public void extract(Distribution.Editor dist, File file) throws IOException {
         timestamp(dist, file);
         fingerprint(dist, file);
         signatures(dist, file);
     }
 
-    private void timestamp(Distribution.Builder builder, File arg) {
-        builder.timestamp(arg.lastModified());
+    private void timestamp(Distribution.Editor dist, File arg) {
+        dist.timestamp(arg.lastModified());
     }
 
-    private static void fingerprint(Distribution.Builder dist, File arg) throws IOException {
+    private static void fingerprint(Distribution.Editor dist, File arg) throws IOException {
         try (FileInputStream in = new FileInputStream(arg)) {
             final Checksum fingerprint = Checksum.sha1(in);
             dist.fingerprint(fingerprint);
         }
     }
 
-    private static void signatures(Distribution.Builder dist, File file) throws IOException {
+    private static void signatures(Distribution.Editor dist, File file) throws IOException {
         try (JarFile jar = new JarFile(file)) {
             final JarEntry androidManifest = jar.getJarEntry("AndroidManifest.xml");
 
@@ -44,13 +44,13 @@ public class FileSystemDistributionExtractor {
         }
     }
 
-    private static void signatures(Distribution.Builder dist, Certificate[] certificates) {
+    private static void signatures(Distribution.Editor dist, Certificate[] certificates) {
         for (Certificate certificate : certificates) {
             signature(dist, certificate);
         }
     }
 
-    private static void signature(Distribution.Builder dist, Certificate certificate) {
+    private static void signature(Distribution.Editor dist, Certificate certificate) {
         try {
             final Checksum signature = Checksum.sha1(certificate.getEncoded());
             dist.signature(signature);

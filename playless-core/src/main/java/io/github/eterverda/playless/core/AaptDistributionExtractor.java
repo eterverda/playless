@@ -24,7 +24,7 @@ public class AaptDistributionExtractor {
                 .addArgument("badging");
     }
 
-    public void extract(Distribution.Builder dist, File file) throws IOException {
+    public void extract(Distribution.Editor dist, File file) throws IOException {
         final CommandLine line = new CommandLine(aapt).addArgument(file.getAbsolutePath());
 
         final DistributionHandler handler = new DistributionHandler(dist);
@@ -58,9 +58,9 @@ public class AaptDistributionExtractor {
         private static final Pattern ABIS = Pattern.compile("native-code:(.*)");
 
         private BufferedReader in;
-        private Distribution.Builder dist;
+        private Distribution.Editor dist;
 
-        public DistributionHandler(Distribution.Builder dist) {
+        public DistributionHandler(Distribution.Editor dist) {
             this.dist = dist;
         }
 

@@ -5,8 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -82,23 +80,23 @@ public final class Distribution {
     public static final class Requirements {
         private final int minSdkVersion;
         private final int maxSdkVersion;
-        private final SortedSet<String> supportsScreens;
-        private final SortedSet<String> compatibleScreens;
-        private final SortedSet<String> supportsGlTextures;
-        private final SortedSet<String> abis;
-        private final SortedSet<String> usesFeatures;
-        private final SortedSet<String> usesConfigurations;
-        private final SortedSet<String> usesLibraries;
+        private final Collection<String> supportsScreens;
+        private final Collection<String> compatibleScreens;
+        private final Collection<String> supportsGlTextures;
+        private final Collection<String> abis;
+        private final Collection<String> usesFeatures;
+        private final Collection<String> usesConfigurations;
+        private final Collection<String> usesLibraries;
 
         private Requirements(
                 int minSdkVersion, int maxSdkVersion,
-                @NotNull SortedSet<String> supportsScreens,
-                @NotNull SortedSet<String> compatibleScreens,
-                @NotNull SortedSet<String> supportsGlTextures,
-                @NotNull SortedSet<String> abis,
-                @NotNull SortedSet<String> usesFeatures,
-                @NotNull SortedSet<String> usesLibraries,
-                @NotNull SortedSet<String> usesConfigurations) {
+                @NotNull Collection<String> supportsScreens,
+                @NotNull Collection<String> compatibleScreens,
+                @NotNull Collection<String> supportsGlTextures,
+                @NotNull Collection<String> abis,
+                @NotNull Collection<String> usesFeatures,
+                @NotNull Collection<String> usesLibraries,
+                @NotNull Collection<String> usesConfigurations) {
 
             this.minSdkVersion = minSdkVersion;
             this.maxSdkVersion = maxSdkVersion;
@@ -186,7 +184,11 @@ public final class Distribution {
         }
     }
 
-    public static final class Builder {
+    public Editor edit() {
+        return new Editor(this);
+    }
+
+    public static final class Editor {
         private String applicationId;
         private int versionCode = 0;
         private String versionName;
@@ -195,114 +197,154 @@ public final class Distribution {
         private Checksum signatures;
         private boolean debug;
 
-        private SortedMap<String, String> meta = new TreeMap<>();
-        private SortedMap<String, String> internalMeta = new TreeMap<>();
-        private SortedMap<String, String> externalMeta = new TreeMap<>();
-
         private int minSdkVersion = 1;
         private int maxSdkVersion = Integer.MAX_VALUE;
-        private SortedSet<String> supportsScreens = new TreeSet<>();
-        private SortedSet<String> compatibleScreens = new TreeSet<>();
-        private SortedSet<String> supportsGlTextures = new TreeSet<>();
-        private SortedSet<String> abis = new TreeSet<>();
-        private SortedSet<String> usesFeatures = new TreeSet<>();
-        private SortedSet<String> usesConfigurations = new TreeSet<>();
-        private SortedSet<String> usesLibraries = new TreeSet<>();
+        private Collection<String> supportsScreens;
+        private Collection<String> compatibleScreens;
+        private Collection<String> supportsGlTextures;
+        private Collection<String> abis;
+        private Collection<String> usesFeatures;
+        private Collection<String> usesConfigurations;
+        private Collection<String> usesLibraries;
+
+        private Map<String, String> meta;
+        private Map<String, String> internalMeta;
+        private Map<String, String> externalMeta;
 
         private boolean shared;
 
-        public Builder applicationId(String applicationId) {
+        public Editor() {
+            supportsScreens = new TreeSet<>();
+            compatibleScreens = new TreeSet<>();
+            supportsGlTextures = new TreeSet<>();
+            abis = new TreeSet<>();
+            usesFeatures = new TreeSet<>();
+            usesConfigurations = new TreeSet<>();
+            usesLibraries = new TreeSet<>();
+
+            meta = new TreeMap<>();
+            internalMeta = new TreeMap<>();
+            externalMeta = new TreeMap<>();
+        }
+
+        private Editor(Distribution dist) {
+            applicationId = dist.apk.applicationId();
+            versionCode = dist.apk.versionCode();
+            versionName = dist.apk.versionName();
+            timestamp = dist.apk.timestamp();
+            fingerprint = dist.apk.fingerprint();
+            signatures = dist.apk.signatures();
+            debug = dist.apk.debug();
+
+            minSdkVersion = dist.requirements.minSdkVersion;
+            maxSdkVersion = dist.requirements.maxSdkVersion;
+            supportsScreens = dist.requirements.supportsScreens;
+            compatibleScreens = dist.requirements.compatibleScreens;
+            supportsGlTextures = dist.requirements.supportsGlTextures;
+            abis = dist.requirements.abis;
+            usesFeatures = dist.requirements.usesFeatures;
+            usesConfigurations = dist.requirements.usesConfigurations;
+            usesLibraries = dist.requirements.usesLibraries;
+
+            meta = dist.meta;
+            internalMeta = dist.internalMeta;
+            externalMeta = dist.externalMeta;
+
+            shared = true;
+        }
+
+        public Editor applicationId(String applicationId) {
             this.applicationId = applicationId;
             return this;
         }
 
-        public Builder versionCode(int versionCode) {
+        public Editor versionCode(int versionCode) {
             this.versionCode = versionCode;
             return this;
         }
 
-        public Builder versionName(String versionName) {
+        public Editor versionName(String versionName) {
             this.versionName = versionName;
             return this;
         }
 
-        public Builder timestamp(long timestamp) {
+        public Editor timestamp(long timestamp) {
             this.timestamp = timestamp;
             return this;
         }
 
-        public Builder fingerprint(Checksum fingerprint) {
+        public Editor fingerprint(Checksum fingerprint) {
             this.fingerprint = fingerprint;
             return this;
         }
 
-        public Builder signature(Checksum signature) {
+        public Editor signature(Checksum signature) {
             return signatures(Checksum.xor(signatures, signature));
         }
 
-        public Builder signatures(Checksum signatures) {
+        public Editor signatures(Checksum signatures) {
             this.signatures = signatures;
             return this;
         }
 
-        public Builder debug(boolean debug) {
+        public Editor debug(boolean debug) {
             this.debug = debug;
             return this;
         }
 
-        public Builder minSdkVersion(int minSdkVersion) {
+        public Editor minSdkVersion(int minSdkVersion) {
             this.minSdkVersion = minSdkVersion;
             return this;
         }
 
-        public Builder maxSdkVersion(int maxSdkVersion) {
+        public Editor maxSdkVersion(int maxSdkVersion) {
             this.maxSdkVersion = maxSdkVersion;
             return this;
         }
 
-        public Builder supportsScreen(String... supportsScreens) {
+        public Editor supportsScreen(String... supportsScreens) {
             unShare();
             Collections.addAll(this.supportsScreens, supportsScreens);
             return this;
         }
 
-        public Builder compatibleScreen(String... compatibleScreens) {
+        public Editor compatibleScreen(String... compatibleScreens) {
             unShare();
             Collections.addAll(this.compatibleScreens, compatibleScreens);
             return this;
         }
 
-        public Builder supportsGlTexture(String... supportsGlTextures) {
+        public Editor supportsGlTexture(String... supportsGlTextures) {
             unShare();
             Collections.addAll(this.supportsGlTextures, supportsGlTextures);
             return this;
         }
 
-        public Builder abi(String... abis) {
+        public Editor abi(String... abis) {
             unShare();
             Collections.addAll(this.abis, abis);
             return this;
         }
 
-        public Builder usesFeature(String... usesFeatures) {
+        public Editor usesFeature(String... usesFeatures) {
             unShare();
             Collections.addAll(this.usesFeatures, usesFeatures);
             return this;
         }
 
-        public Builder usesConfiguration(String... usesConfigurations) {
+        public Editor usesConfiguration(String... usesConfigurations) {
             unShare();
             Collections.addAll(this.usesConfigurations, usesConfigurations);
             return this;
         }
 
-        public Builder usesLibrary(String... usesLibraries) {
+        public Editor usesLibrary(String... usesLibraries) {
             unShare();
             Collections.addAll(this.usesLibraries, usesLibraries);
             return this;
         }
 
-        public Builder meta(String key, String value) {
+        public Editor meta(String key, String value) {
             unShare();
             meta.put(key, value);
             internalMeta.remove(key);
@@ -310,7 +352,7 @@ public final class Distribution {
             return this;
         }
 
-        public Builder internalMeta(String key, String value) {
+        public Editor internalMeta(String key, String value) {
             unShare();
             meta.remove(key);
             internalMeta.put(key, value);
@@ -318,7 +360,7 @@ public final class Distribution {
             return this;
         }
 
-        public Builder externalMeta(String key, String value) {
+        public Editor externalMeta(String key, String value) {
             unShare();
             meta.remove(key);
             internalMeta.remove(key);
@@ -327,7 +369,8 @@ public final class Distribution {
         }
 
         public Distribution build() {
-            shared = true;
+            share();
+
             return new Distribution(
                     new Apk(applicationId,
                             versionCode,
@@ -338,16 +381,35 @@ public final class Distribution {
                             debug),
                     new Requirements(
                             minSdkVersion, maxSdkVersion,
-                            Collections.unmodifiableSortedSet(supportsScreens),
-                            Collections.unmodifiableSortedSet(compatibleScreens),
-                            Collections.unmodifiableSortedSet(supportsGlTextures),
-                            Collections.unmodifiableSortedSet(abis),
-                            Collections.unmodifiableSortedSet(usesFeatures),
-                            Collections.unmodifiableSortedSet(usesLibraries),
-                            Collections.unmodifiableSortedSet(usesConfigurations)),
-                    Collections.unmodifiableMap(meta),
-                    Collections.unmodifiableMap(internalMeta),
-                    Collections.unmodifiableMap(externalMeta));
+                            supportsScreens,
+                            compatibleScreens,
+                            supportsGlTextures,
+                            abis,
+                            usesFeatures,
+                            usesLibraries,
+                            usesConfigurations),
+                    meta,
+                    internalMeta,
+                    externalMeta);
+        }
+
+        private void share() {
+            if (shared) {
+                return;
+            }
+            supportsScreens = unmodifiableCollection(supportsScreens);
+            compatibleScreens = unmodifiableCollection(compatibleScreens);
+            supportsGlTextures = unmodifiableCollection(supportsGlTextures);
+            abis = unmodifiableCollection(abis);
+            usesFeatures = unmodifiableCollection(usesFeatures);
+            usesLibraries = unmodifiableCollection(usesLibraries);
+            usesConfigurations = unmodifiableCollection(usesConfigurations);
+
+            meta = unmodifiableMap(meta);
+            internalMeta = unmodifiableMap(internalMeta);
+            externalMeta = unmodifiableMap(externalMeta);
+
+            shared = true;
         }
 
         private void unShare() {
@@ -367,6 +429,20 @@ public final class Distribution {
             externalMeta = new TreeMap<>(externalMeta);
 
             shared = false;
+        }
+
+        private static <T> Collection<T> unmodifiableCollection(Collection<T> collection) {
+            if (collection.isEmpty()) {
+                return Collections.emptySet();
+            }
+            return Collections.unmodifiableCollection(collection);
+        }
+
+        private static <K, V> Map<K, V> unmodifiableMap(Map<K, V> map) {
+            if (map.isEmpty()) {
+                return Collections.emptyMap();
+            }
+            return Collections.unmodifiableMap(map);
         }
     }
 }
