@@ -191,92 +191,76 @@ public final class Dist {
             shared = true;
         }
 
-        public Editor applicationId(String applicationId) {
+        public void applicationId(String applicationId) {
             this.applicationId = applicationId;
-            return this;
         }
 
-        public Editor versionCode(int versionCode) {
+        public void versionCode(int versionCode) {
             this.versionCode = versionCode;
-            return this;
         }
 
-        public Editor timestamp(long timestamp) {
+        public void timestamp(long timestamp) {
             this.timestamp = timestamp;
-            return this;
         }
 
-        public Editor fingerprint(Checksum fingerprint) {
+        public void fingerprint(Checksum fingerprint) {
             this.fingerprint = fingerprint;
-            return this;
         }
 
-        public Editor signatures(Checksum signatures) {
+        public void signatures(Checksum signatures) {
             this.signatures = signatures;
-            return this;
         }
 
-        public Editor debug(boolean debug) {
+        public void debug(boolean debug) {
             this.debug = debug;
-            return this;
         }
 
-        public Editor minSdkVersion(int minSdkVersion) {
+        public void minSdkVersion(int minSdkVersion) {
             this.minSdkVersion = minSdkVersion;
-            return this;
         }
 
-        public Editor maxSdkVersion(int maxSdkVersion) {
+        public void maxSdkVersion(int maxSdkVersion) {
             this.maxSdkVersion = maxSdkVersion;
-            return this;
         }
 
-        public Editor supportsScreen(String... supportsScreens) {
+        public void supportsScreen(String... supportsScreens) {
             unShare();
             Collections.addAll(this.supportsScreens, supportsScreens);
-            return this;
         }
 
-        public Editor compatibleScreen(String... compatibleScreens) {
+        public void compatibleScreen(String... compatibleScreens) {
             unShare();
             Collections.addAll(this.compatibleScreens, compatibleScreens);
-            return this;
         }
 
-        public Editor supportsGlTexture(String... supportsGlTextures) {
+        public void supportsGlTexture(String... supportsGlTextures) {
             unShare();
             Collections.addAll(this.supportsGlTextures, supportsGlTextures);
-            return this;
         }
 
-        public Editor usesFeature(String... usesFeatures) {
+        public void usesFeature(String... usesFeatures) {
             unShare();
             Collections.addAll(this.usesFeatures, usesFeatures);
-            return this;
         }
 
-        public Editor usesConfiguration(String... usesConfigurations) {
+        public void usesConfiguration(String... usesConfigurations) {
             unShare();
             Collections.addAll(this.usesConfigurations, usesConfigurations);
-            return this;
         }
 
-        public Editor usesLibrary(String... usesLibraries) {
+        public void usesLibrary(String... usesLibraries) {
             unShare();
             Collections.addAll(this.usesLibraries, usesLibraries);
-            return this;
         }
 
-        public Editor nativeCode(String... nativeCode) {
+        public void nativeCode(String... nativeCode) {
             unShare();
             Collections.addAll(this.nativeCode, nativeCode);
-            return this;
         }
 
-        public Editor meta(String key, String value) {
+        public void meta(String key, String value) {
             unShare();
             meta.put(key, value);
-            return this;
         }
 
         public Dist build() {
