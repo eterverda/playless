@@ -54,7 +54,7 @@ public class DumpCommand implements Command {
 
         editor.meta(Dist.META_APP, baseName + ".apk");
 
-        for (String key : dist.internalMeta.keySet()) {
+        for (String key : dist.meta.keySet()) {
             if (!key.startsWith(Dist.META_ICON)) {
                 continue;
             }

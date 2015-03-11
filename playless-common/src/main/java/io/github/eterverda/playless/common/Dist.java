@@ -31,25 +31,17 @@ public final class Dist {
     public final Filter filter;
     @NotNull
     public final Map<String, String> meta;
-    @NotNull
-    public final Map<String, String> internalMeta;
-    @NotNull
-    public final Map<String, String> externalMeta;
 
     private Dist(
             @NotNull String applicationId,
             @NotNull Version version,
             @NotNull Filter filter,
-            @NotNull Map<String, String> meta,
-            @NotNull Map<String, String> internalMeta,
-            @NotNull Map<String, String> externalMeta) {
+            @NotNull Map<String, String> meta) {
 
         this.applicationId = applicationId;
         this.version = version;
         this.filter = filter;
         this.meta = meta;
-        this.internalMeta = internalMeta;
-        this.externalMeta = externalMeta;
     }
 
     @Immutable
@@ -160,8 +152,6 @@ public final class Dist {
         private Collection<String> nativeCode;
 
         private Map<String, String> meta;
-        private Map<String, String> internalMeta;
-        private Map<String, String> externalMeta;
 
         private boolean shared;
 
@@ -175,8 +165,6 @@ public final class Dist {
             nativeCode = new TreeSet<>();
 
             meta = new TreeMap<>();
-            internalMeta = new TreeMap<>();
-            externalMeta = new TreeMap<>();
         }
 
         private Editor(Dist dist) {
@@ -199,8 +187,6 @@ public final class Dist {
             nativeCode = dist.filter.nativeCode;
 
             meta = dist.meta;
-            internalMeta = dist.internalMeta;
-            externalMeta = dist.externalMeta;
 
             shared = true;
         }
@@ -290,24 +276,6 @@ public final class Dist {
         public Editor meta(String key, String value) {
             unShare();
             meta.put(key, value);
-            internalMeta.remove(key);
-            externalMeta.remove(key);
-            return this;
-        }
-
-        public Editor internalMeta(String key, String value) {
-            unShare();
-            meta.remove(key);
-            internalMeta.put(key, value);
-            externalMeta.remove(key);
-            return this;
-        }
-
-        public Editor externalMeta(String key, String value) {
-            unShare();
-            meta.remove(key);
-            internalMeta.remove(key);
-            externalMeta.put(key, value);
             return this;
         }
 
@@ -318,9 +286,7 @@ public final class Dist {
                     applicationId,
                     buildVersion(),
                     buildFilter(),
-                    meta,
-                    internalMeta,
-                    externalMeta);
+                    meta);
         }
 
         public Version buildVersion() {
@@ -358,8 +324,6 @@ public final class Dist {
             nativeCode = unmodifiableCollection(nativeCode);
 
             meta = unmodifiableMap(meta);
-            internalMeta = unmodifiableMap(internalMeta);
-            externalMeta = unmodifiableMap(externalMeta);
 
             shared = true;
         }
@@ -377,8 +341,6 @@ public final class Dist {
             nativeCode = new TreeSet<>(nativeCode);
 
             meta = new TreeMap<>(meta);
-            internalMeta = new TreeMap<>(internalMeta);
-            externalMeta = new TreeMap<>(externalMeta);
 
             shared = false;
         }

@@ -39,7 +39,7 @@ public class InitialDistFactory {
     private static void loadFileTo(@NotNull Dist.Editor dist, @NotNull File file) throws IOException {
         loadTimestampTo(dist, file);
 
-        dist.externalMeta(Dist.META_APP, file.getAbsolutePath());
+        dist.meta(Dist.META_APP, file.getAbsolutePath());
         dist.fingerprint(DistFactories.loadFingerprint(file));
         dist.signatures(Jars.loadSignatures(file));
     }
@@ -164,7 +164,7 @@ public class InitialDistFactory {
                 }
                 final Matcher icon = ICON.matcher(line);
                 if (icon.matches()) {
-                    dist.internalMeta(Dist.META_ICON + icon.group(1), icon.group(2));
+                    dist.meta(Dist.META_ICON + icon.group(1), icon.group(2));
                 }
                 final Matcher supportsScreens = SUPPORTS_SCREENS.matcher(line);
                 if (supportsScreens.matches()) {

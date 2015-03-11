@@ -36,16 +36,6 @@ public class JsonDistDumper {
             write(dist.meta);
         }
 
-        if (!dist.internalMeta.isEmpty()) {
-            generator.writeFieldName("internalMeta");
-            write(dist.internalMeta);
-        }
-
-        if (!dist.externalMeta.isEmpty()) {
-            generator.writeFieldName("externalMeta");
-            write(dist.externalMeta);
-        }
-
         generator.writeEndObject();
 
         generator.flush();
