@@ -25,6 +25,9 @@ public class JsonConstants {
     public static final String FINGERPRINT = "fingerprint";
     public static final String DEBUG = "debug";
 
+    public static final String SIGNATURES_PREFIX = SIGNATURES + "-";
+    public static final String FINGERPRINT_PREFIX = FINGERPRINT + "-";
+
     // meta elements
     public static final String META = "meta";
 }

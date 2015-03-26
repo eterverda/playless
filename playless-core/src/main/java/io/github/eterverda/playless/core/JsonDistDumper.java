@@ -63,10 +63,10 @@ public class JsonDistDumper {
             generator.writeObjectField(JsonConstants.TIMESTAMP, TimestampUtils.zulu(version.timestamp));
         }
         if (version.fingerprint != null) {
-            generator.writeObjectField(JsonConstants.FINGERPRINT + "-" + version.fingerprint.getShortAlgorithm(), version.fingerprint.getStringValue());
+            generator.writeObjectField(JsonConstants.FINGERPRINT_PREFIX + version.fingerprint.getShortAlgorithm(), version.fingerprint.getStringValue());
         }
         if (version.signatures != null) {
-            generator.writeObjectField(JsonConstants.SIGNATURES + "-" + version.signatures.getShortAlgorithm(), version.signatures.getStringValue());
+            generator.writeObjectField(JsonConstants.SIGNATURES_PREFIX + version.signatures.getShortAlgorithm(), version.signatures.getStringValue());
         }
         if (version.debug) {
             generator.writeObjectField(JsonConstants.DEBUG, true);
