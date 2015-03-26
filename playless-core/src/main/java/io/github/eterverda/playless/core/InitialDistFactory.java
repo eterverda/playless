@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,6 +110,8 @@ public class InitialDistFactory {
 
         @Override
         public void start() throws IOException {
+            final HashMap<String, String> labels = new HashMap<>();
+
             String line;
             while ((line = in.readLine()) != null) {
                 final Matcher applicationId = APPLICATION_ID.matcher(line);
@@ -160,7 +164,7 @@ public class InitialDistFactory {
                 }
                 final Matcher label = LABEL.matcher(line);
                 if (label.matches()) {
-                    dist.meta(Dist.META_LABEL + label.group(1), label.group(2));
+                    labels.put(Dist.META_LABEL + label.group(1), label.group(2));
                 }
                 final Matcher icon = ICON.matcher(line);
                 if (icon.matches()) {
@@ -196,6 +200,15 @@ public class InitialDistFactory {
                 final Matcher nativeCode = NATIVE_CODE.matcher(line);
                 if (nativeCode.matches()) {
                     dist.nativeCode(split(nativeCode.group(1)));
+                }
+            }
+
+            final String defLabelValue = labels.get(Dist.META_LABEL);
+            for (Map.Entry<String, String> l : labels.entrySet()) {
+                final String key = l.getKey();
+                final String value = l.getValue();
+                if (defLabelValue == null || key.equals(Dist.META_LABEL) || !value.equals(defLabelValue)) {
+                    dist.meta(key, value);
                 }
             }
         }
