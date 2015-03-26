@@ -79,7 +79,9 @@ public class JsonDistDumper {
         generator.writeStartObject();
 
         for (Map.Entry<String, String> entry : meta.entrySet()) {
-            generator.writeObjectField(entry.getKey(), entry.getValue());
+            if (entry.getValue() != null) {
+                generator.writeObjectField(entry.getKey(), entry.getValue());
+            }
         }
 
         generator.writeEndObject();
