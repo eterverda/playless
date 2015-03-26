@@ -18,10 +18,23 @@ public class JsonDistDumper {
 
     public JsonDistDumper(OutputStream out) throws IOException {
         generator = new JsonFactory().createGenerator(out);
-        generator.setPrettyPrinter(new DefaultPrettyPrinter());
     }
 
-    public void write(Dist dist) throws IOException {
+    public void setPrettyPrint(boolean pretty) {
+        generator.setPrettyPrinter(pretty ? new DefaultPrettyPrinter() : null);
+    }
+
+    public void write(Dist... dists) throws IOException {
+        generator.writeStartArray();
+        for (Dist dist : dists) {
+            writeSingle(dist);
+        }
+        generator.writeEndArray();
+
+        generator.flush();
+    }
+
+    public void writeSingle(Dist dist) throws IOException {
         generator.writeStartObject();
 
         generator.writeObjectField(JsonConstants.APPLICATION_ID, dist.applicationId);

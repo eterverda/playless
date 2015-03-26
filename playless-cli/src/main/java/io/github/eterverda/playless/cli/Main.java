@@ -49,7 +49,7 @@ public final class Main {
 
         } catch (IllegalArgumentException ex) {
             System.err.println("Usage: init [-r <path_to_repo>]");
-            System.err.println("       dump --aapt <path_to_aapt> <apk_file>...");
+            System.err.println("       dump [--pretty] --aapt <path_to_aapt> <apk_file>...");
         }
     }
 

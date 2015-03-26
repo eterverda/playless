@@ -32,20 +32,27 @@ public class DumpCommand implements Command {
 
     private void main(ArrayList<String> args) throws IOException {
         final String aapt = extractAapt(args);
+        final boolean pretty = extractPretty(args);
 
         final InitialDistFactory factory = new InitialDistFactory(aapt);
         final JsonDistDumper dumper = new JsonDistDumper(System.out);
+        dumper.setPrettyPrint(pretty);
 
-        for (String arg : args) {
+        final Dist[] dists = new Dist[args.size()];
+
+        for (int i = 0; i < args.size(); i++) {
+            String arg = args.get(i);
             final File file = new File(arg);
 
             final Dist preProcess = factory.load(file);
             final Dist postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
 
-            dumper.write(postProcess);
-
-            System.out.println();
+            dists[i] = postProcess;
         }
+
+        dumper.write(dists);
+
+        System.out.println();
     }
 
     private Dist postProcess(Dist dist) {
@@ -84,6 +91,16 @@ public class DumpCommand implements Command {
         return result.toString();
     }
 
+    private boolean extractPretty(ArrayList<String> args) {
+        for (int i = 0; i < args.size(); i++) {
+            final String arg = args.get(i);
+            if (arg.equals("--pretty")) {
+                args.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static String extractAapt(ArrayList<String> args) {
         for (int i = 0; i < args.size(); i++) {
