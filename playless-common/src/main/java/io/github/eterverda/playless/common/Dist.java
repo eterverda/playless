@@ -71,6 +71,7 @@ public final class Dist {
     public static final class Filter {
         public final int minSdkVersion;
         public final int maxSdkVersion;
+        public final int requiresSmallestWidthDp;
         public final Collection<String> supportsScreens;
         public final Collection<String> compatibleScreens;
         public final Collection<String> supportsGlTextures;
@@ -81,6 +82,7 @@ public final class Dist {
 
         private Filter(
                 int minSdkVersion, int maxSdkVersion,
+                int requiresSmallestWidthDp,
                 @NotNull Collection<String> supportsScreens,
                 @NotNull Collection<String> compatibleScreens,
                 @NotNull Collection<String> supportsGlTextures,
@@ -91,6 +93,7 @@ public final class Dist {
 
             this.minSdkVersion = minSdkVersion;
             this.maxSdkVersion = maxSdkVersion;
+            this.requiresSmallestWidthDp = requiresSmallestWidthDp;
             this.supportsScreens = supportsScreens;
             this.compatibleScreens = compatibleScreens;
             this.supportsGlTextures = supportsGlTextures;
@@ -143,6 +146,7 @@ public final class Dist {
 
         private int minSdkVersion = 1;
         private int maxSdkVersion = Integer.MAX_VALUE;
+        private int requiresSmallestWidthDp;
         private Collection<String> supportsScreens;
         private Collection<String> compatibleScreens;
         private Collection<String> supportsGlTextures;
@@ -223,6 +227,10 @@ public final class Dist {
             this.maxSdkVersion = maxSdkVersion;
         }
 
+        public void requiresSmallestWidthDp(int requiresSmallestWidthDp) {
+            this.requiresSmallestWidthDp = requiresSmallestWidthDp;
+        }
+
         public void supportsScreen(String... supportsScreens) {
             unShare();
             Collections.addAll(this.supportsScreens, supportsScreens);
@@ -286,6 +294,7 @@ public final class Dist {
 
             return new Filter(
                     minSdkVersion, maxSdkVersion,
+                    requiresSmallestWidthDp,
                     supportsScreens,
                     compatibleScreens,
                     supportsGlTextures,

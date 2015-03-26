@@ -80,6 +80,10 @@ public class JsonDistDumper {
             generator.writeObjectField("maxSdkVersion", filter.maxSdkVersion);
         }
 
+        if (filter.requiresSmallestWidthDp > 0) {
+            generator.writeObjectField("requiresSmallestWidthDp", filter.requiresSmallestWidthDp);
+        }
+
         generator.writeFieldName("supportsScreens");
         write(filter.supportsScreens);
 

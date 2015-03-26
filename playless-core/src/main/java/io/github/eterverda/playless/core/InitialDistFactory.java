@@ -172,7 +172,7 @@ public class InitialDistFactory {
                 }
                 final Matcher requiresSmallestWidth = REQUIRES_SMALLEST_WIDTH.matcher(line);
                 if (requiresSmallestWidth.matches()) {
-                    dist.supportsScreen("sw" + requiresSmallestWidth.group(1) + "dp");
+                    dist.requiresSmallestWidthDp(Integer.parseInt(requiresSmallestWidth.group(1)));
                 }
                 final Matcher compatibleScreens = COMPATIBLE_SCREENS.matcher(line);
                 if (compatibleScreens.matches()) {
