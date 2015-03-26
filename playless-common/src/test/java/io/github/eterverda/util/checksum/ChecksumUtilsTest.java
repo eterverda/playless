@@ -18,4 +18,24 @@ public class ChecksumUtilsTest {
     public void intBytesToHex_ffffffff() {
         Assert.assertEquals("ffffffff", ChecksumUtils.intToHexString(0xffffffff));
     }
+
+    @Test
+    public void hexToBytes_00000000() {
+        Assert.assertArrayEquals(new byte[]{0x00, 0x00, 0x00, 0x00}, ChecksumUtils.hexToBytes("00000000"));
+    }
+
+    @Test
+    public void hexToBytes_cafebabe() {
+        Assert.assertArrayEquals(new byte[]{(byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe}, ChecksumUtils.hexToBytes("cafebabe"));
+    }
+
+    @Test
+    public void hexToBytes_CAFEBABE() {
+        Assert.assertArrayEquals(new byte[]{(byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe}, ChecksumUtils.hexToBytes("CAFEBABE"));
+    }
+
+    @Test
+    public void hexToBytes_ffffffff() {
+        Assert.assertArrayEquals(new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff}, ChecksumUtils.hexToBytes("ffffffff"));
+    }
 }

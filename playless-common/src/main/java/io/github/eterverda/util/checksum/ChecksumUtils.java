@@ -103,6 +103,37 @@ public final class ChecksumUtils {
     }
 
     @NotNull
+    public static byte[] hexToBytes(@NotNull String hex) {
+        if (hex.length() % 2 != 0) {
+            throw new IllegalArgumentException(hex);
+        }
+        final int length = hex.length() / 2;
+        final byte[] result = new byte[length];
+
+        for (int i = 0, j = 0; i < length; i++) {
+            final char c1 = hex.charAt(j++);
+            final char c2 = hex.charAt(j++);
+            final int b1 = hexToHalfByte(c1);
+            final int b2 = hexToHalfByte(c2);
+            result[i] = (byte) (0xff & (b1 << 4 | b2));
+        }
+        return result;
+    }
+
+    private static int hexToHalfByte(char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+        if (c >= 'a' && c <= 'f') {
+            return c - 'a' + 0xa;
+        }
+        if (c >= 'A' && c <= 'F') {
+            return c - 'A' + 0xa;
+        }
+        throw new IllegalArgumentException("Not a hex digit " + c);
+    }
+
+    @NotNull
     protected static byte[] xor(@NotNull byte[] a, @NotNull byte[] b) {
         final int length = a.length;
         final byte[] c = new byte[length];
