@@ -100,6 +100,10 @@ public class JsonDistDumper {
             generator.writeObjectField(JsonConstants.REQUIRES_SMALLEST_WIDTH_DP, filter.requiresSmallestWidthDp);
         }
 
+        if (filter.usesGlEs > 0) {
+            generator.writeObjectField(JsonConstants.USES_GL_ES, String.format("0x%h", filter.usesGlEs));
+        }
+
         generator.writeFieldName(JsonConstants.SUPPORTS_SCREENS);
         write(filter.supportsScreens);
 

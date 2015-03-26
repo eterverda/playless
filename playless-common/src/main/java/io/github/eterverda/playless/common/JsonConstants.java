@@ -9,6 +9,7 @@ public class JsonConstants {
     public static final String MIN_SDK_VERSION = "minSdkVersion";
     public static final String MAX_SDK_VERSION = "maxSdkVersion";
     public static final String REQUIRES_SMALLEST_WIDTH_DP = "requiresSmallestWidthDp";
+    public static final String USES_GL_ES = "usesGlEs";
     public static final String SUPPORTS_SCREENS = "supportsScreens";
     public static final String COMPATIBLE_SCREENS = "compatibleScreens";
     public static final String SUPPORTS_GL_TEXTURES = "supportsGlTextures";

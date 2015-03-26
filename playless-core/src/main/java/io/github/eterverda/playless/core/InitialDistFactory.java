@@ -72,6 +72,7 @@ public class InitialDistFactory {
         private static final Pattern MAX_SDK_VERSION = Pattern.compile("maxSdkVersion:'([0-9]*)'");
         private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
         private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
+        private static final Pattern USES_GL_ES = Pattern.compile("\\p{Space}*uses-gl-es: '0x([0-9a-fA-F]*)'");
         private static final Pattern USES_CONFIGURATION_TOUCH_SCREEN = Pattern.compile("uses-configuration:.*reqTouchScreen='([0-9]+)'.*");
         private static final Pattern USES_CONFIGURATION_KEYBOARD_TYPE = Pattern.compile("uses-configuration:.*reqKeyboardType='(-?[0-9]+)'.*");
         private static final Pattern USES_CONFIGURATION_NAVIGATION = Pattern.compile("uses-configuration:.*reqNavigation='(-?[0-9]+)'.*");
@@ -141,6 +142,10 @@ public class InitialDistFactory {
                 final Matcher usesFeature = USES_FEATURE.matcher(line);
                 if (usesFeature.matches()) {
                     dist.usesFeature(usesFeature.group(1));
+                }
+                final Matcher usesGlEs = USES_GL_ES.matcher(line);
+                if (usesGlEs.matches()) {
+                    dist.usesGlEs(Integer.parseInt(usesGlEs.group(1), 0x10));
                 }
                 final Matcher usesConfigurationTouchScreen = USES_CONFIGURATION_TOUCH_SCREEN.matcher(line);
                 if (usesConfigurationTouchScreen.matches()) {

@@ -114,6 +114,9 @@ public class AndroidJsonReaderDistFactory {
                 case JsonConstants.REQUIRES_SMALLEST_WIDTH_DP:
                     result.requiresSmallestWidthDp(in.nextInt());
                     break;
+                case JsonConstants.USES_GL_ES:
+                    result.usesGlEs(Integer.parseInt(in.nextString().substring(2)));
+                    break;
                 case JsonConstants.SUPPORTS_SCREENS:
                     result.supportsScreen(loadStringArray(in));
                     break;

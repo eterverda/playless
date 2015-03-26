@@ -72,6 +72,7 @@ public final class Dist {
         public final int minSdkVersion;
         public final int maxSdkVersion;
         public final int requiresSmallestWidthDp;
+        public final int usesGlEs;
         public final Collection<String> supportsScreens;
         public final Collection<String> compatibleScreens;
         public final Collection<String> supportsGlTextures;
@@ -83,6 +84,7 @@ public final class Dist {
         private Filter(
                 int minSdkVersion, int maxSdkVersion,
                 int requiresSmallestWidthDp,
+                int usesGlEs,
                 @NotNull Collection<String> supportsScreens,
                 @NotNull Collection<String> compatibleScreens,
                 @NotNull Collection<String> supportsGlTextures,
@@ -94,6 +96,7 @@ public final class Dist {
             this.minSdkVersion = minSdkVersion;
             this.maxSdkVersion = maxSdkVersion;
             this.requiresSmallestWidthDp = requiresSmallestWidthDp;
+            this.usesGlEs = usesGlEs;
             this.supportsScreens = supportsScreens;
             this.compatibleScreens = compatibleScreens;
             this.supportsGlTextures = supportsGlTextures;
@@ -147,6 +150,7 @@ public final class Dist {
         private int minSdkVersion = 1;
         private int maxSdkVersion = Integer.MAX_VALUE;
         private int requiresSmallestWidthDp;
+        private int usesGlEs;
         private Collection<String> supportsScreens;
         private Collection<String> compatibleScreens;
         private Collection<String> supportsGlTextures;
@@ -182,6 +186,8 @@ public final class Dist {
 
             minSdkVersion = dist.filter.minSdkVersion;
             maxSdkVersion = dist.filter.maxSdkVersion;
+            requiresSmallestWidthDp = dist.filter.requiresSmallestWidthDp;
+            usesGlEs = dist.filter.usesGlEs;
             supportsScreens = dist.filter.supportsScreens;
             compatibleScreens = dist.filter.compatibleScreens;
             supportsGlTextures = dist.filter.supportsGlTextures;
@@ -229,6 +235,10 @@ public final class Dist {
 
         public void requiresSmallestWidthDp(int requiresSmallestWidthDp) {
             this.requiresSmallestWidthDp = requiresSmallestWidthDp;
+        }
+
+        public void usesGlEs(int usesGlEs) {
+            this.usesGlEs = usesGlEs;
         }
 
         public void supportsScreen(String... supportsScreens) {
@@ -295,6 +305,7 @@ public final class Dist {
             return new Filter(
                     minSdkVersion, maxSdkVersion,
                     requiresSmallestWidthDp,
+                    usesGlEs,
                     supportsScreens,
                     compatibleScreens,
                     supportsGlTextures,
