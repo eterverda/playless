@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import io.github.eterverda.playless.common.Dist;
+import io.github.eterverda.playless.common.JsonConstants;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 
 public class JsonDistDumper {
@@ -23,16 +24,16 @@ public class JsonDistDumper {
     public void write(Dist dist) throws IOException {
         generator.writeStartObject();
 
-        generator.writeObjectField("applicationId", dist.applicationId);
+        generator.writeObjectField(JsonConstants.APPLICATION_ID, dist.applicationId);
 
-        generator.writeFieldName("version");
+        generator.writeFieldName(JsonConstants.VERSION);
         write(dist.version);
 
-        generator.writeFieldName("filter");
+        generator.writeFieldName(JsonConstants.FILTER);
         write(dist.filter);
 
         if (!dist.meta.isEmpty()) {
-            generator.writeFieldName("meta");
+            generator.writeFieldName(JsonConstants.META);
             write(dist.meta);
         }
 
@@ -44,18 +45,18 @@ public class JsonDistDumper {
     private void write(Dist.Version version) throws IOException {
         generator.writeStartObject();
 
-        generator.writeObjectField("versionCode", version.versionCode);
+        generator.writeObjectField(JsonConstants.VERSION_CODE, version.versionCode);
         if (version.timestamp != Long.MIN_VALUE) {
-            generator.writeObjectField("timestamp", TimestampUtils.zulu(version.timestamp));
+            generator.writeObjectField(JsonConstants.TIMESTAMP, TimestampUtils.zulu(version.timestamp));
         }
         if (version.fingerprint != null) {
-            generator.writeObjectField("fingerprint-" + version.fingerprint.getShortAlgorithm(), version.fingerprint.getStringValue());
+            generator.writeObjectField(JsonConstants.FINGERPRINT + "-" + version.fingerprint.getShortAlgorithm(), version.fingerprint.getStringValue());
         }
         if (version.signatures != null) {
-            generator.writeObjectField("signatures-" + version.signatures.getShortAlgorithm(), version.signatures.getStringValue());
+            generator.writeObjectField(JsonConstants.SIGNATURES + "-" + version.signatures.getShortAlgorithm(), version.signatures.getStringValue());
         }
         if (version.debug) {
-            generator.writeObjectField("debug", true);
+            generator.writeObjectField(JsonConstants.DEBUG, true);
         }
 
         generator.writeEndObject();
@@ -74,36 +75,36 @@ public class JsonDistDumper {
     private void write(Dist.Filter filter) throws IOException {
         generator.writeStartObject();
 
-        generator.writeObjectField("minSdkVersion", filter.minSdkVersion);
+        generator.writeObjectField(JsonConstants.MIN_SDK_VERSION, filter.minSdkVersion);
 
         if (filter.maxSdkVersion != Integer.MAX_VALUE) {
-            generator.writeObjectField("maxSdkVersion", filter.maxSdkVersion);
+            generator.writeObjectField(JsonConstants.MAX_SDK_VERSION, filter.maxSdkVersion);
         }
 
         if (filter.requiresSmallestWidthDp > 0) {
-            generator.writeObjectField("requiresSmallestWidthDp", filter.requiresSmallestWidthDp);
+            generator.writeObjectField(JsonConstants.REQUIRES_SMALLEST_WIDTH_DP, filter.requiresSmallestWidthDp);
         }
 
-        generator.writeFieldName("supportsScreens");
+        generator.writeFieldName(JsonConstants.SUPPORTS_SCREENS);
         write(filter.supportsScreens);
 
-        generator.writeFieldName("compatibleScreens");
+        generator.writeFieldName(JsonConstants.COMPATIBLE_SCREENS);
         write(filter.compatibleScreens);
 
-        generator.writeFieldName("supportsGlTextures");
+        generator.writeFieldName(JsonConstants.SUPPORTS_GL_TEXTURES);
         write(filter.supportsGlTextures);
 
-        generator.writeFieldName("usesFeatures");
+        generator.writeFieldName(JsonConstants.USES_FEATURES);
         write(filter.usesFeatures);
 
-        generator.writeFieldName("usesConfigurations");
+        generator.writeFieldName(JsonConstants.USES_CONFIGURATIONS);
         write(filter.usesConfigurations);
 
-        generator.writeFieldName("usesLibraries");
+        generator.writeFieldName(JsonConstants.USES_LIBRARIES);
         write(filter.usesLibraries);
 
         if (!filter.nativeCode.isEmpty()) {
-            generator.writeFieldName("nativeCode");
+            generator.writeFieldName(JsonConstants.NATIVE_CODE);
             write(filter.nativeCode);
         }
 
