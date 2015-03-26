@@ -32,9 +32,11 @@ public class DumpCommand implements Command {
 
     private void main(ArrayList<String> args) throws IOException {
         final String aapt = extractAapt(args);
-        final boolean pretty = extractPretty(args);
+        final boolean pretty = extractFlag(args, "--pretty");
+        final boolean playful = extractFlag(args, "--playful");
 
         final InitialDistFactory factory = new InitialDistFactory(aapt);
+
         final JsonDistDumper dumper = new JsonDistDumper(System.out);
         dumper.setPrettyPrint(pretty);
 
@@ -46,8 +48,9 @@ public class DumpCommand implements Command {
 
             final Dist preProcess = factory.load(file);
             final Dist postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
+            final Dist playProcess = playful ? playProcess(postProcess) : postProcess;
 
-            dists[i] = postProcess;
+            dists[i] = playProcess;
         }
 
         dumper.write(dists);
@@ -66,6 +69,20 @@ public class DumpCommand implements Command {
                 continue;
             }
             editor.meta(key, baseName + "-" + key + ".png");
+        }
+
+        return editor.build();
+    }
+
+    private Dist playProcess(Dist dist) {
+        final Dist.Editor editor = dist.edit();
+
+        editor.timestamp(Long.MIN_VALUE);
+
+        for (String key : dist.meta.keySet()) {
+            if (key.equals(Dist.META_APP) || key.startsWith(Dist.META_ICON)) {
+                editor.meta(key, null);
+            }
         }
 
         return editor.build();
@@ -91,10 +108,10 @@ public class DumpCommand implements Command {
         return result.toString();
     }
 
-    private boolean extractPretty(ArrayList<String> args) {
+    private boolean extractFlag(ArrayList<String> args, String flag) {
         for (int i = 0; i < args.size(); i++) {
             final String arg = args.get(i);
-            if (arg.equals("--pretty")) {
+            if (arg.equals(flag)) {
                 args.remove(i);
                 return true;
             }
