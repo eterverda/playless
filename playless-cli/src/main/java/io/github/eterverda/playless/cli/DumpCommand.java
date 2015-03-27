@@ -80,10 +80,12 @@ public class DumpCommand implements Command {
         editor.timestamp(Long.MIN_VALUE);
 
         for (String key : dist.meta.keySet()) {
-            if (key.equals(Dist.META_APP) || key.startsWith(Dist.META_ICON)) {
+            if (key.startsWith(Dist.META_ICON)) {
                 editor.meta(key, null);
             }
         }
+
+        editor.meta(Dist.META_APP, "https://play.google.com/store/apps/details?id=" + dist.applicationId);
 
         return editor.build();
     }
