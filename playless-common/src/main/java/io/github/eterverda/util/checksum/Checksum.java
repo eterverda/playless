@@ -50,11 +50,11 @@ public final class Checksum {
 
     @Override
     public boolean equals(Object that) {
-        return this == that || that instanceof Checksum && equals((Checksum) that);
+        return that instanceof Checksum && equals((Checksum) that);
     }
 
-    private boolean equals(Checksum that) {
-        return algorithm.equals(that.algorithm) && Arrays.equals(value, that.value);
+    public boolean equals(Checksum that) {
+        return this == that || algorithm.equals(that.algorithm) && Arrays.equals(value, that.value);
     }
 
     @NotNull
