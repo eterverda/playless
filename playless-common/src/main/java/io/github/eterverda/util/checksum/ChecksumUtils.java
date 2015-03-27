@@ -54,6 +54,15 @@ public final class ChecksumUtils {
         return result;
     }
 
+    public static int digestLength(@NotNull String algorithm) throws NoSuchAlgorithmException {
+        final MessageDigest digest = obtainDigest(algorithm);
+
+        final int result = digest.getDigestLength();
+
+        releaseDigest(digest);
+        return result;
+    }
+
     /**
      * Returns a string representation of the integer argument as an unsigned integer in
      * base&nbsp;16. Unlike {@link java.lang.Integer#toHexString(int)} result is zero-padded and

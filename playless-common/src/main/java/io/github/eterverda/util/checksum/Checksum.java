@@ -13,6 +13,8 @@ import java.util.Arrays;
 
 import static io.github.eterverda.util.checksum.ChecksumUtils.canonicalAlgorithm;
 import static io.github.eterverda.util.checksum.ChecksumUtils.digest;
+import static io.github.eterverda.util.checksum.ChecksumUtils.digestLength;
+import static io.github.eterverda.util.checksum.ChecksumUtils.hexToBytes;
 
 @Immutable
 @ThreadSafe
@@ -30,12 +32,15 @@ public final class Checksum {
     @Nullable
     private transient String string;
 
-    public Checksum(@NotNull String algorithm, byte[] data) throws NoSuchAlgorithmException {
-        this(true, canonicalAlgorithm(algorithm), digest(algorithm, data));
-    }
+    public Checksum(@NotNull String algorithm, @NotNull @SuppressWarnings("NullableProblems") String hexValue) throws NoSuchAlgorithmException {
+        this.algorithm = canonicalAlgorithm(algorithm);
 
-    public Checksum(@NotNull String algorithm, InputStream in) throws NoSuchAlgorithmException, IOException {
-        this(true, canonicalAlgorithm(algorithm), digest(algorithm, in));
+        stringValue = hexValue;
+        value = hexToBytes(hexValue);
+
+        if (value.length != digestLength(this.algorithm)) {
+            throw new IllegalArgumentException("Unexpected digest length " + value.length + " for algorithm " + algorithm);
+        }
     }
 
     private Checksum(@SuppressWarnings("unused") boolean safe, @NotNull String algorithm, @NotNull byte[] value) {
@@ -112,10 +117,18 @@ public final class Checksum {
         return xor(this, that);
     }
 
+    public static Checksum make(String algorithm, byte[] data) throws NoSuchAlgorithmException {
+        return new Checksum(true, canonicalAlgorithm(algorithm), digest(algorithm, data));
+    }
+
+    public static Checksum make(String algorithm, InputStream in) throws NoSuchAlgorithmException, IOException {
+        return new Checksum(true, canonicalAlgorithm(algorithm), digest(algorithm, in));
+    }
+
     @NotNull
     public static Checksum sha1(@NotNull byte[] data) {
         try {
-            return new Checksum(ALGORITHM_SHA_1, data);
+            return make(ALGORITHM_SHA_1, data);
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError("SHA-1 should be always available");
         }
@@ -124,7 +137,7 @@ public final class Checksum {
     @NotNull
     public static Checksum sha1(@NotNull InputStream in) throws IOException {
         try {
-            return new Checksum(ALGORITHM_SHA_1, in);
+            return make(ALGORITHM_SHA_1, in);
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError("SHA-1 should be always available");
         }

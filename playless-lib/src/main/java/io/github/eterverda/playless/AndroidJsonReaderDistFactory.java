@@ -169,7 +169,7 @@ public class AndroidJsonReaderDistFactory {
 
     private static Checksum createChecksum(String algorithm, String value) {
         try {
-            return new Checksum(algorithm, ChecksumUtils.hexToBytes(value));
+            return new Checksum(algorithm, value);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException(e);
         }

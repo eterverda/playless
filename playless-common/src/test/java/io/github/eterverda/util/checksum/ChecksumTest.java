@@ -149,11 +149,11 @@ public class ChecksumTest {
 
     @NotNull
     private static Checksum md5(byte[] data) throws NoSuchAlgorithmException {
-        return new Checksum(ALGORITHM_MD5, data);
+        return Checksum.make(ALGORITHM_MD5, data);
     }
 
     @NotNull
     public static Checksum md5(InputStream in) throws IOException, NoSuchAlgorithmException {
-        return new Checksum(ALGORITHM_MD5, in);
+        return Checksum.make(ALGORITHM_MD5, in);
     }
 }
