@@ -1,4 +1,4 @@
-package io.github.eterverda.playless;
+package io.github.eterverda.playless.android;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -13,31 +13,31 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.eterverda.playless.common.Dist;
-import io.github.eterverda.playless.content.pm.PackageInfos;
+import io.github.eterverda.playless.android.content.pm.PackageInfos;
 
 @SuppressWarnings("SpellCheckingInspection")
-public final class AndroidDistFactory {
+public final class InstalledDistFactory {
     public static final String META_INSTALLER = "installer";
     @NotNull
     private final PackageManager pacman;
 
-    private AndroidDistFactory(@NotNull PackageManager pacman) {
+    private InstalledDistFactory(@NotNull PackageManager pacman) {
         this.pacman = pacman;
     }
 
     @NotNull
-    private static final AtomicReference<AndroidDistFactory> INSTANCE = new AtomicReference<>();
+    private static final AtomicReference<InstalledDistFactory> INSTANCE = new AtomicReference<>();
 
     @NotNull
-    public static AndroidDistFactory getInstance(@NotNull Context context) {
+    public static InstalledDistFactory getInstance(@NotNull Context context) {
         final @NotNull PackageManager pacman = context.getPackageManager();
 
-        final @Nullable AndroidDistFactory cachedInstance = INSTANCE.getAndSet(null);
-        final @NotNull AndroidDistFactory instance;
+        final @Nullable InstalledDistFactory cachedInstance = INSTANCE.getAndSet(null);
+        final @NotNull InstalledDistFactory instance;
         if (cachedInstance != null && cachedInstance.pacman == pacman) {
             instance = cachedInstance;
         } else {
-            instance = new AndroidDistFactory(pacman);
+            instance = new InstalledDistFactory(pacman);
         }
         INSTANCE.set(instance);
 

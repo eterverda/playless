@@ -73,11 +73,12 @@ public class InitialDistFactory {
         private static final Pattern DEBUGGABLE = Pattern.compile("application-debuggable");
         private static final Pattern USES_FEATURE = Pattern.compile("\\p{Space}*uses-feature:.* name='([\\p{Alnum}\\.]*)'");
         private static final Pattern USES_GL_ES = Pattern.compile("\\p{Space}*uses-gl-es: '0x([0-9a-fA-F]*)'");
-        private static final Pattern USES_CONFIGURATION_TOUCH_SCREEN = Pattern.compile("uses-configuration:.*reqTouchScreen='([0-9]+)'.*");
-        private static final Pattern USES_CONFIGURATION_KEYBOARD_TYPE = Pattern.compile("uses-configuration:.*reqKeyboardType='(-?[0-9]+)'.*");
-        private static final Pattern USES_CONFIGURATION_NAVIGATION = Pattern.compile("uses-configuration:.*reqNavigation='(-?[0-9]+)'.*");
-        private static final Pattern USES_CONFIGURATION_HARD_KEYBOARD = Pattern.compile("uses-configuration:.*reqHardKeyboard='-1'.*");
-        private static final Pattern USES_CONFIGURATION_FIVE_WAY_NAV = Pattern.compile("uses-configuration:.*reqFiveWayNav='-1'.*");
+        private static final Pattern USES_CONFIGURATION = Pattern.compile("uses-configuration:(.*)");
+        private static final Pattern CONFIG_FIVE_WAY_NAV = Pattern.compile(".*reqFiveWayNav='(-?[0-9]+)'.*");
+        private static final Pattern CONFIG_HARD_KEYBOARD = Pattern.compile(".*reqHardKeyboard='(-?[0-9]+)'.*");
+        private static final Pattern CONFIG_TOUCH_SCREEN = Pattern.compile(".*reqTouchScreen='([0-9]+)'.*");
+        private static final Pattern CONFIG_KEYBOARD_TYPE = Pattern.compile(".*reqKeyboardType='(-?[0-9]+)'.*");
+        private static final Pattern CONFIG_NAVIGATION = Pattern.compile(".*reqNavigation='(-?[0-9]+)'.*");
         private static final Pattern LABEL = Pattern.compile("application-label((?:-\\p{Alnum}+)*):'(.*)'");
         private static final Pattern ICON = Pattern.compile("application-icon((?:-\\p{Alnum}+)*):'(.*)'");
         private static final Pattern SUPPORTS_SCREENS = Pattern.compile("supports-screens:(.*)");
@@ -147,25 +148,17 @@ public class InitialDistFactory {
                 if (usesGlEs.matches()) {
                     dist.usesGlEs(Integer.parseInt(usesGlEs.group(1), 0x10));
                 }
-                final Matcher usesConfigurationTouchScreen = USES_CONFIGURATION_TOUCH_SCREEN.matcher(line);
-                if (usesConfigurationTouchScreen.matches()) {
-                    dist.usesConfiguration("touchScreen/" + usesConfigurationTouchScreen.group(1));
-                }
-                final Matcher usesConfigurationKeyboardType = USES_CONFIGURATION_KEYBOARD_TYPE.matcher(line);
-                if (usesConfigurationKeyboardType.matches()) {
-                    dist.usesConfiguration("keyboardType/" + usesConfigurationKeyboardType.group(1));
-                }
-                final Matcher usesConfigurationNavigation = USES_CONFIGURATION_NAVIGATION.matcher(line);
-                if (usesConfigurationNavigation.matches()) {
-                    dist.usesConfiguration("navigation/" + usesConfigurationNavigation.group(1));
-                }
-                final Matcher usesConfigurationHardKeyboard = USES_CONFIGURATION_HARD_KEYBOARD.matcher(line);
-                if (usesConfigurationHardKeyboard.matches()) {
-                    dist.usesConfiguration("hardKeyboard");
-                }
-                final Matcher usesConfigurationFiveWayNav = USES_CONFIGURATION_FIVE_WAY_NAV.matcher(line);
-                if (usesConfigurationFiveWayNav.matches()) {
-                    dist.usesConfiguration("fiveWayNav");
+                final Matcher usesConfiguration = USES_CONFIGURATION.matcher(line);
+                if (usesConfiguration.matches()) {
+                    final String string = usesConfiguration.group(1);
+
+                    final int fiveWayNav = extract(string, CONFIG_FIVE_WAY_NAV);
+                    final int hardKeyboard = extract(string, CONFIG_HARD_KEYBOARD);
+                    final int touchScreen = extract(string, CONFIG_TOUCH_SCREEN);
+                    final int keyboardType = extract(string, CONFIG_KEYBOARD_TYPE);
+                    final int navigation = extract(string, CONFIG_NAVIGATION);
+
+                    dist.usesConfiguration(fiveWayNav, hardKeyboard, keyboardType, navigation, touchScreen);
                 }
                 final Matcher label = LABEL.matcher(line);
                 if (label.matches()) {
@@ -224,6 +217,14 @@ public class InitialDistFactory {
 
         public static String[] split(String string) {
             return string.replaceAll("\\p{Space}*'(.*)'\\p{Space}*", "$1").split("'\\p{Space}+'");
+        }
+
+        private static int extract(String string, Pattern pattern) {
+            final Matcher matcher = pattern.matcher(string);
+            if (matcher.matches()) {
+                return Integer.parseInt(matcher.group(1));
+            }
+            return 0;
         }
     }
 }

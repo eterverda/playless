@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -77,7 +78,7 @@ public final class Dist {
         public final Collection<String> compatibleScreens;
         public final Collection<String> supportsGlTextures;
         public final Collection<String> usesFeatures;
-        public final Collection<String> usesConfigurations;
+        public final Collection<Config> usesConfigurations;
         public final Collection<String> usesLibraries;
         public final Collection<String> nativeCode;
 
@@ -90,7 +91,7 @@ public final class Dist {
                 @NotNull Collection<String> supportsGlTextures,
                 @NotNull Collection<String> usesFeatures,
                 @NotNull Collection<String> usesLibraries,
-                @NotNull Collection<String> usesConfigurations,
+                @NotNull Collection<Config> usesConfigurations,
                 @NotNull Collection<String> nativeCode) {
 
             this.minSdkVersion = minSdkVersion;
@@ -131,6 +132,56 @@ public final class Dist {
             }
             return h;
         }
+
+        public static final class Config {
+            public final int fiveWayNav;
+            public final int hardKeyboard;
+            public final int keyboardType;
+            public final int navigation;
+            public final int touchScreen;
+
+            public Config(
+                    int fiveWayNav,
+                    int hardKeyboard,
+                    int keyboardType,
+                    int navigation,
+                    int touchScreen) {
+
+                this.fiveWayNav = fiveWayNav;
+                this.hardKeyboard = hardKeyboard;
+                this.keyboardType = keyboardType;
+                this.navigation = navigation;
+                this.touchScreen = touchScreen;
+            }
+
+            @Override
+            public boolean equals(Object other) {
+                return other instanceof Config && equals((Config) other);
+            }
+
+            public boolean equals(Config other) {
+                //noinspection SimplifiableIfStatement
+                if (this == other) {
+                    return true;
+                }
+                return fiveWayNav == other.fiveWayNav &&
+                        hardKeyboard == other.hardKeyboard &&
+                        keyboardType == other.keyboardType &&
+                        navigation == other.navigation &&
+                        touchScreen == other.touchScreen;
+            }
+
+            @Override
+            public int hashCode() {
+                int result = 0;
+                result |= fiveWayNav << 16;
+                result |= hardKeyboard << 12;
+                result |= keyboardType << 8;
+                result |= navigation << 4;
+                result |= touchScreen;
+                return result * 31;
+            }
+        }
     }
 
     public Editor edit() {
@@ -155,7 +206,7 @@ public final class Dist {
         private Collection<String> compatibleScreens;
         private Collection<String> supportsGlTextures;
         private Collection<String> usesFeatures;
-        private Collection<String> usesConfigurations;
+        private Collection<Filter.Config> usesConfigurations;
         private Collection<String> usesLibraries;
         private Collection<String> nativeCode;
 
@@ -168,7 +219,7 @@ public final class Dist {
             compatibleScreens = new TreeSet<>();
             supportsGlTextures = new TreeSet<>();
             usesFeatures = new TreeSet<>();
-            usesConfigurations = new TreeSet<>();
+            usesConfigurations = new HashSet<>();
             usesLibraries = new TreeSet<>();
             nativeCode = new TreeSet<>();
 
@@ -261,7 +312,11 @@ public final class Dist {
             Collections.addAll(this.usesFeatures, usesFeatures);
         }
 
-        public void usesConfiguration(String... usesConfigurations) {
+        public void usesConfiguration(int fiveWayNav, int hardKeyboard, int keyboardType, int navigation, int touchScreen) {
+            usesConfiguration(new Filter.Config(fiveWayNav, hardKeyboard, keyboardType, navigation, touchScreen));
+        }
+
+        public void usesConfiguration(Filter.Config... usesConfigurations) {
             unShare();
             Collections.addAll(this.usesConfigurations, usesConfigurations);
         }
@@ -340,7 +395,7 @@ public final class Dist {
             compatibleScreens = new TreeSet<>(compatibleScreens);
             supportsGlTextures = new TreeSet<>(supportsGlTextures);
             usesFeatures = new TreeSet<>(usesFeatures);
-            usesConfigurations = new TreeSet<>(usesConfigurations);
+            usesConfigurations = new HashSet<>(usesConfigurations);
             usesLibraries = new TreeSet<>(usesLibraries);
             nativeCode = new TreeSet<>(nativeCode);
 

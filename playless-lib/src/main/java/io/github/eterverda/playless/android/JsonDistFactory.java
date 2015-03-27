@@ -1,4 +1,4 @@
-package io.github.eterverda.playless;
+package io.github.eterverda.playless.android;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -17,7 +17,7 @@ import io.github.eterverda.util.checksum.Checksum;
 import io.github.eterverda.util.checksum.ChecksumUtils;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class AndroidJsonReaderDistFactory {
+public class JsonDistFactory {
 
     public Dist[] load(String dists) {
         try {
@@ -130,7 +130,7 @@ public class AndroidJsonReaderDistFactory {
                     result.usesFeature(loadStringArray(in));
                     break;
                 case JsonConstants.USES_CONFIGURATIONS:
-                    result.usesConfiguration(loadStringArray(in));
+                    loadConfigurationArray(in, result);
                     break;
                 case JsonConstants.USES_LIBRARIES:
                     result.usesLibrary(loadStringArray(in));
@@ -143,6 +143,46 @@ public class AndroidJsonReaderDistFactory {
                     break;
             }
         }
+
+        in.endObject();
+    }
+
+    private void loadConfigurationArray(JsonReader in, Dist.Editor result) throws IOException {
+        in.beginArray();
+        while (in.hasNext()) {
+            loadConfiguration(in, result);
+        }
+        in.endArray();
+    }
+
+    private void loadConfiguration(JsonReader in, Dist.Editor result) throws IOException {
+        in.beginObject();
+
+        int fiveWayNav = 0;
+        int hardKeyboard = 0;
+        int keyboardType = 0;
+        int navigation = 0;
+        int touchScreen = 0;
+        while (in.hasNext()) {
+            switch (in.nextName()) {
+                case JsonConstants.FIVE_WAY_NAV:
+                    fiveWayNav = in.nextInt();
+                    break;
+                case JsonConstants.HARD_KEYBOARD:
+                    hardKeyboard = in.nextInt();
+                    break;
+                case JsonConstants.KEYBOARD_TYPE:
+                    keyboardType = in.nextInt();
+                    break;
+                case JsonConstants.NAVIGATION:
+                    navigation = in.nextInt();
+                    break;
+                case JsonConstants.TOUCH_SCREEN:
+                    touchScreen = in.nextInt();
+                    break;
+            }
+        }
+        result.usesConfiguration(fiveWayNav, hardKeyboard, keyboardType, navigation, touchScreen);
 
         in.endObject();
     }

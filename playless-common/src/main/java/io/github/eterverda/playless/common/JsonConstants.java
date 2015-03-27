@@ -14,9 +14,16 @@ public class JsonConstants {
     public static final String COMPATIBLE_SCREENS = "compatibleScreens";
     public static final String SUPPORTS_GL_TEXTURES = "supportsGlTextures";
     public static final String USES_FEATURES = "usesFeatures";
-    public static final String USES_CONFIGURATIONS = "usesConfigurations";
     public static final String USES_LIBRARIES = "usesLibraries";
     public static final String NATIVE_CODE = "nativeCode";
+
+    // filter usesConfiguration elements
+    public static final String USES_CONFIGURATIONS = "usesConfigurations";
+    public static final String FIVE_WAY_NAV = "fiveWayNav";
+    public static final String HARD_KEYBOARD = "hardKeyboard";
+    public static final String KEYBOARD_TYPE = "keyboardType";
+    public static final String NAVIGATION = "navigation";
+    public static final String TOUCH_SCREEN = "touchScreen";
 
     // version elements
     public static final String VERSION = "version";

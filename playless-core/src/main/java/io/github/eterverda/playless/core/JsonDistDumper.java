@@ -117,7 +117,11 @@ public class JsonDistDumper {
         write(filter.usesFeatures);
 
         generator.writeFieldName(JsonConstants.USES_CONFIGURATIONS);
-        write(filter.usesConfigurations);
+        generator.writeStartArray();
+        for (Dist.Filter.Config usesConfiguration : filter.usesConfigurations) {
+            write(usesConfiguration);
+        }
+        generator.writeEndArray();
 
         generator.writeFieldName(JsonConstants.USES_LIBRARIES);
         write(filter.usesLibraries);
@@ -128,6 +132,23 @@ public class JsonDistDumper {
         }
 
         generator.writeEndObject();
+    }
+
+    private void write(Dist.Filter.Config config) throws IOException {
+        generator.writeStartObject();
+        writeConfigurationField(JsonConstants.FIVE_WAY_NAV, config.fiveWayNav);
+        writeConfigurationField(JsonConstants.HARD_KEYBOARD, config.hardKeyboard);
+        writeConfigurationField(JsonConstants.KEYBOARD_TYPE, config.keyboardType);
+        writeConfigurationField(JsonConstants.NAVIGATION, config.navigation);
+        writeConfigurationField(JsonConstants.TOUCH_SCREEN, config.touchScreen);
+        generator.writeEndObject();
+    }
+
+    private void writeConfigurationField(String fieldName, int fieldValue) throws IOException {
+        if (fieldValue == 0) {
+            return;
+        }
+        generator.writeObjectField(fieldName, fieldValue);
     }
 
     private void write(Collection<String> collection) throws IOException {
