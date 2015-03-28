@@ -160,11 +160,8 @@ public final class Dist {
             }
 
             public boolean equals(Config other) {
-                //noinspection SimplifiableIfStatement
-                if (this == other) {
-                    return true;
-                }
-                return fiveWayNav == other.fiveWayNav &&
+                return this == other || other != null &&
+                        fiveWayNav == other.fiveWayNav &&
                         hardKeyboard == other.hardKeyboard &&
                         keyboardType == other.keyboardType &&
                         navigation == other.navigation &&
@@ -336,6 +333,7 @@ public final class Dist {
             meta.put(key, value);
         }
 
+        @NotNull
         public Dist build() {
             share();
 
@@ -346,6 +344,7 @@ public final class Dist {
                     meta);
         }
 
+        @NotNull
         public Version buildVersion() {
             return new Version(versionCode,
                     timestamp,
@@ -354,6 +353,7 @@ public final class Dist {
                     debug);
         }
 
+        @NotNull
         private Filter buildFilter() {
             share();
 
