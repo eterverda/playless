@@ -1,0 +1,41 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: rootProject.kotlinVersion
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion rootProject.androidCompileSdkVersion as int
+    buildToolsVersion rootProject.androidBuildToolsVersion as String
+
+    publishNonDefault true
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    defaultConfig {
+        applicationId 'io.github.eterverda.playless'
+        minSdkVersion 14
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+    }
+}
+
+dependencies {
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: rootProject.kotlinVersion
+    debugCompile project(path: ':playless-lib', configuration: 'debug')
+    releaseCompile project(path: ':playless-lib', configuration: 'release')
+}
