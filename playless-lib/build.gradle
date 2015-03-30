@@ -13,5 +13,8 @@ android {
 }
 
 dependencies {
-    compile project(':playless-common')
+    provided 'com.intellij:annotations:12.0'
+    compile(project(':playless-common')) {
+        exclude group: 'com.intellij', module: 'annotations'
+    }
 }
