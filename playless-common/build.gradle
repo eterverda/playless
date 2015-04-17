@@ -21,4 +21,9 @@ publishing {
             from components.java
         }
     }
+    repositories {
+        maven {
+            url new File(rootProject.rootDir, 'm2/repository')
+        }
+    }
 }
