@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 dependencies {
     compile project(':playless-core')
@@ -13,5 +14,19 @@ jar {
     }
     manifest {
         attributes 'Main-Class': 'io.github.eterverda.playless.cli.Main'
+    }
+}
+
+publishing {
+    publications {
+        playlessCliStandalone(MavenPublication) {
+            artifactId 'playless-cli-standalone'
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url new File(rootProject.rootDir, 'm2/repository')
+        }
     }
 }
