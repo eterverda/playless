@@ -36,6 +36,10 @@ android {
 
 dependencies {
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: rootProject.kotlinVersion
-    debugCompile project(path: ':playless-lib', configuration: 'debug')
-    releaseCompile project(path: ':playless-lib', configuration: 'release')
+    debugCompile(project(path: ':playless-lib', configuration: 'debug')) {
+        exclude group: 'com.intellij', module: 'annotations'
+    }
+    releaseCompile(project(path: ':playless-lib', configuration: 'release')) {
+        exclude group: 'com.intellij', module: 'annotations'
+    }
 }
