@@ -1,4 +1,4 @@
-package io.github.eterverda.playless.android;
+package io.github.eterverda.playless.lib;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.eterverda.playless.common.Dist;
-import io.github.eterverda.playless.android.content.pm.PackageInfos;
+import io.github.eterverda.playless.lib.content.pm.PackageInfos;
 
 @SuppressWarnings("SpellCheckingInspection")
 public final class InstalledDistFactory {

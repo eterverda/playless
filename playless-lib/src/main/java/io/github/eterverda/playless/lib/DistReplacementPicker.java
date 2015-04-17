@@ -1,4 +1,4 @@
-package io.github.eterverda.playless.android;
+package io.github.eterverda.playless.lib;
 
 import android.content.Context;
 import android.content.pm.PackageManager;

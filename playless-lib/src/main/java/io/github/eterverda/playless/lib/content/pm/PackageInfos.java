@@ -1,4 +1,4 @@
-package io.github.eterverda.playless.android.content.pm;
+package io.github.eterverda.playless.lib.content.pm;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.Signature;
