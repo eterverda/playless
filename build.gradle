@@ -1,5 +1,5 @@
 group 'io.github.eterverda.playless'
-version '0.1.0'
+version "${versionMajor}.${versionMinor}.${versionPatch}"
 
 buildscript {
     repositories {
