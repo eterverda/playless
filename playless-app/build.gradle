@@ -25,7 +25,7 @@ android {
         applicationId 'io.github.eterverda.playless'
         minSdkVersion 14
         versionCode 1
-        versionName '0.1.0'
+        versionName version
     }
 
     sourceSets {

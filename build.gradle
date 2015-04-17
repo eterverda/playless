@@ -16,6 +16,11 @@ allprojects {
     }
 }
 
+subprojects {
+    version rootProject.version
+    group rootProject.group
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '1.11'
 }
