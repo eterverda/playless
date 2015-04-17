@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 compileJava.sourceCompatibility '1.7'
 compileJava.targetCompatibility '1.7'
@@ -12,4 +13,12 @@ dependencies {
     provided 'com.intellij:annotations:12.0'
     provided 'net.jcip:jcip-annotations:1.0'
     testCompile 'junit:junit:4.12'
+}
+
+publishing {
+    publications {
+        playlessCommon(MavenPublication) {
+            from components.java
+        }
+    }
 }
