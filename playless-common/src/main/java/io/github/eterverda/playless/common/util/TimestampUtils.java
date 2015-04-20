@@ -8,6 +8,8 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class TimestampUtils {
+    public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
     private static final AtomicReference<SimpleDateFormat> TIMESTAMP_FORMAT = new AtomicReference<>();
 
     private TimestampUtils() {
@@ -34,8 +36,11 @@ public final class TimestampUtils {
     }
 
     private static SimpleDateFormat obtainFormat() {
-        final SimpleDateFormat usedFormat = TIMESTAMP_FORMAT.getAndSet(null);
-        final SimpleDateFormat format = usedFormat != null ? usedFormat : new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+        final SimpleDateFormat cachedFormat = TIMESTAMP_FORMAT.getAndSet(null);
+        if (cachedFormat != null) {
+            return cachedFormat;
+        }
+        final SimpleDateFormat format = new SimpleDateFormat(TIMESTAMP_PATTERN, Locale.US);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
         return format;
     }
