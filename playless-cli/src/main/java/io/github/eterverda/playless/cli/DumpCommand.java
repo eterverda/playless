@@ -1,18 +1,15 @@
 package io.github.eterverda.playless.cli;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import io.github.eterverda.playless.common.Dist;
-import io.github.eterverda.playless.common.util.TimestampUtils;
+import io.github.eterverda.playless.core.DistNaming;
 import io.github.eterverda.playless.core.InitialDistFactory;
 import io.github.eterverda.playless.core.json.JsonDistDumper;
 import io.github.eterverda.playless.core.Repository;
-import io.github.eterverda.util.checksum.ChecksumUtils;
 
 public class DumpCommand implements Command {
     @SuppressWarnings("FieldCanBeLocal")
@@ -60,15 +57,15 @@ public class DumpCommand implements Command {
 
     private Dist postProcess(Dist dist) {
         final Dist.Editor editor = dist.edit();
-        final String baseName = baseName(dist);
+        final String base = DistNaming.base(dist);
 
-        editor.meta(Dist.META_APP, baseName + ".apk");
+        editor.meta(Dist.META_APP, base + ".apk");
 
         for (String key : dist.meta.keySet()) {
             if (!key.startsWith(Dist.META_ICON)) {
                 continue;
             }
-            editor.meta(key, baseName + "-" + key + ".png");
+            editor.meta(key, base + "-" + key + ".png");
         }
 
         return editor.build();
@@ -88,26 +85,6 @@ public class DumpCommand implements Command {
         editor.meta(Dist.META_APP, "https://play.google.com/store/apps/details?id=" + dist.applicationId);
 
         return editor.build();
-    }
-
-    @NotNull
-    public static String baseName(Dist dist) {
-        final String applicationId = dist.applicationId;
-        final String timestamp = TimestampUtils.zulu(dist.version.timestamp);
-        final String selector = ChecksumUtils.intToHexString(dist.filter.hashCode()).substring(0, 7);
-        final String debug = dist.version.debug ? "debug" : null;
-
-        final StringBuilder result = new StringBuilder(applicationId.length() + 35);
-        result.append(timestamp);
-        result.append('-');
-        result.append(applicationId);
-        result.append('-');
-        result.append(selector);
-        if (debug != null) {
-            result.append('-');
-            result.append(debug);
-        }
-        return result.toString();
     }
 
     private boolean extractFlag(ArrayList<String> args, String flag) {
