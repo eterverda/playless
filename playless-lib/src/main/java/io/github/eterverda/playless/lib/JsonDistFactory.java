@@ -14,7 +14,6 @@ import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.common.JsonConstants;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 import io.github.eterverda.util.checksum.Checksum;
-import io.github.eterverda.util.checksum.ChecksumUtils;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class JsonDistFactory {
@@ -118,25 +117,25 @@ public class JsonDistFactory {
                     result.usesGlEs(Integer.parseInt(in.nextString().substring(2)));
                     break;
                 case JsonConstants.SUPPORTS_SCREENS:
-                    result.supportsScreen(loadStringArray(in));
+                    loadSupportsScreens(in, result);
                     break;
                 case JsonConstants.SUPPORTS_GL_TEXTURES:
-                    result.supportsGlTexture(loadStringArray(in));
+                    loadSupportsGlTextures(in, result);
                     break;
                 case JsonConstants.COMPATIBLE_SCREENS:
-                    result.compatibleScreen(loadStringArray(in));
+                    loadCompatibleScreens(in, result);
                     break;
                 case JsonConstants.USES_FEATURES:
-                    result.usesFeature(loadStringArray(in));
+                    loadUsesFeatures(in, result);
                     break;
                 case JsonConstants.USES_CONFIGURATIONS:
-                    loadConfigurationArray(in, result);
+                    loadUsesConfigurations(in, result);
                     break;
                 case JsonConstants.USES_LIBRARIES:
-                    result.usesLibrary(loadStringArray(in));
+                    loadUsesLibraries(in, result);
                     break;
                 case JsonConstants.NATIVE_CODE:
-                    result.nativeCode(loadStringArray(in));
+                    loadNativeCode(in, result);
                     break;
                 default:
                     in.skipValue();
@@ -146,16 +145,48 @@ public class JsonDistFactory {
 
         in.endObject();
     }
-
-    private void loadConfigurationArray(JsonReader in, Dist.Editor result) throws IOException {
+    private void loadSupportsScreens(JsonReader in, Dist.Editor result) throws IOException {
         in.beginArray();
         while (in.hasNext()) {
-            loadConfiguration(in, result);
+            result.supportsScreen(in.nextString());
         }
         in.endArray();
     }
 
-    private void loadConfiguration(JsonReader in, Dist.Editor result) throws IOException {
+
+    private void loadSupportsGlTextures(JsonReader in, Dist.Editor result) throws IOException {
+        in.beginArray();
+        while (in.hasNext()) {
+            result.supportsGlTexture(in.nextString());
+        }
+        in.endArray();
+    }
+
+    private void loadCompatibleScreens(JsonReader in, Dist.Editor result) throws IOException {
+        in.beginArray();
+        while (in.hasNext()) {
+            result.compatibleScreen(in.nextString());
+        }
+        in.endArray();
+    }
+
+    private void loadUsesFeatures(JsonReader in, Dist.Editor result) throws IOException {
+        in.beginArray();
+        while (in.hasNext()) {
+            result.usesFeature(in.nextString());
+        }
+        in.endArray();
+    }
+
+    private void loadUsesConfigurations(JsonReader in, Dist.Editor result) throws IOException {
+        in.beginArray();
+        while (in.hasNext()) {
+            loadUsesConfiguration(in, result);
+        }
+        in.endArray();
+    }
+
+    private void loadUsesConfiguration(JsonReader in, Dist.Editor result) throws IOException {
         in.beginObject();
 
         int fiveWayNav = 0;
@@ -187,16 +218,20 @@ public class JsonDistFactory {
         in.endObject();
     }
 
-    private String[] loadStringArray(JsonReader in) throws IOException {
-        final ArrayList<String> strings = new ArrayList<>();
-
+    private void loadUsesLibraries(JsonReader in, Dist.Editor result) throws IOException {
         in.beginArray();
         while (in.hasNext()) {
-            strings.add(in.nextString());
+            result.usesLibrary(in.nextString());
         }
         in.endArray();
+    }
 
-        return strings.toArray(new String[strings.size()]);
+    private void loadNativeCode(JsonReader in, Dist.Editor result) throws IOException {
+        in.beginArray();
+        while (in.hasNext()) {
+            result.nativeCode(in.nextString());
+        }
+        in.endArray();
     }
 
     private void loadMeta(JsonReader in, Dist.Editor result) throws IOException {
