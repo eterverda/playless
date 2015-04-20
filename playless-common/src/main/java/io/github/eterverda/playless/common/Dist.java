@@ -11,9 +11,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import io.github.eterverda.playless.common.util.ObjectEquals;
 import io.github.eterverda.util.checksum.Checksum;
 
 @Immutable
@@ -45,6 +47,31 @@ public final class Dist {
         this.meta = meta;
     }
 
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof Dist && equals((Dist) other);
+    }
+
+    public boolean equals(Dist other) {
+        return equalsIgnoreMeta(other) && meta.equals(other.meta);
+    }
+
+    public boolean equalsIgnoreMeta(Dist other) {
+        return this == other || other != null &&
+                applicationId.equals(other.applicationId) &&
+                version.equals(other.version) &&
+                filter.equals(other.filter);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = applicationId.hashCode();
+        result = 31 * result + version.hashCode();
+        result = 31 * result + filter.hashCode();
+        result = 31 * result + meta.hashCode();
+        return result;
+    }
+
     @Immutable
     public static final class Version {
         public final int versionCode;
@@ -66,6 +93,31 @@ public final class Dist {
             this.signatures = signatures;
             this.debug = debug;
         }
+
+        public boolean equals(Object other) {
+            return other instanceof Version && equals((Version) other);
+        }
+
+        public boolean equals(Version other) {
+            return equalsIgnoreFingerprint(other) &&
+                    ObjectEquals.equals(fingerprint, other.fingerprint);
+        }
+
+        public boolean equalsIgnoreFingerprint(Version other) {
+            return this == other || other != null &&
+                    versionCode == other.versionCode &&
+                    ObjectEquals.equals(signatures, other.signatures) &&
+                    debug == other.debug;
+        }
+
+        @Override
+        public int hashCode() {
+            int h = versionCode;
+            h = 31 * h + (int) (timestamp ^ timestamp >>> 32);
+            h = 31 * h + (fingerprint != null ? fingerprint.hashCode() : 0);
+            h = 31 * h + (signatures != null ? signatures.hashCode() : 0);
+            return debug ? h : ~h;
+        }
     }
 
     @Immutable
@@ -75,25 +127,25 @@ public final class Dist {
         public final int maxSdkVersion;
         public final int requiresSmallestWidthDp;
         public final int usesGlEs;
-        public final Collection<String> supportsScreens;
-        public final Collection<String> compatibleScreens;
-        public final Collection<String> supportsGlTextures;
-        public final Collection<String> usesFeatures;
-        public final Collection<Config> usesConfigurations;
-        public final Collection<String> usesLibraries;
-        public final Collection<String> nativeCode;
+        public final Set<String> supportsScreens;
+        public final Set<String> compatibleScreens;
+        public final Set<String> supportsGlTextures;
+        public final Set<String> usesFeatures;
+        public final Set<Config> usesConfigurations;
+        public final Set<String> usesLibraries;
+        public final Set<String> nativeCode;
 
         private Filter(
                 int minSdkVersion, int maxSdkVersion,
                 int requiresSmallestWidthDp,
                 int usesGlEs,
-                @NotNull Collection<String> supportsScreens,
-                @NotNull Collection<String> compatibleScreens,
-                @NotNull Collection<String> supportsGlTextures,
-                @NotNull Collection<String> usesFeatures,
-                @NotNull Collection<String> usesLibraries,
-                @NotNull Collection<Config> usesConfigurations,
-                @NotNull Collection<String> nativeCode) {
+                @NotNull Set<String> supportsScreens,
+                @NotNull Set<String> compatibleScreens,
+                @NotNull Set<String> supportsGlTextures,
+                @NotNull Set<String> usesFeatures,
+                @NotNull Set<String> usesLibraries,
+                @NotNull Set<Config> usesConfigurations,
+                @NotNull Set<String> nativeCode) {
 
             this.minSdkVersion = minSdkVersion;
             this.maxSdkVersion = maxSdkVersion;
@@ -106,6 +158,25 @@ public final class Dist {
             this.usesLibraries = usesLibraries;
             this.usesConfigurations = usesConfigurations;
             this.nativeCode = nativeCode;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Filter && equals((Filter) other);
+        }
+
+        public boolean equals(Filter other) {
+            return this == other || other != null &&
+                    minSdkVersion == other.minSdkVersion &&
+                    maxSdkVersion == other.maxSdkVersion &&
+                    requiresSmallestWidthDp == other.requiresSmallestWidthDp &&
+                    supportsScreens.equals(other.supportsScreens) &&
+                    compatibleScreens.equals(other.compatibleScreens) &&
+                    supportsGlTextures.equals(other.supportsGlTextures) &&
+                    usesFeatures.equals(other.usesFeatures) &&
+                    usesConfigurations.equals(other.usesConfigurations) &&
+                    usesLibraries.equals(other.usesLibraries) &&
+                    nativeCode.equals(other.nativeCode);
         }
 
         @Override
@@ -161,12 +232,26 @@ public final class Dist {
             }
 
             public boolean equals(Config other) {
-                return this == other || other != null &&
-                        fiveWayNav == other.fiveWayNav &&
-                        hardKeyboard == other.hardKeyboard &&
-                        keyboardType == other.keyboardType &&
-                        navigation == other.navigation &&
-                        touchScreen == other.touchScreen;
+                return this == other || other != null && equals(
+                        other.fiveWayNav,
+                        other.hardKeyboard,
+                        other.keyboardType,
+                        other.navigation,
+                        other.touchScreen);
+            }
+
+            public boolean equals(
+                    int fiveWayNav,
+                    int hardKeyboard,
+                    int keyboardType,
+                    int navigation,
+                    int touchScreen) {
+
+                return this.fiveWayNav == fiveWayNav &&
+                        this.hardKeyboard == hardKeyboard &&
+                        this.keyboardType == keyboardType &&
+                        this.navigation == navigation &&
+                        this.touchScreen == touchScreen;
             }
 
             @Override
@@ -200,28 +285,26 @@ public final class Dist {
         private int maxSdkVersion = Integer.MAX_VALUE;
         private int requiresSmallestWidthDp;
         private int usesGlEs;
-        private Collection<String> supportsScreens;
-        private Collection<String> compatibleScreens;
-        private Collection<String> supportsGlTextures;
-        private Collection<String> usesFeatures;
-        private Collection<Filter.Config> usesConfigurations;
-        private Collection<String> usesLibraries;
-        private Collection<String> nativeCode;
+        private Set<String> supportsScreens;
+        private Set<String> compatibleScreens;
+        private Set<String> supportsGlTextures;
+        private Set<String> usesFeatures;
+        private Set<Filter.Config> usesConfigurations;
+        private Set<String> usesLibraries;
+        private Set<String> nativeCodes;
 
         private Map<String, String> meta;
 
-        private boolean shared;
-
         public Editor() {
-            supportsScreens = new TreeSet<>();
-            compatibleScreens = new TreeSet<>();
-            supportsGlTextures = new TreeSet<>();
-            usesFeatures = new TreeSet<>();
-            usesConfigurations = new HashSet<>();
-            usesLibraries = new TreeSet<>();
-            nativeCode = new TreeSet<>();
+            supportsScreens = Collections.emptySet();
+            compatibleScreens = Collections.emptySet();
+            supportsGlTextures = Collections.emptySet();
+            usesFeatures = Collections.emptySet();
+            usesConfigurations = Collections.emptySet();
+            usesLibraries = Collections.emptySet();
+            nativeCodes = Collections.emptySet();
 
-            meta = new TreeMap<>();
+            meta = Collections.emptyMap();
         }
 
         private Editor(Dist dist) {
@@ -243,11 +326,9 @@ public final class Dist {
             usesFeatures = dist.filter.usesFeatures;
             usesConfigurations = dist.filter.usesConfigurations;
             usesLibraries = dist.filter.usesLibraries;
-            nativeCode = dist.filter.nativeCode;
+            nativeCodes = dist.filter.nativeCode;
 
             meta = dist.meta;
-
-            shared = true;
         }
 
         public void applicationId(String applicationId) {
@@ -290,53 +371,53 @@ public final class Dist {
             this.usesGlEs = usesGlEs;
         }
 
-        public void supportsScreen(String... supportsScreens) {
-            unShare();
-            Collections.addAll(this.supportsScreens, supportsScreens);
+        public void supportsScreen(String supportsScreen) {
+            supportsScreens = modifiableTreeSet(supportsScreens);
+            supportsScreens.add(supportsScreen);
         }
 
-        public void compatibleScreen(String... compatibleScreens) {
-            unShare();
-            Collections.addAll(this.compatibleScreens, compatibleScreens);
+        public void compatibleScreen(String compatibleScreen) {
+            compatibleScreens = modifiableTreeSet(compatibleScreens);
+            compatibleScreens.add(compatibleScreen);
         }
 
-        public void supportsGlTexture(String... supportsGlTextures) {
-            unShare();
-            Collections.addAll(this.supportsGlTextures, supportsGlTextures);
+        public void supportsGlTexture(String supportsGlTexture) {
+            supportsGlTextures = modifiableTreeSet(supportsGlTextures);
+            supportsGlTextures.add(supportsGlTexture);
         }
 
-        public void usesFeature(String... usesFeatures) {
-            unShare();
-            Collections.addAll(this.usesFeatures, usesFeatures);
+        public void usesFeature(String usesFeature) {
+            usesFeatures = modifiableTreeSet(usesFeatures);
+            usesFeatures.add(usesFeature);
         }
 
         public void usesConfiguration(int fiveWayNav, int hardKeyboard, int keyboardType, int navigation, int touchScreen) {
             usesConfiguration(new Filter.Config(fiveWayNav, hardKeyboard, keyboardType, navigation, touchScreen));
         }
 
-        public void usesConfiguration(Filter.Config... usesConfigurations) {
-            unShare();
-            Collections.addAll(this.usesConfigurations, usesConfigurations);
+        public void usesConfiguration(Filter.Config usesConfiguration) {
+            usesConfigurations = modifiableHashSet(usesConfigurations);
+            usesConfigurations.add(usesConfiguration);
         }
 
-        public void usesLibrary(String... usesLibraries) {
-            unShare();
-            Collections.addAll(this.usesLibraries, usesLibraries);
+        public void usesLibrary(String usesLibrary) {
+            usesLibraries = modifiableTreeSet(usesLibraries);
+            usesLibraries.add(usesLibrary);
         }
 
-        public void nativeCode(String... nativeCode) {
-            unShare();
-            Collections.addAll(this.nativeCode, nativeCode);
+        public void nativeCode(String nativeCode) {
+            nativeCodes = modifiableTreeSet(nativeCodes);
+            nativeCodes.add(nativeCode);
         }
 
         public void meta(String key, String value) {
-            unShare();
+            meta = modifiableTreeMap(meta);
             meta.put(key, value);
         }
 
         @NotNull
         public Dist build() {
-            share();
+            meta = unmodifiableMap(meta);
 
             return new Dist(
                     applicationId,
@@ -356,7 +437,13 @@ public final class Dist {
 
         @NotNull
         private Filter buildFilter() {
-            share();
+            supportsScreens = unmodifiableSet(supportsScreens);
+            compatibleScreens = unmodifiableSet(compatibleScreens);
+            supportsGlTextures = unmodifiableSet(supportsGlTextures);
+            usesFeatures = unmodifiableSet(usesFeatures);
+            usesLibraries = unmodifiableSet(usesLibraries);
+            usesConfigurations = unmodifiableSet(usesConfigurations);
+            nativeCodes = unmodifiableSet(nativeCodes);
 
             return new Filter(
                     minSdkVersion, maxSdkVersion,
@@ -368,55 +455,27 @@ public final class Dist {
                     usesFeatures,
                     usesLibraries,
                     usesConfigurations,
-                    nativeCode);
+                    nativeCodes);
         }
 
-        private void share() {
-            if (shared) {
-                return;
-            }
-            supportsScreens = unmodifiableCollection(supportsScreens);
-            compatibleScreens = unmodifiableCollection(compatibleScreens);
-            supportsGlTextures = unmodifiableCollection(supportsGlTextures);
-            usesFeatures = unmodifiableCollection(usesFeatures);
-            usesLibraries = unmodifiableCollection(usesLibraries);
-            usesConfigurations = unmodifiableCollection(usesConfigurations);
-            nativeCode = unmodifiableCollection(nativeCode);
-
-            meta = unmodifiableMap(meta);
-
-            shared = true;
+        private static <T> TreeSet<T> modifiableTreeSet(Set<T> set) {
+            return set instanceof TreeSet ? (TreeSet<T>) set : new TreeSet<>(set);
         }
 
-        private void unShare() {
-            if (!shared) {
-                return;
-            }
-            supportsScreens = new TreeSet<>(supportsScreens);
-            compatibleScreens = new TreeSet<>(compatibleScreens);
-            supportsGlTextures = new TreeSet<>(supportsGlTextures);
-            usesFeatures = new TreeSet<>(usesFeatures);
-            usesConfigurations = new HashSet<>(usesConfigurations);
-            usesLibraries = new TreeSet<>(usesLibraries);
-            nativeCode = new TreeSet<>(nativeCode);
-
-            meta = new TreeMap<>(meta);
-
-            shared = false;
+        private static <T> HashSet<T> modifiableHashSet(Set<T> set) {
+            return set instanceof HashSet ? (HashSet<T>) set : new HashSet<>(set);
         }
 
-        private static <T> Collection<T> unmodifiableCollection(Collection<T> collection) {
-            if (collection.isEmpty()) {
-                return Collections.emptySet();
-            }
-            return Collections.unmodifiableCollection(collection);
+        private static <K, V> TreeMap<K, V> modifiableTreeMap(Map<K, V> meta) {
+            return meta instanceof TreeMap ? (TreeMap<K, V>) meta : new TreeMap<>(meta);
+        }
+
+        private static <T> Set<T> unmodifiableSet(Set<T> set) {
+            return set.isEmpty() ? Collections.<T>emptySet() : Collections.unmodifiableSet(set);
         }
 
         private static <K, V> Map<K, V> unmodifiableMap(Map<K, V> map) {
-            if (map.isEmpty()) {
-                return Collections.emptyMap();
-            }
-            return Collections.unmodifiableMap(map);
+            return map.isEmpty() ? Collections.<K, V>emptyMap() : Collections.unmodifiableMap(map);
         }
     }
 }
