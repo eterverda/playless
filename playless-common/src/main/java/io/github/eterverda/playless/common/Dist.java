@@ -55,9 +55,10 @@ public final class Dist {
         public final Checksum signatures;
         public final boolean debug;
 
-        private Version(int versionCode, long timestamp,
-                        @Nullable Checksum fingerprint, @Nullable Checksum signatures,
-                        boolean debug) {
+        private Version(
+                int versionCode, long timestamp,
+                @Nullable Checksum fingerprint, @Nullable Checksum signatures,
+                boolean debug) {
 
             this.versionCode = versionCode;
             this.timestamp = timestamp;
