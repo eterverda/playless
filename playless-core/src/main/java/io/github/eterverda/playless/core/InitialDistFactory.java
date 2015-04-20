@@ -170,7 +170,9 @@ public class InitialDistFactory {
                 }
                 final Matcher supportsScreens = SUPPORTS_SCREENS.matcher(line);
                 if (supportsScreens.matches()) {
-                    dist.supportsScreen(split(supportsScreens.group(1)));
+                    for (String supportsScreen : split(supportsScreens.group(1))) {
+                        dist.supportsScreen(supportsScreen);
+                    }
                 }
                 final Matcher requiresSmallestWidth = REQUIRES_SMALLEST_WIDTH.matcher(line);
                 if (requiresSmallestWidth.matches()) {
@@ -197,7 +199,9 @@ public class InitialDistFactory {
                 }
                 final Matcher nativeCode = NATIVE_CODE.matcher(line);
                 if (nativeCode.matches()) {
-                    dist.nativeCode(split(nativeCode.group(1)));
+                    for (String code : split(nativeCode.group(1))) {
+                        dist.nativeCode(code);
+                    }
                 }
             }
 
