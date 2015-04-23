@@ -1,4 +1,4 @@
-package io.github.eterverda.playless.common;
+package io.github.eterverda.playless.common.json;
 
 public class JsonConstants {
     // root elements

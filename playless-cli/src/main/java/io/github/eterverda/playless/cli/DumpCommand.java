@@ -10,7 +10,7 @@ import java.util.Collections;
 import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 import io.github.eterverda.playless.core.InitialDistFactory;
-import io.github.eterverda.playless.core.JsonDistDumper;
+import io.github.eterverda.playless.core.json.JsonDistDumper;
 import io.github.eterverda.playless.core.Repository;
 import io.github.eterverda.util.checksum.ChecksumUtils;
 

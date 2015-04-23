@@ -1,48 +1,29 @@
-package io.github.eterverda.playless.lib;
-
-import android.annotation.TargetApi;
-import android.os.Build;
-import android.util.JsonReader;
+package io.github.eterverda.playless.common.json;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 
 import io.github.eterverda.playless.common.Dist;
-import io.github.eterverda.playless.common.JsonConstants;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 import io.github.eterverda.util.checksum.Checksum;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class JsonDistFactory {
-
-    public Dist[] load(String dists) {
-        try {
-            return load(new StringReader(dists));
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    private Dist[] load(Reader in) throws IOException {
-        return load(new JsonReader(in));
-    }
-
-    private Dist[] load(JsonReader in) throws IOException {
-        final ArrayList<Dist> result = new ArrayList<>();
+    private List<Dist> loadList(JsonReader in) throws IOException {
+        final ArrayList<Dist> list = new ArrayList<>();
 
         in.beginArray();
         while (in.hasNext()) {
-            result.add(loadSingle(in));
+            final Dist dist = load(in);
+            list.add(dist);
         }
         in.endArray();
 
-        return result.toArray(new Dist[result.size()]);
+        return list;
     }
 
-    private Dist loadSingle(JsonReader in) throws IOException {
+    public Dist load(JsonReader in) throws IOException {
         in.beginObject();
 
         final Dist.Editor result = new Dist.Editor();
@@ -73,6 +54,7 @@ public class JsonDistFactory {
 
     private void loadVersion(JsonReader in, Dist.Editor result) throws IOException {
         in.beginObject();
+
         while (in.hasNext()) {
             final String name = in.nextName();
             if (name.equals(JsonConstants.VERSION_CODE)) {
@@ -96,6 +78,7 @@ public class JsonDistFactory {
                 result.signatures(createChecksum(algorithm, value));
             }
         }
+
         in.endObject();
     }
 
