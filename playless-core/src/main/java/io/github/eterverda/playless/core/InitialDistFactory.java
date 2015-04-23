@@ -166,7 +166,9 @@ public class InitialDistFactory {
                 }
                 final Matcher icon = ICON.matcher(line);
                 if (icon.matches()) {
-                    dist.meta(Dist.META_ICON + icon.group(1), icon.group(2));
+                    if (!icon.group(1).contains("-65535")) { // skip scalable icons while they're unsupported
+                        dist.meta(Dist.META_ICON + icon.group(1), icon.group(2));
+                    }
                 }
                 final Matcher supportsScreens = SUPPORTS_SCREENS.matcher(line);
                 if (supportsScreens.matches()) {
