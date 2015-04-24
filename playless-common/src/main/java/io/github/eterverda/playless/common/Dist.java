@@ -104,16 +104,19 @@ public final class Dist {
         }
 
         public boolean equalsIgnoreFingerprint(Version other) {
-            return this == other || other != null &&
-                    versionCode == other.versionCode &&
+            return playfulEquals(other) &&
                     ObjectEquals.equals(signatures, other.signatures) &&
                     debug == other.debug;
+        }
+
+        public boolean playfulEquals(Version other) {
+            return this == other || other != null &&
+                    versionCode == other.versionCode;
         }
 
         @Override
         public int hashCode() {
             int h = versionCode;
-            h = 31 * h + (int) (timestamp ^ timestamp >>> 32);
             h = 31 * h + (fingerprint != null ? fingerprint.hashCode() : 0);
             h = 31 * h + (signatures != null ? signatures.hashCode() : 0);
             return debug ? h : ~h;
@@ -166,6 +169,13 @@ public final class Dist {
         }
 
         public boolean equals(Filter other) {
+            return playfulEquals(other) &&
+                    usesGlEs == other.usesGlEs &&
+                    usesConfigurations.equals(other.usesConfigurations) &&
+                    usesLibraries.equals(other.usesLibraries);
+        }
+
+        public boolean playfulEquals(Filter other) {
             return this == other || other != null &&
                     minSdkVersion == other.minSdkVersion &&
                     maxSdkVersion == other.maxSdkVersion &&
@@ -174,8 +184,6 @@ public final class Dist {
                     compatibleScreens.equals(other.compatibleScreens) &&
                     supportsGlTextures.equals(other.supportsGlTextures) &&
                     usesFeatures.equals(other.usesFeatures) &&
-                    usesConfigurations.equals(other.usesConfigurations) &&
-                    usesLibraries.equals(other.usesLibraries) &&
                     nativeCode.equals(other.nativeCode);
         }
 
