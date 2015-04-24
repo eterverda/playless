@@ -15,9 +15,10 @@ public final class DistNaming {
     public static String base(@NotNull Dist dist) {
         final String tst = String.format(TIMESTAMP_FORMAT, dist.version.timestamp);
         final String app = dist.applicationId;
+        final String ver = Integer.toString(dist.version.versionCode);
         final String sel = String.format(SELECTOR_FORMAT, dist.filter.hashCode());
         final String dbg = dist.version.debug ? "-debug" : "";
 
-        return tst + '-' + app + '-' + sel + dbg;
+        return tst + '-' + app + '.' + ver + '-' + sel + dbg;
     }
 }
