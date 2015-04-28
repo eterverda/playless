@@ -12,8 +12,7 @@ import io.github.eterverda.playless.core.json.JsonDistDumper;
 import io.github.eterverda.playless.core.Repository;
 
 public class DumpCommand implements Command {
-    @SuppressWarnings("FieldCanBeLocal")
-    private boolean POST_PROCESS = true;
+    private static final boolean POST_PROCESS = Boolean.valueOf("true");
 
     @Override
     public void main(Repository repo, String[] rawArgs) {
