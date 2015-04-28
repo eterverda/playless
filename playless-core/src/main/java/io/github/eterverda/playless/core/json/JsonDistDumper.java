@@ -13,6 +13,8 @@ import io.github.eterverda.playless.common.json.JsonConstants;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 
 public class JsonDistDumper {
+    private static final String MY_VERSION = "1";
+
     private final JsonWriter out;
 
     public JsonDistDumper(OutputStream out) throws IOException {
@@ -23,17 +25,30 @@ public class JsonDistDumper {
         out.setIndent(pretty ? "  " : "");
     }
 
-    public void write(Dist... dists) throws IOException {
+    public void writeDecorated(Dist... dists) throws IOException {
+        out.beginObject();
+
+        out.name(JsonConstants.VERSION).value(MY_VERSION);
+
+        out.name(JsonConstants.DISTRIBUTIONS);
+        writeList(dists);
+
+        out.endObject();
+
+        out.flush();
+    }
+
+    public void writeList(Dist... dists) throws IOException {
         out.beginArray();
         for (Dist dist : dists) {
-            writeSingle(dist);
+            write(dist);
         }
         out.endArray();
 
         out.flush();
     }
 
-    public void writeSingle(Dist dist) throws IOException {
+    public void write(Dist dist) throws IOException {
         out.beginObject();
 
         out.name(JsonConstants.APPLICATION_ID).value(dist.applicationId);

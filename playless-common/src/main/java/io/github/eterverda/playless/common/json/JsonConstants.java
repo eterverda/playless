@@ -2,6 +2,9 @@ package io.github.eterverda.playless.common.json;
 
 public class JsonConstants {
     // root elements
+    public static final String DISTRIBUTIONS = "distributions";
+
+    // root distribution elements
     public static final String APPLICATION_ID = "applicationId";
 
     // filter elements

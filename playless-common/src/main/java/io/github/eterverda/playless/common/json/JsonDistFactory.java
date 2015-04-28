@@ -3,14 +3,47 @@ package io.github.eterverda.playless.common.json;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.List;
 
 import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 import io.github.eterverda.util.checksum.Checksum;
 
 public class JsonDistFactory {
-    private List<Dist> loadList(JsonReader in) throws IOException {
+    private static final String MY_VERSION = "1";
+
+    public Dist[] loadDecorated(JsonReader in) throws IOException {
+        String version = null;
+        Dist[] distributions = null;
+
+        in.beginObject();
+        while (in.hasNext()) {
+            switch (in.nextName()) {
+                case JsonConstants.VERSION:
+                    version = in.nextString();
+                    if (!version.equals(MY_VERSION)) {
+                        throw new IllegalArgumentException("Don't know how to parse version " + version);
+                    }
+                    break;
+
+                case JsonConstants.DISTRIBUTIONS:
+                    distributions = loadArray(in);
+                    break;
+
+                default:
+                    in.skipValue();
+                    break;
+            }
+        }
+        in.endObject();
+
+        if (version == null) {
+            throw new IllegalArgumentException("Version not found");
+        }
+
+        return distributions != null ? distributions : new Dist[0];
+    }
+
+    private Dist[] loadArray(JsonReader in) throws IOException {
         final ArrayList<Dist> list = new ArrayList<>();
 
         in.beginArray();
@@ -20,7 +53,7 @@ public class JsonDistFactory {
         }
         in.endArray();
 
-        return list;
+        return list.toArray(new Dist[list.size()]);
     }
 
     public Dist load(JsonReader in) throws IOException {
@@ -56,26 +89,25 @@ public class JsonDistFactory {
         in.beginObject();
 
         while (in.hasNext()) {
-            final String name = in.nextName();
-            if (name.equals(JsonConstants.VERSION_CODE)) {
-                result.versionCode(in.nextInt());
-
-            } else if (name.equals(JsonConstants.TIMESTAMP)) {
-                final long timestamp = TimestampUtils.zulu(in.nextString());
-                result.timestamp(timestamp);
-
-            } else if (name.equals(JsonConstants.DEBUG)) {
-                result.debug(in.nextBoolean());
-
-            } else if (name.startsWith(JsonConstants.FINGERPRINT_PREFIX)) {
-                final String algorithm = name.substring(JsonConstants.FINGERPRINT_PREFIX.length());
-                final String value = in.nextString();
-                result.fingerprint(createChecksum(algorithm, value));
-
-            } else if (name.startsWith(JsonConstants.SIGNATURES_PREFIX)) {
-                final String algorithm = name.substring(JsonConstants.SIGNATURES_PREFIX.length());
-                final String value = in.nextString();
-                result.signatures(createChecksum(algorithm, value));
+            switch (in.nextName()) {
+                case JsonConstants.VERSION_CODE:
+                    result.versionCode(in.nextInt());
+                    break;
+                case JsonConstants.TIMESTAMP:
+                    result.timestamp(TimestampUtils.zulu(in.nextString()));
+                    break;
+                case JsonConstants.DEBUG:
+                    result.debug(in.nextBoolean());
+                    break;
+                case JsonConstants.FINGERPRINT:
+                    result.fingerprint(createChecksum(in.nextString()));
+                    break;
+                case JsonConstants.SIGNATURES:
+                    result.signatures(createChecksum(in.nextString()));
+                    break;
+                default:
+                    in.skipValue();
+                    break;
             }
         }
 
@@ -194,6 +226,9 @@ public class JsonDistFactory {
                 case JsonConstants.TOUCH_SCREEN:
                     touchScreen = in.nextInt();
                     break;
+                default:
+                    in.skipValue();
+                    break;
             }
         }
         result.usesConfiguration(fiveWayNav, hardKeyboard, keyboardType, navigation, touchScreen);
@@ -225,9 +260,14 @@ public class JsonDistFactory {
         in.endObject();
     }
 
-    private static Checksum createChecksum(String algorithm, String value) {
+    private static Checksum createChecksum(String checksumStr) {
         try {
-            return new Checksum(algorithm, value);
+            final int indexOfColon = checksumStr.indexOf(':');
+            final String algorithm = checksumStr.substring(0, indexOfColon);
+            final String hexValue = checksumStr.substring(indexOfColon + 1);
+
+            return new Checksum(algorithm, hexValue);
+
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException(e);
         }

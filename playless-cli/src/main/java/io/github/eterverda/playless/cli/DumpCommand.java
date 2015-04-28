@@ -49,7 +49,7 @@ public class DumpCommand implements Command {
             dists[i] = playProcess;
         }
 
-        dumper.write(dists);
+        dumper.writeDecorated(dists);
 
         System.out.println();
     }
