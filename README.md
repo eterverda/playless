@@ -14,7 +14,7 @@ repositories {
 Then add playless dependency:
 ```
 dependencies {
-  compile('io.githib.eterverda.playless:playless-lib:0.2.0@aar') {
+  compile('io.githib.eterverda.playless:playless-lib:0.3.0@aar') {
     transitive = true
   }
 }
