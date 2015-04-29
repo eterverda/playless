@@ -21,9 +21,11 @@ import io.github.eterverda.util.checksum.Checksum;
 @Immutable
 @ThreadSafe
 public final class Dist {
-    public static final String META_APP = "app";
+    public static final String LINK_REL_APK = "apk";
+    public static final String LINK_REL_STORE = "store";
+    public static final String LINK_REL_ICON = "icon";
+
     public static final String META_VERSION_NAME = "versionName";
-    public static final String META_ICON = "icon";
     public static final String META_LABEL = "label";
 
     @NotNull
@@ -33,17 +35,21 @@ public final class Dist {
     @NotNull
     public final Filter filter;
     @NotNull
+    public final Set<Link> links;
+    @NotNull
     public final Map<String, String> meta;
 
     private Dist(
             @NotNull String applicationId,
             @NotNull Version version,
             @NotNull Filter filter,
+            @NotNull Set<Link> links,
             @NotNull Map<String, String> meta) {
 
         this.applicationId = applicationId;
         this.version = version;
         this.filter = filter;
+        this.links = links;
         this.meta = meta;
     }
 
@@ -301,6 +307,7 @@ public final class Dist {
         private Set<String> usesLibraries;
         private Set<String> nativeCodes;
 
+        private Set<Link> links;
         private Map<String, String> meta;
 
         public Editor() {
@@ -312,6 +319,7 @@ public final class Dist {
             usesLibraries = Collections.emptySet();
             nativeCodes = Collections.emptySet();
 
+            links = Collections.emptySet();
             meta = Collections.emptyMap();
         }
 
@@ -336,6 +344,7 @@ public final class Dist {
             usesLibraries = dist.filter.usesLibraries;
             nativeCodes = dist.filter.nativeCode;
 
+            links = dist.links;
             meta = dist.meta;
         }
 
@@ -418,6 +427,16 @@ public final class Dist {
             nativeCodes.add(nativeCode);
         }
 
+        public void link(String rel, String href) {
+            links = modifiableTreeSet(links);
+            links.add(new Link(rel, href));
+        }
+
+        public void unlink(Link link) {
+            links = modifiableTreeSet(links);
+            links.remove(link);
+        }
+
         public void meta(String key, String value) {
             meta = modifiableTreeMap(meta);
             meta.put(key, value);
@@ -426,11 +445,13 @@ public final class Dist {
         @NotNull
         public Dist build() {
             meta = unmodifiableMap(meta);
+            links = unmodifiableSet(links);
 
             return new Dist(
                     applicationId,
                     buildVersion(),
                     buildFilter(),
+                    links,
                     meta);
         }
 

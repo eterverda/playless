@@ -36,6 +36,11 @@ public class JsonConstants {
     public static final String FINGERPRINT = "fingerprint";
     public static final String DEBUG = "debug";
 
+    // links elements
+    public static final String LINKS = "links";
+    public static final String REL = "rel";
+    public static final String HREF = "href";
+
     // meta elements
     public static final String META = "meta";
 }

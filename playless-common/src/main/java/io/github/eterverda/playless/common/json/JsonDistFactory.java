@@ -71,6 +71,9 @@ public class JsonDistFactory {
                 case JsonConstants.FILTER:
                     loadFilter(in, result);
                     break;
+                case JsonConstants.LINKS:
+                    loadLinks(in, result);
+                    break;
                 case JsonConstants.META:
                     loadMeta(in, result);
                     break;
@@ -248,6 +251,37 @@ public class JsonDistFactory {
         in.beginArray();
         while (in.hasNext()) {
             result.nativeCode(in.nextString());
+        }
+        in.endArray();
+    }
+
+    private void loadLinks(JsonReader in, Dist.Editor result) throws IOException {
+        in.beginArray();
+        while (in.hasNext()) {
+            String rel = null;
+            String href = null;
+            in.beginObject();
+            while (in.hasNext()) {
+                switch (in.nextName()) {
+                    case JsonConstants.REL:
+                        rel = in.nextString();
+                        break;
+                    case JsonConstants.HREF:
+                        href = in.nextString();
+                        break;
+                    default:
+                        in.skipValue();
+                        break;
+                }
+            }
+            if (rel == null) {
+                throw new IllegalArgumentException("rel not found for link");
+            }
+            if (href == null) {
+                throw new IllegalArgumentException("href not found for link");
+            }
+            result.link(rel, href);
+            in.endObject();
         }
         in.endArray();
     }

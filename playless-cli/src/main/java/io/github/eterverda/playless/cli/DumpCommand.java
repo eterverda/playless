@@ -1,15 +1,22 @@
 package io.github.eterverda.playless.cli;
 
+import org.apache.commons.codec.binary.Base32;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import io.github.eterverda.playless.common.Dist;
-import io.github.eterverda.playless.core.DistNaming;
+import io.github.eterverda.playless.common.Link;
+import io.github.eterverda.playless.common.util.DistFactories;
 import io.github.eterverda.playless.core.InitialDistFactory;
-import io.github.eterverda.playless.core.json.JsonDistDumper;
 import io.github.eterverda.playless.core.Repository;
+import io.github.eterverda.playless.core.json.JsonDistDumper;
+import io.github.eterverda.util.checksum.Checksum;
 
 public class DumpCommand implements Command {
     private static final boolean POST_PROCESS = Boolean.valueOf("true");
@@ -43,7 +50,7 @@ public class DumpCommand implements Command {
             final File file = new File(arg);
 
             final Dist preProcess = factory.load(file);
-            final Dist postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
+            final Dist postProcess = POST_PROCESS ? postProcess(file, preProcess) : preProcess;
             final Dist playProcess = playful ? playProcess(postProcess) : postProcess;
 
             dists[i] = playProcess;
@@ -54,20 +61,35 @@ public class DumpCommand implements Command {
         System.out.println();
     }
 
-    private Dist postProcess(Dist dist) {
+    private Dist postProcess(File file, Dist dist) throws IOException {
         final Dist.Editor editor = dist.edit();
-        final String base = DistNaming.base(dist);
 
-        editor.meta(Dist.META_APP, base + ".apk");
+        for (Link link : dist.links) {
+            final String rel = link.rel;
+            if (rel.startsWith(Dist.LINK_REL_ICON)) {
+                editor.unlink(link);
 
-        for (String key : dist.meta.keySet()) {
-            if (!key.startsWith(Dist.META_ICON)) {
-                continue;
+                final ZipFile zip = new ZipFile(file);
+                final String entryName = link.href.substring(link.href.lastIndexOf('!') + 2);
+                final ZipEntry entry = zip.getEntry(entryName);
+
+                editor.link(rel, checksum2urn(DistFactories.loadFingerprint(zip, entry)));
+
+            } else if (link.rel.equals(Dist.LINK_REL_APK)) {
+                editor.unlink(link);
+                editor.link(Dist.LINK_REL_APK, checksum2urn(dist.version.fingerprint));
             }
-            editor.meta(key, base + "-" + key + ".png");
         }
 
         return editor.build();
+    }
+
+    @NotNull
+    private String checksum2urn(Checksum checksum) {
+        final Base32 base32 = new Base32();
+        final byte[] value = checksum.getValue();
+        final String encodedValue = base32.encodeToString(value).toLowerCase();
+        return "urn:sha1:" + encodedValue;
     }
 
     private Dist playProcess(Dist dist) {
@@ -75,13 +97,17 @@ public class DumpCommand implements Command {
 
         editor.timestamp(Long.MIN_VALUE);
 
-        for (String key : dist.meta.keySet()) {
-            if (key.startsWith(Dist.META_ICON)) {
-                editor.meta(key, null);
+        for (Link link : dist.links) {
+            final String rel = link.rel;
+            if (rel.equals(Dist.LINK_REL_APK)) {
+                editor.unlink(link);
+                editor.link(Dist.LINK_REL_STORE, "https://play.google.com/store/apps/details?id=" + dist.applicationId);
+
+            } else if (rel.startsWith(Dist.LINK_REL_ICON)) {
+                editor.unlink(link);
+                // no link back
             }
         }
-
-        editor.meta(Dist.META_APP, "https://play.google.com/store/apps/details?id=" + dist.applicationId);
 
         return editor.build();
     }

@@ -41,7 +41,7 @@ public class InitialDistFactory {
     private static void loadFileTo(@NotNull Dist.Editor dist, @NotNull File file) throws IOException {
         loadTimestampTo(dist, file);
 
-        dist.meta(Dist.META_APP, file.getAbsolutePath());
+        dist.link(Dist.LINK_REL_APK, "file:" + file.getAbsolutePath());
         dist.fingerprint(DistFactories.loadFingerprint(file));
         dist.signatures(Jars.loadSignatures(file));
     }
@@ -56,7 +56,7 @@ public class InitialDistFactory {
                 .addArgument("badging")
                 .addArgument(file.getAbsolutePath());
 
-        final AaptStreamHandler handler = new AaptStreamHandler(dist);
+        final AaptStreamHandler handler = new AaptStreamHandler(file, dist);
 
         final DefaultExecutor executor = new DefaultExecutor();
         executor.setStreamHandler(handler);
@@ -89,9 +89,11 @@ public class InitialDistFactory {
         private static final Pattern NATIVE_CODE = Pattern.compile("native-code:(.*)");
 
         private BufferedReader in;
+        private File file;
         private Dist.Editor dist;
 
-        public AaptStreamHandler(Dist.Editor dist) {
+        public AaptStreamHandler(File file, Dist.Editor dist) {
+            this.file = file;
             this.dist = dist;
         }
 
@@ -167,7 +169,7 @@ public class InitialDistFactory {
                 final Matcher icon = ICON.matcher(line);
                 if (icon.matches()) {
                     if (!icon.group(1).contains("-65535")) { // skip scalable icons while they're unsupported
-                        dist.meta(Dist.META_ICON + icon.group(1), icon.group(2));
+                        dist.link(Dist.LINK_REL_ICON + icon.group(1), "zip:file:" + file.getAbsolutePath() + "!/" + icon.group(2));
                     }
                 }
                 final Matcher supportsScreens = SUPPORTS_SCREENS.matcher(line);

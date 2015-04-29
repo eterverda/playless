@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import io.github.eterverda.util.checksum.Checksum;
 
@@ -15,17 +17,25 @@ public final class DistFactories {
 
     @NotNull
     public static Checksum loadFingerprint(@NotNull File file) throws IOException {
-        InputStream in = null;
+        final FileInputStream in = new FileInputStream(file);
+        return checksum(in);
+    }
+
+    @NotNull
+    public static Checksum loadFingerprint(@NotNull ZipFile file, @NotNull ZipEntry entry) throws IOException {
+        final InputStream in = file.getInputStream(entry);
+        return checksum(in);
+    }
+
+    @NotNull
+    private static Checksum checksum(@NotNull InputStream in) throws IOException {
         try {
-            in = new FileInputStream(file);
             return Checksum.sha1(in);
 
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignore) {
-                }
+            try {
+                in.close();
+            } catch (IOException ignore) {
             }
         }
     }

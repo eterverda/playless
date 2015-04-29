@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import io.github.eterverda.playless.common.Dist;
+import io.github.eterverda.playless.common.Link;
 import io.github.eterverda.playless.common.json.JsonConstants;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 
@@ -64,6 +65,15 @@ public class JsonDistDumper {
             write(dist.meta);
         }
 
+        if (!dist.links.isEmpty()) {
+            out.name(JsonConstants.LINKS);
+            out.beginArray();
+            for (Link link : dist.links) {
+                write(link);
+            }
+            out.endArray();
+        }
+
         out.endObject();
 
         out.flush();
@@ -86,6 +96,12 @@ public class JsonDistDumper {
             out.name(JsonConstants.DEBUG).value(true);
         }
 
+        out.endObject();
+    }
+
+    private void write(Link link) throws IOException {
+        out.beginObject();
+        out.name(JsonConstants.REL).value(link.rel).name(JsonConstants.HREF).value(link.href);
         out.endObject();
     }
 
