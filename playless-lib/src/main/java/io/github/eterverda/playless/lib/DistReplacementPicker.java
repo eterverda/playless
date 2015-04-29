@@ -34,7 +34,7 @@ public class DistReplacementPicker {
             if (candidate.version.versionCode <= bestVersionCode) {
                 continue;
             }
-            if (matcher.isCompatible(candidate.filter)) {
+            if (!matcher.isCompatible(candidate.filter)) {
                 continue;
             }
             bestDist = candidate;
