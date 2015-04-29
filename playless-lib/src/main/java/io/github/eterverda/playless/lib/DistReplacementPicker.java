@@ -31,10 +31,10 @@ public class DistReplacementPicker {
             if (!candidate.applicationId.equals(applicationId)) {
                 continue;
             }
-            if (candidate.version.versionCode <= bestVersionCode) {
+            if (!matcher.isCompatible(candidate.filter)) {
                 continue;
             }
-            if (matcher.isCompatible(candidate.filter)) {
+            if (candidate.version.versionCode <= bestVersionCode) {
                 continue;
             }
             bestDist = candidate;
