@@ -77,10 +77,10 @@ public class JsonDistDumper {
             out.name(JsonConstants.TIMESTAMP).value(TimestampUtils.zulu(version.timestamp));
         }
         if (version.fingerprint != null) {
-            out.name(JsonConstants.FINGERPRINT_PREFIX + version.fingerprint.getShortAlgorithm()).value(version.fingerprint.getStringValue());
+            out.name(JsonConstants.FINGERPRINT).value(version.fingerprint.toString());
         }
         if (version.signatures != null) {
-            out.name(JsonConstants.SIGNATURES_PREFIX + version.signatures.getShortAlgorithm()).value(version.signatures.getStringValue());
+            out.name(JsonConstants.SIGNATURES).value(version.signatures.toString());
         }
         if (version.debug) {
             out.name(JsonConstants.DEBUG).value(true);
