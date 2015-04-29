@@ -65,6 +65,6 @@ public final class AndroidJsonReader implements JsonReader {
 
     @Override
     public void skipValue() throws IOException {
-        impl.endObject();
+        impl.skipValue();
     }
 }

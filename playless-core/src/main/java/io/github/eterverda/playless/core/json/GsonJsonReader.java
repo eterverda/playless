@@ -61,6 +61,6 @@ public final class GsonJsonReader implements JsonReader {
 
     @Override
     public void skipValue() throws IOException {
-        impl.endObject();
+        impl.skipValue();
     }
 }
