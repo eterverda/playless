@@ -15,6 +15,7 @@ public final class Main {
     static {
         commands = new HashMap<>();
         commands.put("init", new InitCommand());
+        commands.put("install", new InstallCommand());
         commands.put("dump", new DumpCommand());
     }
 

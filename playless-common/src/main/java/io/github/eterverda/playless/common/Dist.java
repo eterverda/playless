@@ -281,6 +281,7 @@ public final class Dist {
         }
     }
 
+    @NotNull
     public Editor edit() {
         return new Editor(this);
     }
@@ -323,7 +324,7 @@ public final class Dist {
             meta = Collections.emptyMap();
         }
 
-        protected Editor(Dist dist) {
+        protected Editor(@NotNull Dist dist) {
             applicationId = dist.applicationId;
 
             versionCode = dist.version.versionCode;
@@ -360,11 +361,11 @@ public final class Dist {
             this.timestamp = timestamp;
         }
 
-        public void fingerprint(Checksum fingerprint) {
+        public void fingerprint(@Nullable Checksum fingerprint) {
             this.fingerprint = fingerprint;
         }
 
-        public void signatures(Checksum signatures) {
+        public void signatures(@Nullable Checksum signatures) {
             this.signatures = signatures;
         }
 
@@ -388,22 +389,22 @@ public final class Dist {
             this.usesGlEs = usesGlEs;
         }
 
-        public void supportsScreen(String supportsScreen) {
+        public void supportsScreen(@NotNull String supportsScreen) {
             supportsScreens = modifiableTreeSet(supportsScreens);
             supportsScreens.add(supportsScreen);
         }
 
-        public void compatibleScreen(String compatibleScreen) {
+        public void compatibleScreen(@NotNull String compatibleScreen) {
             compatibleScreens = modifiableTreeSet(compatibleScreens);
             compatibleScreens.add(compatibleScreen);
         }
 
-        public void supportsGlTexture(String supportsGlTexture) {
+        public void supportsGlTexture(@NotNull String supportsGlTexture) {
             supportsGlTextures = modifiableTreeSet(supportsGlTextures);
             supportsGlTextures.add(supportsGlTexture);
         }
 
-        public void usesFeature(String usesFeature) {
+        public void usesFeature(@NotNull String usesFeature) {
             usesFeatures = modifiableTreeSet(usesFeatures);
             usesFeatures.add(usesFeature);
         }
@@ -412,36 +413,36 @@ public final class Dist {
             usesConfiguration(new Filter.Config(fiveWayNav, hardKeyboard, keyboardType, navigation, touchScreen));
         }
 
-        public void usesConfiguration(Filter.Config usesConfiguration) {
+        public void usesConfiguration(@NotNull Filter.Config usesConfiguration) {
             usesConfigurations = modifiableHashSet(usesConfigurations);
             usesConfigurations.add(usesConfiguration);
         }
 
-        public void usesLibrary(String usesLibrary) {
+        public void usesLibrary(@NotNull String usesLibrary) {
             usesLibraries = modifiableTreeSet(usesLibraries);
             usesLibraries.add(usesLibrary);
         }
 
-        public void nativeCode(String nativeCode) {
+        public void nativeCode(@NotNull String nativeCode) {
             nativeCodes = modifiableTreeSet(nativeCodes);
             nativeCodes.add(nativeCode);
         }
 
-        public void link(Link link) {
+        public void link(@NotNull Link link) {
             links = modifiableTreeSet(links);
             links.add(link);
         }
 
-        public void link(String rel, String href) {
+        public void link(@NotNull String rel, @NotNull String href) {
             link(new Link(rel, href));
         }
 
-        public void unlink(Link link) {
+        public void unlink(@NotNull Link link) {
             links = modifiableTreeSet(links);
             links.remove(link);
         }
 
-        public void meta(String key, String value) {
+        public void meta(@NotNull String key, @NotNull String value) {
             meta = modifiableTreeMap(meta);
             meta.put(key, value);
         }

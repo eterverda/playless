@@ -1,6 +1,5 @@
 package io.github.eterverda.playless.cli;
 
-import org.apache.commons.codec.binary.Base32;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -156,9 +155,7 @@ public class DumpCommand implements Command {
 
     @NotNull
     private static String makeUrl(Checksum fingerprint, String filename) {
-        final Base32 base32 = new Base32();
-        final byte[] value = fingerprint.getValue();
-        final String encodedValue = base32.encodeToString(value).toLowerCase();
+        final String encodedValue = InstallCommand.base32(fingerprint);
         return ".playless/" + encodedValue.substring(0, 2) + "/" + encodedValue.substring(2) + "/" + filename;
     }
 }
