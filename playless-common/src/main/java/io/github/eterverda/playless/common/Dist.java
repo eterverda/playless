@@ -39,7 +39,7 @@ public final class Dist {
     @NotNull
     public final Map<String, String> meta;
 
-    private Dist(
+    protected Dist(
             @NotNull String applicationId,
             @NotNull Version version,
             @NotNull Filter filter,
@@ -88,7 +88,7 @@ public final class Dist {
         public final Checksum signatures;
         public final boolean debug;
 
-        private Version(
+        protected Version(
                 int versionCode, long timestamp,
                 @Nullable Checksum fingerprint, @Nullable Checksum signatures,
                 boolean debug) {
@@ -144,7 +144,7 @@ public final class Dist {
         public final Set<String> usesLibraries;
         public final Set<String> nativeCode;
 
-        private Filter(
+        protected Filter(
                 int minSdkVersion, int maxSdkVersion,
                 int requiresSmallestWidthDp,
                 int usesGlEs,
@@ -323,7 +323,7 @@ public final class Dist {
             meta = Collections.emptyMap();
         }
 
-        private Editor(Dist dist) {
+        protected Editor(Dist dist) {
             applicationId = dist.applicationId;
 
             versionCode = dist.version.versionCode;
