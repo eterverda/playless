@@ -9,22 +9,18 @@ import io.github.eterverda.playless.common.util.TimestampUtils;
 import io.github.eterverda.util.checksum.Checksum;
 
 public class JsonDistFactory {
-    private static final String MY_VERSION = "1";
-
     public Dist[] loadDecorated(JsonReader in) throws IOException {
-        String version = null;
         Dist[] distributions = null;
 
         in.beginObject();
+        final String decor = in.nextName();
+        if (!decor.equals(JsonConstants.DECOR_PLAYLESS_REPOSITORY_V1)) {
+            throw new IllegalArgumentException("Expected " + JsonConstants.DECOR_PLAYLESS_REPOSITORY_V1);
+        }
+        in.beginObject();
+
         while (in.hasNext()) {
             switch (in.nextName()) {
-                case JsonConstants.VERSION:
-                    version = in.nextString();
-                    if (!version.equals(MY_VERSION)) {
-                        throw new IllegalArgumentException("Don't know how to parse version " + version);
-                    }
-                    break;
-
                 case JsonConstants.DISTRIBUTIONS:
                     distributions = loadArray(in);
                     break;
@@ -34,11 +30,9 @@ public class JsonDistFactory {
                     break;
             }
         }
-        in.endObject();
 
-        if (version == null) {
-            throw new IllegalArgumentException("Version not found");
-        }
+        in.endObject();
+        in.endObject();
 
         return distributions != null ? distributions : new Dist[0];
     }
