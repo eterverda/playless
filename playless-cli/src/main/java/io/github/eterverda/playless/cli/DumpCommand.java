@@ -109,6 +109,8 @@ public class DumpCommand implements Command {
             }
         }
 
+        editor.unmeta(Dist.META_DOWNLOAD_SIZE);
+
         return editor.build();
     }
 

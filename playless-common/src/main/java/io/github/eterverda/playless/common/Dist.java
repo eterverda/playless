@@ -27,6 +27,7 @@ public final class Dist {
 
     public static final String META_VERSION_NAME = "versionName";
     public static final String META_LABEL = "label";
+    public static final String META_DOWNLOAD_SIZE = "downloadSize";
 
     @NotNull
     public final String applicationId;
@@ -440,6 +441,11 @@ public final class Dist {
         public void meta(String key, String value) {
             meta = modifiableTreeMap(meta);
             meta.put(key, value);
+        }
+
+        public void unmeta(String key) {
+            meta = modifiableTreeMap(meta);
+            meta.remove(key);
         }
 
         @NotNull
