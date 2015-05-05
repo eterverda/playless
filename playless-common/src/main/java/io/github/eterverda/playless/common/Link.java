@@ -36,7 +36,7 @@ public final class Link implements Comparable<Link> {
     }
 
     @Override
-    public int compareTo(Link other) {
+    public int compareTo(@NotNull Link other) {
         final int r = rel.compareTo(other.rel);
         if (r != 0) {
             return r;
