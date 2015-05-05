@@ -104,7 +104,7 @@ public class JsonRepoDumper {
 
     private void write(Link link) throws IOException {
         out.beginObject();
-        out.name(JsonConstants.REL).value(link.rel).name(JsonConstants.HREF).value(link.href);
+        out.name(JsonConstants.REL).value(link.rel()).name(JsonConstants.HREF).value(link.href());
         out.endObject();
     }
 

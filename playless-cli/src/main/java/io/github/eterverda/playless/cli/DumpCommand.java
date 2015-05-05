@@ -67,15 +67,15 @@ public class DumpCommand implements Command {
         final Dist.Editor editor = dist.edit();
 
         for (Link link : dist.links) {
-            final String rel = link.rel;
-            final String href = link.href;
+            final String rel = link.rel();
+            final String href = link.href();
             if (rel.startsWith(Dist.LINK_REL_ICON) && href.startsWith("zip:file:")) {
                 editor.unlink(link);
 
-                final int indexOfExclamation = link.href.lastIndexOf('!');
+                final int indexOfExclamation = href.lastIndexOf('!');
 
                 final File file = new File(href.substring(9, indexOfExclamation));
-                final String entryName = link.href.substring(indexOfExclamation + 2);
+                final String entryName = href.substring(indexOfExclamation + 2);
 
                 final ZipFile zip = new ZipFile(file);
                 final ZipEntry entry = zip.getEntry(entryName);
@@ -108,7 +108,7 @@ public class DumpCommand implements Command {
         editor.timestamp(Long.MIN_VALUE);
 
         for (Link link : dist.links) {
-            final String rel = link.rel;
+            final String rel = link.rel();
             if (rel.equals(Dist.LINK_REL_DOWNLOAD)) {
                 editor.unlink(link);
                 editor.link(Dist.LINK_REL_STORE, "https://play.google.com/store/apps/details?id=" + dist.applicationId);
