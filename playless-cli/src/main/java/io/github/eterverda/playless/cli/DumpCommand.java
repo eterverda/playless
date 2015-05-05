@@ -12,14 +12,17 @@ import java.util.zip.ZipFile;
 
 import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.common.Link;
+import io.github.eterverda.playless.common.Repo;
 import io.github.eterverda.playless.common.util.DistFactories;
 import io.github.eterverda.playless.core.InitialDistFactory;
 import io.github.eterverda.playless.core.Repository;
-import io.github.eterverda.playless.core.json.JsonDistDumper;
+import io.github.eterverda.playless.core.json.JsonRepoDumper;
 import io.github.eterverda.util.checksum.Checksum;
 
 public class DumpCommand implements Command {
     private static final boolean POST_PROCESS = Boolean.valueOf("true");
+
+    private static final String ICON_FILENAME = "icon.png";
 
     @Override
     public void main(Repository repo, String[] rawArgs) {
@@ -40,10 +43,10 @@ public class DumpCommand implements Command {
 
         final InitialDistFactory factory = new InitialDistFactory(aapt);
 
-        final JsonDistDumper dumper = new JsonDistDumper(System.out);
+        final JsonRepoDumper dumper = new JsonRepoDumper(System.out);
         dumper.setPrettyPrint(pretty);
 
-        final Dist[] dists = new Dist[args.size()];
+        final Repo.Editor repo = new Repo.Editor();
 
         for (int i = 0; i < args.size(); i++) {
             String arg = args.get(i);
@@ -53,10 +56,10 @@ public class DumpCommand implements Command {
             final Dist postProcess = POST_PROCESS ? postProcess(file, preProcess) : preProcess;
             final Dist playProcess = playful ? playProcess(postProcess) : postProcess;
 
-            dists[i] = playProcess;
+            repo.dist(playProcess);
         }
 
-        dumper.writeDecorated(dists);
+        dumper.writeDecorated(repo.build());
 
         System.out.println();
     }
@@ -73,23 +76,26 @@ public class DumpCommand implements Command {
                 final String entryName = link.href.substring(link.href.lastIndexOf('!') + 2);
                 final ZipEntry entry = zip.getEntry(entryName);
 
-                editor.link(rel, checksum2urn(DistFactories.loadFingerprint(zip, entry)));
+                final Checksum fingerprint = DistFactories.loadFingerprint(zip, entry);
+
+                editor.link(rel, makeUrl(fingerprint, ICON_FILENAME));
 
             } else if (rel.equals(Dist.LINK_REL_DOWNLOAD)) {
                 editor.unlink(link);
-                editor.link(rel, checksum2urn(dist.version.fingerprint));
+
+                final String applicationId = dist.applicationId;
+                final String version = dist.meta.containsKey(Dist.META_VERSION_NAME) ?
+                        dist.meta.get(Dist.META_VERSION_NAME) :
+                        Integer.toString(dist.version.versionCode);
+
+                final Checksum fingerprint = dist.version.fingerprint;
+                final String filename = applicationId + "-" + version + ".apk";
+
+                editor.link(rel, makeUrl(fingerprint, filename));
             }
         }
 
         return editor.build();
-    }
-
-    @NotNull
-    private String checksum2urn(Checksum checksum) {
-        final Base32 base32 = new Base32();
-        final byte[] value = checksum.getValue();
-        final String encodedValue = base32.encodeToString(value).toLowerCase();
-        return "urn:sha1:" + encodedValue;
     }
 
     private Dist playProcess(Dist dist) {
@@ -141,5 +147,13 @@ public class DumpCommand implements Command {
             }
         }
         return null;
+    }
+
+    @NotNull
+    private static String makeUrl(Checksum fingerprint, String filename) {
+        final Base32 base32 = new Base32();
+        final byte[] value = fingerprint.getValue();
+        final String encodedValue = base32.encodeToString(value).toLowerCase();
+        return ".playless/" + encodedValue.substring(0, 2) + "/" + encodedValue.substring(2) + "/" + filename;
     }
 }

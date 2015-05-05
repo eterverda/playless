@@ -1,59 +1,35 @@
 package io.github.eterverda.playless.common.json;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.Set;
 
 import io.github.eterverda.playless.common.Dist;
+import io.github.eterverda.playless.common.Repo;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 import io.github.eterverda.util.checksum.Checksum;
 
 public class JsonDistFactory {
+    public static final JsonDistFactory INSTANCE = new JsonDistFactory();
+
+    public static JsonDistFactory getInstance() {
+        return INSTANCE;
+    }
+
+    @NotNull
     public Dist[] loadDecorated(JsonReader in) throws IOException {
-        Dist[] distributions = null;
-
-        in.beginObject();
-        final String decor = in.nextName();
-        if (!decor.equals(JsonConstants.DECOR_PLAYLESS_REPOSITORY_V1)) {
-            throw new IllegalArgumentException("Expected " + JsonConstants.DECOR_PLAYLESS_REPOSITORY_V1);
-        }
-        in.beginObject();
-
-        while (in.hasNext()) {
-            switch (in.nextName()) {
-                case JsonConstants.DISTRIBUTIONS:
-                    distributions = loadArray(in);
-                    break;
-
-                default:
-                    in.skipValue();
-                    break;
-            }
-        }
-
-        in.endObject();
-        in.endObject();
-
-        return distributions != null ? distributions : new Dist[0];
+        final Repo repo = JsonRepoFactory.getInstance().loadDecorated(in);
+        final Set<Dist> dists = repo.dists;
+        return dists.toArray(new Dist[dists.size()]);
     }
 
-    private Dist[] loadArray(JsonReader in) throws IOException {
-        final ArrayList<Dist> list = new ArrayList<>();
-
-        in.beginArray();
-        while (in.hasNext()) {
-            final Dist dist = load(in);
-            list.add(dist);
-        }
-        in.endArray();
-
-        return list.toArray(new Dist[list.size()]);
-    }
-
+    @NotNull
     public Dist load(JsonReader in) throws IOException {
-        in.beginObject();
-
         final Dist.Editor result = new Dist.Editor();
+
+        in.beginObject();
         while (in.hasNext()) {
             switch (in.nextName()) {
                 case JsonConstants.APPLICATION_ID:
@@ -76,7 +52,6 @@ public class JsonDistFactory {
                     break;
             }
         }
-
         in.endObject();
 
         return result.build();
@@ -252,30 +227,7 @@ public class JsonDistFactory {
     private void loadLinks(JsonReader in, Dist.Editor result) throws IOException {
         in.beginArray();
         while (in.hasNext()) {
-            String rel = null;
-            String href = null;
-            in.beginObject();
-            while (in.hasNext()) {
-                switch (in.nextName()) {
-                    case JsonConstants.REL:
-                        rel = in.nextString();
-                        break;
-                    case JsonConstants.HREF:
-                        href = in.nextString();
-                        break;
-                    default:
-                        in.skipValue();
-                        break;
-                }
-            }
-            if (rel == null) {
-                throw new IllegalArgumentException("rel not found for link");
-            }
-            if (href == null) {
-                throw new IllegalArgumentException("href not found for link");
-            }
-            result.link(rel, href);
-            in.endObject();
+            result.link(JsonRepoFactory.loadLink(in));
         }
         in.endArray();
     }

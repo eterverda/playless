@@ -7,16 +7,18 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.common.Link;
+import io.github.eterverda.playless.common.Repo;
 import io.github.eterverda.playless.common.json.JsonConstants;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 
-public class JsonDistDumper {
+public class JsonRepoDumper {
     private final JsonWriter out;
 
-    public JsonDistDumper(OutputStream out) throws IOException {
+    public JsonRepoDumper(OutputStream out) throws IOException {
         this.out = new JsonWriter(new OutputStreamWriter(out));
     }
 
@@ -24,30 +26,34 @@ public class JsonDistDumper {
         out.setIndent(pretty ? "  " : "");
     }
 
-    public void writeDecorated(Dist... dists) throws IOException {
+    public void writeDecorated(Repo repo) throws IOException {
         out.beginObject();
 
         out.name(JsonConstants.DECOR_PLAYLESS_REPOSITORY_V1);
-        out.beginObject();
-
-        out.name(JsonConstants.DISTRIBUTIONS);
-        writeList(dists);
-
-        out.endObject();
+        write(repo);
 
         out.endObject();
 
         out.flush();
     }
 
-    public void writeList(Dist... dists) throws IOException {
-        out.beginArray();
-        for (Dist dist : dists) {
-            write(dist);
-        }
-        out.endArray();
+    public void write(Repo repo) throws IOException {
+        out.beginObject();
 
-        out.flush();
+        writeMetaField(repo.meta);
+
+        writeLinksField(repo.links);
+
+        if (!repo.dists.isEmpty()) {
+            out.name(JsonConstants.DISTRIBUTIONS);
+            out.beginArray();
+            for (Dist dist : repo.dists) {
+                write(dist);
+            }
+            out.endArray();
+        }
+
+        out.endObject();
     }
 
     public void write(Dist dist) throws IOException {
@@ -61,19 +67,9 @@ public class JsonDistDumper {
         out.name(JsonConstants.FILTER);
         write(dist.filter);
 
-        if (!dist.meta.isEmpty()) {
-            out.name(JsonConstants.META);
-            write(dist.meta);
-        }
+        writeMetaField(dist.meta);
 
-        if (!dist.links.isEmpty()) {
-            out.name(JsonConstants.LINKS);
-            out.beginArray();
-            for (Link link : dist.links) {
-                write(link);
-            }
-            out.endArray();
-        }
+        writeLinksField(dist.links);
 
         out.endObject();
 
@@ -103,18 +99,6 @@ public class JsonDistDumper {
     private void write(Link link) throws IOException {
         out.beginObject();
         out.name(JsonConstants.REL).value(link.rel).name(JsonConstants.HREF).value(link.href);
-        out.endObject();
-    }
-
-    private void write(Map<String, String> meta) throws IOException {
-        out.beginObject();
-
-        for (Map.Entry<String, String> entry : meta.entrySet()) {
-            if (entry.getValue() != null) {
-                out.name(entry.getKey()).value(entry.getValue());
-            }
-        }
-
         out.endObject();
     }
 
@@ -188,5 +172,29 @@ public class JsonDistDumper {
             out.value(supportsScreen);
         }
         out.endArray();
+    }
+
+    public void writeLinksField(Set<Link> links) throws IOException {
+        if (!links.isEmpty()) {
+            out.name(JsonConstants.LINKS);
+            out.beginArray();
+            for (Link link : links) {
+                write(link);
+            }
+            out.endArray();
+        }
+    }
+
+    public void writeMetaField(Map<String, String> meta) throws IOException {
+        if (!meta.isEmpty()) {
+            out.name(JsonConstants.META);
+            out.beginObject();
+            for (Map.Entry<String, String> entry : meta.entrySet()) {
+                if (entry.getValue() != null) {
+                    out.name(entry.getKey()).value(entry.getValue());
+                }
+            }
+            out.endObject();
+        }
     }
 }

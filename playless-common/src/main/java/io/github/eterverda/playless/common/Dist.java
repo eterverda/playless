@@ -9,14 +9,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import io.github.eterverda.playless.common.util.ObjectEquals;
 import io.github.eterverda.util.checksum.Checksum;
+
+import static io.github.eterverda.playless.common.Repo.Editor.*;
 
 @Immutable
 @ThreadSafe
@@ -428,9 +427,13 @@ public final class Dist {
             nativeCodes.add(nativeCode);
         }
 
-        public void link(String rel, String href) {
+        public void link(Link link) {
             links = modifiableTreeSet(links);
-            links.add(new Link(rel, href));
+            links.add(link);
+        }
+
+        public void link(String rel, String href) {
+            link(new Link(rel, href));
         }
 
         public void unlink(Link link) {
@@ -491,26 +494,6 @@ public final class Dist {
                     usesLibraries,
                     usesConfigurations,
                     nativeCodes);
-        }
-
-        private static <T> TreeSet<T> modifiableTreeSet(Set<T> set) {
-            return set instanceof TreeSet ? (TreeSet<T>) set : new TreeSet<>(set);
-        }
-
-        private static <T> HashSet<T> modifiableHashSet(Set<T> set) {
-            return set instanceof HashSet ? (HashSet<T>) set : new HashSet<>(set);
-        }
-
-        private static <K, V> TreeMap<K, V> modifiableTreeMap(Map<K, V> meta) {
-            return meta instanceof TreeMap ? (TreeMap<K, V>) meta : new TreeMap<>(meta);
-        }
-
-        private static <T> Set<T> unmodifiableSet(Set<T> set) {
-            return set.isEmpty() ? Collections.<T>emptySet() : Collections.unmodifiableSet(set);
-        }
-
-        private static <K, V> Map<K, V> unmodifiableMap(Map<K, V> map) {
-            return map.isEmpty() ? Collections.<K, V>emptyMap() : Collections.unmodifiableMap(map);
         }
     }
 }
