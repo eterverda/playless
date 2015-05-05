@@ -53,7 +53,7 @@ public class DumpCommand implements Command {
             final File file = new File(arg);
 
             final Dist preProcess = factory.load(file);
-            final Dist postProcess = POST_PROCESS ? postProcess(file, preProcess) : preProcess;
+            final Dist postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
             final Dist playProcess = playful ? playProcess(postProcess) : postProcess;
 
             repo.dist(playProcess);
@@ -64,16 +64,21 @@ public class DumpCommand implements Command {
         System.out.println();
     }
 
-    private Dist postProcess(File file, Dist dist) throws IOException {
+    private Dist postProcess(Dist dist) throws IOException {
         final Dist.Editor editor = dist.edit();
 
         for (Link link : dist.links) {
             final String rel = link.rel;
-            if (rel.startsWith(Dist.LINK_REL_ICON)) {
+            final String href = link.href;
+            if (rel.startsWith(Dist.LINK_REL_ICON) && href.startsWith("zip:file:")) {
                 editor.unlink(link);
 
+                final int indexOfExclamation = link.href.lastIndexOf('!');
+
+                final File file = new File(href.substring(9, indexOfExclamation));
+                final String entryName = link.href.substring(indexOfExclamation + 2);
+
                 final ZipFile zip = new ZipFile(file);
-                final String entryName = link.href.substring(link.href.lastIndexOf('!') + 2);
                 final ZipEntry entry = zip.getEntry(entryName);
 
                 final Checksum fingerprint = DistFactories.loadFingerprint(zip, entry);
