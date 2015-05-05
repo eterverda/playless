@@ -5,7 +5,9 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +49,11 @@ public class JsonRepoDumper {
         if (!repo.dists.isEmpty()) {
             out.name(JsonConstants.DISTRIBUTIONS);
             out.beginArray();
-            for (Dist dist : repo.dists) {
+
+            final Dist[] dists = repo.dists.toArray(new Dist[repo.dists.size()]);
+            Arrays.sort(dists, DistComparator.INSTANCE);
+
+            for (Dist dist : dists) {
                 write(dist);
             }
             out.endArray();
@@ -195,6 +201,27 @@ public class JsonRepoDumper {
                 }
             }
             out.endObject();
+        }
+    }
+
+    final static class DistComparator implements Comparator<Dist> {
+        final static Comparator<Dist> INSTANCE = new DistComparator();
+
+        @Override
+        public int compare(Dist a, Dist b) {
+            final String aa = a.applicationId;
+            final String ba = b.applicationId;
+            if (!aa.equals(ba)) {
+                return aa.compareTo(ba);
+            }
+            final int av = a.version.versionCode;
+            final int bv = b.version.versionCode;
+            if (av != bv) {
+                return av - bv;
+            }
+            final long at = a.version.timestamp / 1000;
+            final long bt = b.version.timestamp / 1000;
+            return (int) (at - bt);
         }
     }
 }

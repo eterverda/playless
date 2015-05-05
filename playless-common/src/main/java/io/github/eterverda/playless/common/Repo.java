@@ -2,6 +2,7 @@ package io.github.eterverda.playless.common;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -52,7 +53,7 @@ public final class Repo {
         }
 
         public void dist(Dist dist) {
-            dists = modifiableHashSet(dists);
+            dists = modifiableLinkedHashSet(dists);
             dists.add(dist);
         }
 
@@ -81,6 +82,10 @@ public final class Repo {
 
         static <T> HashSet<T> modifiableHashSet(Set<T> set) {
             return set instanceof HashSet ? (HashSet<T>) set : new HashSet<>(set);
+        }
+
+        static <T> LinkedHashSet<T> modifiableLinkedHashSet(Set<T> set) {
+            return set instanceof LinkedHashSet ? (LinkedHashSet<T>) set : new LinkedHashSet<>(set);
         }
 
         static <K, V> TreeMap<K, V> modifiableTreeMap(Map<K, V> meta) {
