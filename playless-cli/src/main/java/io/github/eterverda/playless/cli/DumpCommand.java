@@ -75,9 +75,9 @@ public class DumpCommand implements Command {
 
                 editor.link(rel, checksum2urn(DistFactories.loadFingerprint(zip, entry)));
 
-            } else if (link.rel.equals(Dist.LINK_REL_APK)) {
+            } else if (rel.equals(Dist.LINK_REL_DOWNLOAD)) {
                 editor.unlink(link);
-                editor.link(Dist.LINK_REL_APK, checksum2urn(dist.version.fingerprint));
+                editor.link(rel, checksum2urn(dist.version.fingerprint));
             }
         }
 
@@ -99,7 +99,7 @@ public class DumpCommand implements Command {
 
         for (Link link : dist.links) {
             final String rel = link.rel;
-            if (rel.equals(Dist.LINK_REL_APK)) {
+            if (rel.equals(Dist.LINK_REL_DOWNLOAD)) {
                 editor.unlink(link);
                 editor.link(Dist.LINK_REL_STORE, "https://play.google.com/store/apps/details?id=" + dist.applicationId);
 

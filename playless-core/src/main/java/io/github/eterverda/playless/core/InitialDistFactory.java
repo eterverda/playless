@@ -41,7 +41,7 @@ public class InitialDistFactory {
     private static void loadFileTo(@NotNull Dist.Editor dist, @NotNull File file) throws IOException {
         loadTimestampTo(dist, file);
 
-        dist.link(Dist.LINK_REL_APK, "file:" + file.getAbsolutePath());
+        dist.link(Dist.LINK_REL_DOWNLOAD, "file:" + file.getAbsolutePath());
         dist.fingerprint(DistFactories.loadFingerprint(file));
         dist.signatures(Jars.loadSignatures(file));
     }

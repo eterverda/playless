@@ -21,7 +21,7 @@ import io.github.eterverda.util.checksum.Checksum;
 @Immutable
 @ThreadSafe
 public final class Dist {
-    public static final String LINK_REL_APK = "apk";
+    public static final String LINK_REL_DOWNLOAD = "download";
     public static final String LINK_REL_STORE = "store";
     public static final String LINK_REL_ICON = "icon";
 
