@@ -1,6 +1,10 @@
 group 'io.github.eterverda.playless'
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
+if (hasProperty('versionPrerelease')) {
+    version = version + '-' + versionPrerelease
+}
+
 buildscript {
     repositories {
         mavenCentral()
