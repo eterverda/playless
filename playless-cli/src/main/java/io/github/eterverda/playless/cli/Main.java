@@ -1,85 +1,65 @@
 package io.github.eterverda.playless.cli;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.Argument;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
+import net.sourceforge.argparse4j.internal.HelpScreenException;
+
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import io.github.eterverda.playless.core.PlaylessRepositoryException;
-import io.github.eterverda.playless.core.Repository;
 
 public final class Main {
-    private final static Map<String, Command> commands;
 
-    static {
-        commands = new HashMap<>();
-        commands.put("init", new InitCommand());
-        commands.put("install", new InstallCommand());
-        commands.put("dump", new DumpCommand());
-    }
+    public static final String COMMAND = "command";
 
-    public static void main(final String... rawArgs) throws PlaylessRepositoryException {
-        final ArrayList<String> args = new ArrayList<>(rawArgs.length);
-        Collections.addAll(args, rawArgs);
+    public static void main(final String... args) throws PlaylessRepositoryException, ArgumentParserException {
+        final ArgumentParser parser = ArgumentParsers.newArgumentParser("playless");
+        parser.addSubparsers().title(COMMAND).metavar(COMMAND);
 
-        main(args);
-    }
+        DumpCommand.addSubParser(parser).setDefault(COMMAND, DumpCommand.class);
 
-    private static void main(ArrayList<String> args) throws PlaylessRepositoryException {
+        InstallCommand.addSubParser(parser).setDefault(COMMAND, InstallCommand.class);
+
+        InitCommand.addSubParser(parser).setDefault(COMMAND, InitCommand.class);
+
         try {
-            final String cmd = extractCommand(args);
-            final Command command = commands.get(cmd);
+            main(parser.parseArgs(args));
 
-            if (command == null) {
-                throw new IllegalArgumentException("Unknown command " + cmd);
-            }
+        } catch (HelpScreenException ex) {
+            System.exit(0);
 
-            final String repoPath = extractRepoPath(args);
-            final File repoDir = repoPath != null ? new File(repoPath) : null;
-            final Repository repo = command instanceof InitCommand ?
-                    Repository.init(repoDir) :
-                    new Repository(repoDir);
-
-            final String[] commandArgs = args.toArray(new String[args.size()]);
-
-            command.main(repo, commandArgs);
-
-        } catch (PlaylessRepositoryException ex) {
-            System.err.println("Error: " + ex.getMessage());
-
-        } catch (IllegalArgumentException ex) {
-            System.err.println("Usage: init [-r <path_to_repo>]");
-            System.err.println("       dump [--pretty] [--playful] --aapt <path_to_aapt> <apk_file>...");
+        } catch (ArgumentParserException ex) {
+            System.err.println(ex.getMessage());
+            System.err.println();
+            parser.printUsage();
+            System.exit(1);
         }
     }
 
-    private static String extractCommand(ArrayList<String> args) {
-        if (args.size() == 0) {
-            throw new IllegalArgumentException("No subcommand");
+    private static void main(Namespace args) {
+        try {
+            final Class<Command> cls = args.get(COMMAND);
+            final Command command = cls.newInstance();
+            command.main(args);
+
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+            System.exit(1);
         }
-        return args.remove(0);
+    }
+    public static Argument addRepoArgument(Subparser parser) {
+        return parser.addArgument("-r", "--repo")
+                .type(Arguments.fileType()).setDefault(new File("."))
+                .help("path to repository (defaults to working dir)");
     }
 
-    private static String extractRepoPath(ArrayList<String> args) {
-        for (int i = 0; i < args.size(); i++) {
-            final String arg = args.get(i);
-            if (arg.startsWith("-r=")) {
-                args.remove(i);
-                return arg.substring(3);
-            }
-            if (arg.startsWith("--repository=")) {
-                args.remove(i);
-                return arg.substring(13);
-            }
-            if (arg.equals("-r") || arg.equals("--repository")) {
-                if (args.size() == i - 1) {
-                    throw new IllegalArgumentException("No value for option " + arg);
-                }
-                args.remove(i);
-                return args.remove(i);
-            }
-        }
-        return null;
+    public static Argument addApksArgument(Subparser parser) {
+        return parser.addArgument("apk").nargs("+")
+                .type(Arguments.fileType());
     }
 }

@@ -1,11 +1,15 @@
 package io.github.eterverda.playless.cli;
 
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -14,7 +18,6 @@ import io.github.eterverda.playless.common.Link;
 import io.github.eterverda.playless.common.Repo;
 import io.github.eterverda.playless.common.util.DistFactories;
 import io.github.eterverda.playless.core.InitialDistFactory;
-import io.github.eterverda.playless.core.Repository;
 import io.github.eterverda.playless.core.json.JsonRepoDumper;
 import io.github.eterverda.util.checksum.Checksum;
 
@@ -23,44 +26,53 @@ public class DumpCommand implements Command {
 
     private static final String ICON_FILENAME = "icon.png";
 
+    public static Subparser addSubParser(ArgumentParser parser) {
+        final Subparser subparser = parser.addSubparsers().addParser("dump").help("dumps apk info to stdout");
+
+        subparser.addArgument("--playful")
+                .action(Arguments.storeTrue()).setDefault(false)
+                .help("includes links to Google Play store, exclude links to downloads and icons");
+        subparser.addArgument("--pretty")
+                .action(Arguments.storeTrue()).setDefault(false)
+                .help("pretty print json");
+        subparser.addArgumentGroup("required arguments").addArgument("--aapt").required(true)
+                .type(Arguments.fileType())
+                .help("full path to aapt executable");
+
+        Main.addApksArgument(subparser).help("apk file to dump");
+
+        return subparser;
+    }
+
     @Override
-    public void main(Repository repo, String[] rawArgs) {
-        final ArrayList<String> args = new ArrayList<>(rawArgs.length);
-        Collections.addAll(args, rawArgs);
+    public void main(Namespace args) {
+        final File aapt = args.get("aapt");
+        final boolean pretty = args.getBoolean("pretty");
+        final boolean playful = args.getBoolean("playful");
 
         try {
-            main(args);
+
+            final InitialDistFactory factory = new InitialDistFactory(aapt);
+
+            final JsonRepoDumper dumper = new JsonRepoDumper(System.out);
+            dumper.setPrettyPrint(pretty);
+
+            final Repo.Editor repo = new Repo.Editor();
+
+            for (File apk : args.<File>getList("apk")) {
+                final Dist preProcess = factory.load(apk);
+                final Dist postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
+                final Dist playProcess = playful ? playProcess(postProcess) : postProcess;
+
+                repo.dist(playProcess);
+            }
+
+            dumper.writeDecorated(repo.build());
+
+            System.out.println();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void main(ArrayList<String> args) throws IOException {
-        final String aapt = extractAapt(args);
-        final boolean pretty = extractFlag(args, "--pretty");
-        final boolean playful = extractFlag(args, "--playful");
-
-        final InitialDistFactory factory = new InitialDistFactory(aapt);
-
-        final JsonRepoDumper dumper = new JsonRepoDumper(System.out);
-        dumper.setPrettyPrint(pretty);
-
-        final Repo.Editor repo = new Repo.Editor();
-
-        for (int i = 0; i < args.size(); i++) {
-            String arg = args.get(i);
-            final File file = new File(arg);
-
-            final Dist preProcess = factory.load(file);
-            final Dist postProcess = POST_PROCESS ? postProcess(preProcess) : preProcess;
-            final Dist playProcess = playful ? playProcess(postProcess) : postProcess;
-
-            repo.dist(playProcess);
-        }
-
-        dumper.writeDecorated(repo.build());
-
-        System.out.println();
     }
 
     private Dist postProcess(Dist dist) throws IOException {
@@ -122,35 +134,6 @@ public class DumpCommand implements Command {
         editor.unmeta(Dist.META_DOWNLOAD_SIZE);
 
         return editor.build();
-    }
-
-    private boolean extractFlag(ArrayList<String> args, String flag) {
-        for (int i = 0; i < args.size(); i++) {
-            final String arg = args.get(i);
-            if (arg.equals(flag)) {
-                args.remove(i);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String extractAapt(ArrayList<String> args) {
-        for (int i = 0; i < args.size(); i++) {
-            final String arg = args.get(i);
-            if (arg.startsWith("--aapt=")) {
-                args.remove(i);
-                return arg.substring(7);
-            }
-            if (arg.equals("--aapt")) {
-                if (args.size() == i - 1) {
-                    throw new IllegalArgumentException("No value for option " + arg);
-                }
-                args.remove(i);
-                return args.remove(i);
-            }
-        }
-        return null;
     }
 
     @NotNull

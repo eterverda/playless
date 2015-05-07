@@ -17,6 +17,10 @@ jar {
     }
 }
 
+dependencies {
+    compile 'net.sourceforge.argparse4j:argparse4j:0.5.0'
+}
+
 publishing {
     publications {
         playlessCliStandalone(MavenPublication) {

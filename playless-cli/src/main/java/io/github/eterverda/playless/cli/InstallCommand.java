@@ -1,5 +1,9 @@
 package io.github.eterverda.playless.cli;
 
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
+
 import org.apache.commons.codec.binary.Base32;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,19 +15,24 @@ import io.github.eterverda.playless.core.Repository;
 import io.github.eterverda.util.checksum.Checksum;
 
 public class InstallCommand implements Command {
+    public static Subparser addSubParser(ArgumentParser parser) {
+        final Subparser subparser = parser.addSubparsers().addParser("install").help("installs artifact to playless repository");
+        Main.addApksArgument(subparser);
+        return subparser;
+    }
+
     @Override
-    public void main(Repository repo, String[] args) {
-        for (String arg : args) {
+    public void main(Namespace args) {
+        for (File file : args.<File>getList("apk")) {
             try {
-                install(arg);
+                install(file);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void install(String arg) throws IOException {
-        final File file = new File(arg);
+    public void install(File file) throws IOException {
         final Checksum fingerprint = DistFactories.loadFingerprint(file);
         final String base32 = base32(fingerprint);
         System.out.printf("+ blob %s (file:%s)\n", base32, file.getAbsolutePath());

@@ -22,9 +22,9 @@ import io.github.eterverda.playless.core.util.jar.Jars;
 
 public class InitialDistFactory {
     @NotNull
-    private final String aapt;
+    private final File aapt;
 
-    public InitialDistFactory(@NotNull String aapt) {
+    public InitialDistFactory(@NotNull File aapt) {
         this.aapt = aapt;
     }
 

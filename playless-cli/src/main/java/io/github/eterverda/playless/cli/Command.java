@@ -1,7 +1,7 @@
 package io.github.eterverda.playless.cli;
 
-import io.github.eterverda.playless.core.Repository;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 public interface Command {
-    void main(Repository repo, String[] args);
+    void main(Namespace args);
 }
