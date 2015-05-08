@@ -9,24 +9,24 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import io.github.eterverda.playless.common.util.ObjectEquals;
 import io.github.eterverda.util.checksum.Checksum;
 
+import static io.github.eterverda.playless.common.Repo.Editor.*;
+
 @Immutable
 @ThreadSafe
 public final class Dist {
-    public static final String LINK_REL_APK = "apk";
+    public static final String LINK_REL_DOWNLOAD = "download";
     public static final String LINK_REL_STORE = "store";
     public static final String LINK_REL_ICON = "icon";
 
     public static final String META_VERSION_NAME = "versionName";
     public static final String META_LABEL = "label";
+    public static final String META_DOWNLOAD_SIZE = "downloadSize";
 
     @NotNull
     public final String applicationId;
@@ -39,7 +39,7 @@ public final class Dist {
     @NotNull
     public final Map<String, String> meta;
 
-    private Dist(
+    protected Dist(
             @NotNull String applicationId,
             @NotNull Version version,
             @NotNull Filter filter,
@@ -88,7 +88,7 @@ public final class Dist {
         public final Checksum signatures;
         public final boolean debug;
 
-        private Version(
+        protected Version(
                 int versionCode, long timestamp,
                 @Nullable Checksum fingerprint, @Nullable Checksum signatures,
                 boolean debug) {
@@ -144,7 +144,7 @@ public final class Dist {
         public final Set<String> usesLibraries;
         public final Set<String> nativeCode;
 
-        private Filter(
+        protected Filter(
                 int minSdkVersion, int maxSdkVersion,
                 int requiresSmallestWidthDp,
                 int usesGlEs,
@@ -281,6 +281,7 @@ public final class Dist {
         }
     }
 
+    @NotNull
     public Editor edit() {
         return new Editor(this);
     }
@@ -323,7 +324,7 @@ public final class Dist {
             meta = Collections.emptyMap();
         }
 
-        private Editor(Dist dist) {
+        protected Editor(@NotNull Dist dist) {
             applicationId = dist.applicationId;
 
             versionCode = dist.version.versionCode;
@@ -360,11 +361,11 @@ public final class Dist {
             this.timestamp = timestamp;
         }
 
-        public void fingerprint(Checksum fingerprint) {
+        public void fingerprint(@Nullable Checksum fingerprint) {
             this.fingerprint = fingerprint;
         }
 
-        public void signatures(Checksum signatures) {
+        public void signatures(@Nullable Checksum signatures) {
             this.signatures = signatures;
         }
 
@@ -388,22 +389,22 @@ public final class Dist {
             this.usesGlEs = usesGlEs;
         }
 
-        public void supportsScreen(String supportsScreen) {
+        public void supportsScreen(@NotNull String supportsScreen) {
             supportsScreens = modifiableTreeSet(supportsScreens);
             supportsScreens.add(supportsScreen);
         }
 
-        public void compatibleScreen(String compatibleScreen) {
+        public void compatibleScreen(@NotNull String compatibleScreen) {
             compatibleScreens = modifiableTreeSet(compatibleScreens);
             compatibleScreens.add(compatibleScreen);
         }
 
-        public void supportsGlTexture(String supportsGlTexture) {
+        public void supportsGlTexture(@NotNull String supportsGlTexture) {
             supportsGlTextures = modifiableTreeSet(supportsGlTextures);
             supportsGlTextures.add(supportsGlTexture);
         }
 
-        public void usesFeature(String usesFeature) {
+        public void usesFeature(@NotNull String usesFeature) {
             usesFeatures = modifiableTreeSet(usesFeatures);
             usesFeatures.add(usesFeature);
         }
@@ -412,34 +413,43 @@ public final class Dist {
             usesConfiguration(new Filter.Config(fiveWayNav, hardKeyboard, keyboardType, navigation, touchScreen));
         }
 
-        public void usesConfiguration(Filter.Config usesConfiguration) {
+        public void usesConfiguration(@NotNull Filter.Config usesConfiguration) {
             usesConfigurations = modifiableHashSet(usesConfigurations);
             usesConfigurations.add(usesConfiguration);
         }
 
-        public void usesLibrary(String usesLibrary) {
+        public void usesLibrary(@NotNull String usesLibrary) {
             usesLibraries = modifiableTreeSet(usesLibraries);
             usesLibraries.add(usesLibrary);
         }
 
-        public void nativeCode(String nativeCode) {
+        public void nativeCode(@NotNull String nativeCode) {
             nativeCodes = modifiableTreeSet(nativeCodes);
             nativeCodes.add(nativeCode);
         }
 
-        public void link(String rel, String href) {
+        public void link(@NotNull Link link) {
             links = modifiableTreeSet(links);
-            links.add(new Link(rel, href));
+            links.add(link);
         }
 
-        public void unlink(Link link) {
+        public void link(@NotNull String rel, @NotNull String href) {
+            link(new Link(rel, href));
+        }
+
+        public void unlink(@NotNull Link link) {
             links = modifiableTreeSet(links);
             links.remove(link);
         }
 
-        public void meta(String key, String value) {
+        public void meta(@NotNull String key, @NotNull String value) {
             meta = modifiableTreeMap(meta);
             meta.put(key, value);
+        }
+
+        public void unmeta(String key) {
+            meta = modifiableTreeMap(meta);
+            meta.remove(key);
         }
 
         @NotNull
@@ -485,26 +495,6 @@ public final class Dist {
                     usesLibraries,
                     usesConfigurations,
                     nativeCodes);
-        }
-
-        private static <T> TreeSet<T> modifiableTreeSet(Set<T> set) {
-            return set instanceof TreeSet ? (TreeSet<T>) set : new TreeSet<>(set);
-        }
-
-        private static <T> HashSet<T> modifiableHashSet(Set<T> set) {
-            return set instanceof HashSet ? (HashSet<T>) set : new HashSet<>(set);
-        }
-
-        private static <K, V> TreeMap<K, V> modifiableTreeMap(Map<K, V> meta) {
-            return meta instanceof TreeMap ? (TreeMap<K, V>) meta : new TreeMap<>(meta);
-        }
-
-        private static <T> Set<T> unmodifiableSet(Set<T> set) {
-            return set.isEmpty() ? Collections.<T>emptySet() : Collections.unmodifiableSet(set);
-        }
-
-        private static <K, V> Map<K, V> unmodifiableMap(Map<K, V> map) {
-            return map.isEmpty() ? Collections.<K, V>emptyMap() : Collections.unmodifiableMap(map);
         }
     }
 }

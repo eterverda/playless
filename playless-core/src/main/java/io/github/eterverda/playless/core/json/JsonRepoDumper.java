@@ -5,20 +5,22 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Set;
 
 import io.github.eterverda.playless.common.Dist;
 import io.github.eterverda.playless.common.Link;
+import io.github.eterverda.playless.common.Repo;
 import io.github.eterverda.playless.common.json.JsonConstants;
 import io.github.eterverda.playless.common.util.TimestampUtils;
 
-public class JsonDistDumper {
-    private static final String MY_VERSION = "1";
-
+public class JsonRepoDumper {
     private final JsonWriter out;
 
-    public JsonDistDumper(OutputStream out) throws IOException {
+    public JsonRepoDumper(OutputStream out) throws IOException {
         this.out = new JsonWriter(new OutputStreamWriter(out));
     }
 
@@ -26,27 +28,38 @@ public class JsonDistDumper {
         out.setIndent(pretty ? "  " : "");
     }
 
-    public void writeDecorated(Dist... dists) throws IOException {
+    public void writeDecorated(Repo repo) throws IOException {
         out.beginObject();
 
-        out.name(JsonConstants.VERSION).value(MY_VERSION);
-
-        out.name(JsonConstants.DISTRIBUTIONS);
-        writeList(dists);
+        out.name(JsonConstants.DECOR_PLAYLESS_REPOSITORY_V1);
+        write(repo);
 
         out.endObject();
 
         out.flush();
     }
 
-    public void writeList(Dist... dists) throws IOException {
-        out.beginArray();
-        for (Dist dist : dists) {
-            write(dist);
-        }
-        out.endArray();
+    public void write(Repo repo) throws IOException {
+        out.beginObject();
 
-        out.flush();
+        writeMetaField(repo.meta);
+
+        writeLinksField(repo.links);
+
+        if (!repo.dists.isEmpty()) {
+            out.name(JsonConstants.DISTRIBUTIONS);
+            out.beginArray();
+
+            final Dist[] dists = repo.dists.toArray(new Dist[repo.dists.size()]);
+            Arrays.sort(dists, DistComparator.INSTANCE);
+
+            for (Dist dist : dists) {
+                write(dist);
+            }
+            out.endArray();
+        }
+
+        out.endObject();
     }
 
     public void write(Dist dist) throws IOException {
@@ -60,19 +73,9 @@ public class JsonDistDumper {
         out.name(JsonConstants.FILTER);
         write(dist.filter);
 
-        if (!dist.meta.isEmpty()) {
-            out.name(JsonConstants.META);
-            write(dist.meta);
-        }
+        writeMetaField(dist.meta);
 
-        if (!dist.links.isEmpty()) {
-            out.name(JsonConstants.LINKS);
-            out.beginArray();
-            for (Link link : dist.links) {
-                write(link);
-            }
-            out.endArray();
-        }
+        writeLinksField(dist.links);
 
         out.endObject();
 
@@ -101,19 +104,7 @@ public class JsonDistDumper {
 
     private void write(Link link) throws IOException {
         out.beginObject();
-        out.name(JsonConstants.REL).value(link.rel).name(JsonConstants.HREF).value(link.href);
-        out.endObject();
-    }
-
-    private void write(Map<String, String> meta) throws IOException {
-        out.beginObject();
-
-        for (Map.Entry<String, String> entry : meta.entrySet()) {
-            if (entry.getValue() != null) {
-                out.name(entry.getKey()).value(entry.getValue());
-            }
-        }
-
+        out.name(JsonConstants.REL).value(link.rel()).name(JsonConstants.HREF).value(link.href());
         out.endObject();
     }
 
@@ -187,5 +178,50 @@ public class JsonDistDumper {
             out.value(supportsScreen);
         }
         out.endArray();
+    }
+
+    public void writeLinksField(Set<Link> links) throws IOException {
+        if (!links.isEmpty()) {
+            out.name(JsonConstants.LINKS);
+            out.beginArray();
+            for (Link link : links) {
+                write(link);
+            }
+            out.endArray();
+        }
+    }
+
+    public void writeMetaField(Map<String, String> meta) throws IOException {
+        if (!meta.isEmpty()) {
+            out.name(JsonConstants.META);
+            out.beginObject();
+            for (Map.Entry<String, String> entry : meta.entrySet()) {
+                if (entry.getValue() != null) {
+                    out.name(entry.getKey()).value(entry.getValue());
+                }
+            }
+            out.endObject();
+        }
+    }
+
+    final static class DistComparator implements Comparator<Dist> {
+        final static Comparator<Dist> INSTANCE = new DistComparator();
+
+        @Override
+        public int compare(Dist a, Dist b) {
+            final String aa = a.applicationId;
+            final String ba = b.applicationId;
+            if (!aa.equals(ba)) {
+                return aa.compareTo(ba);
+            }
+            final int av = a.version.versionCode;
+            final int bv = b.version.versionCode;
+            if (av != bv) {
+                return av - bv;
+            }
+            final long at = a.version.timestamp / 1000;
+            final long bt = b.version.timestamp / 1000;
+            return (int) (at - bt);
+        }
     }
 }

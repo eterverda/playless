@@ -1,6 +1,9 @@
 package io.github.eterverda.playless.common.json;
 
 public class JsonConstants {
+    // DECOR
+    public static final String DECOR_PLAYLESS_REPOSITORY_V1 = "playless-repository-v1";
+
     // root elements
     public static final String DISTRIBUTIONS = "distributions";
 
