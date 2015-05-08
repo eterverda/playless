@@ -38,6 +38,7 @@ public class DistReplacementPicker {
                 continue;
             }
             bestDist = candidate;
+            bestVersionCode = candidate.version.versionCode;
         }
         return bestDist;
     }
