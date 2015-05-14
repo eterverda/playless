@@ -190,7 +190,7 @@ public class DistFilterChecker {
 
     private String mySupportedScreen() {
         if (mySupportedScreen == null) {
-            switch (context.getResources().getConfiguration().screenLayout & android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE) {
+            switch (context.getResources().getConfiguration().screenLayout & android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) {
                 case android.content.res.Configuration.SCREENLAYOUT_SIZE_SMALL:
                     mySupportedScreen = "small";
                     break;
